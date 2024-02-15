@@ -16,6 +16,7 @@ export function loadConfig<T>(path: string, defaultConfig: T) {
 
         return data as T;
     } else {
+        saveConfig(path, defaultConfig);
         return defaultConfig;
     }
 }
