@@ -11,7 +11,21 @@ datasource db {
 }
 
 model User {
-  id    String @id
-  name  String
-  color String
+  id          String    @id
+  name        String
+  color       String
+  inventory   Inventory @relation(fields: [inventoryId], references: [id])
+  inventoryId Int       @unique
+}
+
+model Inventory {
+  id      Int   @id @default(autoincrement())
+  balance Int
+  items   Json  @default("[]")
+  User    User?
+}
+
+model AuthToken {
+  id    Int    @id @default(autoincrement())
+  token String @unique
 }
