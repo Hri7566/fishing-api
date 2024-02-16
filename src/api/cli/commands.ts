@@ -1,0 +1,14 @@
+import type { ReadlineCommand } from "./ReadlineCommand";
+import { deltoken } from "./commands/deltoken";
+import { gentoken } from "./commands/gentoken";
+import { help } from "./commands/help";
+import { lstoken } from "./commands/lstoken";
+import { stop } from "./commands/stop";
+
+export const readlineCommands: ReadlineCommand[] = [];
+
+readlineCommands.push(help);
+readlineCommands.push(gentoken);
+readlineCommands.push(deltoken);
+readlineCommands.push(lstoken);
+readlineCommands.push(stop);

@@ -25,3 +25,7 @@ export async function checkToken(token: string) {
 
     return !!existing;
 }
+
+export async function getAllTokens() {
+    return await prisma.authToken.findMany();
+}

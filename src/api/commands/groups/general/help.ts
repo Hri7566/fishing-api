@@ -23,11 +23,12 @@ export const help = new Command(
     "command.general.help",
     async (command, args, prefix, user) => {
         return `${commandGroups
-            .map(group => {
-                return `${group.displayName}: ${group.commands
-                    .map(cmd => cmd.aliases[0])
-                    .join(", ")}`;
-            })
+            .map(
+                group =>
+                    `${group.displayName}: ${group.commands
+                        .map(cmd => (cmd.visible ? cmd.aliases[0] : "<hidden>"))
+                        .join(", ")}`
+            )
             .join("\n")}`;
     }
 );

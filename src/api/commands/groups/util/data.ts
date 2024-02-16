@@ -6,5 +6,7 @@ export const data = new Command(
     "Data command",
     "data",
     "command.util.data",
-    async () => {}
+    async (command, args, prefix, user) => {
+        return JSON.stringify({ command, args, prefix, user });
+    }
 );

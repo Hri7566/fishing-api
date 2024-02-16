@@ -39,6 +39,7 @@ export class MPPNetBot {
     public bindEventListeners() {
         this.client.on("hi", msg => {
             this.logger.info(`Connected to ${this.client.uri}`);
+            trpc.auth.query(process.env.FISHING_TOKEN as string);
         });
 
         this.client.on("ch", msg => {
