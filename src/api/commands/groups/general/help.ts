@@ -23,7 +23,7 @@ export const help = new Command(
     "command.general.help",
     async ({ id, command, args, prefix, part, user }) => {
         if (!args[0]) {
-            return `${commandGroups
+            return `__Fishing:__\n${commandGroups
                 .map(
                     group =>
                         `${group.displayName}: ${group.commands
