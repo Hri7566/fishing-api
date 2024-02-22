@@ -1,6 +1,7 @@
 import type { Command } from "../Command";
 import { fish } from "./fishing/fish";
 import { help } from "./general/help";
+import { setcolor } from "./util/setcolor";
 import { data } from "./util/data";
 
 interface ICommandGroup {
@@ -30,7 +31,7 @@ commandGroups.push(fishing);
 const util: ICommandGroup = {
     id: "util",
     displayName: "Utility",
-    commands: [data]
+    commands: [data, setcolor]
 };
 
 commandGroups.push(util);

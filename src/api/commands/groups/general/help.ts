@@ -18,17 +18,30 @@ export const help = new Command(
         "cammands",
         "cummunds"
     ],
-    "Help command",
+    "Get command list or command usage",
     "help [command]",
     "command.general.help",
-    async (command, args, prefix, user) => {
-        return `${commandGroups
-            .map(
-                group =>
-                    `${group.displayName}: ${group.commands
-                        .map(cmd => (cmd.visible ? cmd.aliases[0] : "<hidden>"))
-                        .join(", ")}`
-            )
-            .join("\n")}`;
+    async ({ id, command, args, prefix, part, user }) => {
+        if (!args[0]) {
+            return `${commandGroups
+                .map(
+                    group =>
+                        `${group.displayName}: ${group.commands
+                            .map(cmd =>
+                                cmd.visible ? cmd.aliases[0] : "<hidden>"
+                            )
+                            .join(", ")}`
+                )
+                .join("\n")}`;
+        } else {
+            const commands = commandGroups.flatMap(group => group.commands);
+
+            const foundCommand = commands.find(cmd =>
+                cmd.aliases.includes(args[0])
+            );
+            if (!foundCommand) return `Command "${args[0]}" not found.`;
+
+            return `Description: ${foundCommand.description} | Usage: ${foundCommand.usage}`;
+        }
     }
 );

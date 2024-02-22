@@ -6,7 +6,7 @@ export const data = new Command(
     "Data command",
     "data",
     "command.util.data",
-    async (command, args, prefix, user) => {
-        return JSON.stringify({ command, args, prefix, user });
+    async props => {
+        return JSON.stringify(props);
     }
 );

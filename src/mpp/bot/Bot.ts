@@ -1,6 +1,7 @@
 import Client from "mpp-client-net";
 import { Logger } from "@util/Logger";
 import trpc from "@client/api/trpc";
+import { EventEmitter } from "events";
 
 export interface MPPNetBotConfig {
     uri: string;
@@ -13,7 +14,7 @@ export interface MPPNetBotConfig {
 
 export class MPPNetBot {
     public client: Client;
-
+    public b = new EventEmitter();
     public logger: Logger;
 
     constructor(
@@ -78,7 +79,8 @@ export class MPPNetBot {
             });
 
             if (!command) return;
-            if (command.response) this.sendChat(command.response);
+            if (command.response)
+                this.sendChat(command.response, (msg as any).id);
         });
 
         (this.client as unknown as any).on(
@@ -143,24 +145,52 @@ export class MPPNetBot {
                 });
 
                 if (!command) return;
-                if (command.response) this.sendChat(command.response);
+                if (command.response) this.sendChat(command.response, msg.id);
             }
         );
+
+        setInterval(async () => {
+            try {
+                const backs = (await trpc.backs.query()) as IBack<unknown>[];
+                if (backs.length > 0) {
+                    this.logger.debug(backs);
+                    for (const back of backs) {
+                        if (typeof back.m !== "string") return;
+                        this.b.emit(back.m, back);
+                    }
+                }
+            } catch (err) {
+                return;
+            }
+        }, 1000 / 20);
+
+        this.b.on("color", msg => {
+            if (typeof msg.color !== "string" || typeof msg.id !== "string")
+                return;
+            this.client.sendArray([
+                {
+                    m: "setcolor",
+                    _id: msg.id,
+                    color: msg.color
+                }
+            ]);
+        });
     }
 
-    public sendChat(text: string) {
+    public sendChat(text: string, reply?: string) {
         let lines = text.split("\n");
 
         for (const line of lines) {
             if (line.length <= 510) {
-                this.client.sendArray([
+                (this.client as any).sendArray([
                     {
                         m: "a",
                         message: `\u034f${line
                             .split("\t")
                             .join("")
                             .split("\r")
-                            .join("")}`
+                            .join("")}`,
+                        reply_to: reply
                     }
                 ]);
             } else {

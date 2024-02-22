@@ -1,4 +1,9 @@
-import { checkToken, createToken, deleteToken } from "@server/data/token";
+import {
+    checkToken,
+    createToken,
+    deleteToken,
+    tokenToID
+} from "@server/data/token";
 import { test, expect } from "bun:test";
 
 test("Token can be created and deleted", async () => {
@@ -25,4 +30,15 @@ test("Token can be invalidated", async () => {
 
     const checked = await checkToken(token);
     expect(checked).toBeFalsy();
+});
+
+test("Token can be digested into ID", async () => {
+    const token = await createToken();
+    expect(token).toBeString();
+
+    const id = tokenToID(token);
+    expect(id).toBeString();
+    expect(id).toHaveLength(24);
+
+    await deleteToken(token);
 });

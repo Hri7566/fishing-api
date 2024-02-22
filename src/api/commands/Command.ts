@@ -1,3 +1,5 @@
+import type { User } from "@prisma/client";
+
 export class Command {
     constructor(
         public id: string,
@@ -5,7 +7,7 @@ export class Command {
         public description: string,
         public usage: string,
         public permissionNode: string,
-        public callback: TCommandCallback,
+        public callback: TCommandCallback<User>,
         public visible: boolean = true
     ) {}
 }

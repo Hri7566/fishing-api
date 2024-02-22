@@ -6,7 +6,7 @@ export const fish = new Command(
     "Send your LURE into a water for catching fish",
     "fish",
     "command.fishing.fish",
-    async () => {
+    async ({ id, command, args, prefix, part, user }) => {
         return "There is no fishing yet, please come back later when I write the code for it";
     }
 );

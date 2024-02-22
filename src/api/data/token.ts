@@ -1,4 +1,5 @@
 import prisma from "./prisma";
+import { createHash } from "crypto";
 
 export async function createToken() {
     const randomToken = crypto.randomUUID();
@@ -28,4 +29,11 @@ export async function checkToken(token: string) {
 
 export async function getAllTokens() {
     return await prisma.authToken.findMany();
+}
+
+export function tokenToID(token: string) {
+    const hash = createHash("sha-256");
+    hash.update("ID");
+    hash.update(token);
+    return hash.digest("hex").substring(0, 24);
 }
