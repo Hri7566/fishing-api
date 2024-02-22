@@ -3,6 +3,10 @@ import { loadConfig } from "@util/config";
 
 export const fish = loadConfig<IFish[]>("config/fish.yml", []);
 
+for (let i = 0; i < fish.length; i++) {
+    fish[i].objtype = "fish";
+}
+
 const logger = new Logger("Fishies");
 
 export function randomFish(location: string, r: number = Math.random()) {

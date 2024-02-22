@@ -21,13 +21,21 @@ interface CountComponent {
     count: number;
 }
 
-interface IItem {
+interface IObject extends JsonValue {
     id: string;
+    objtype: string;
     name: string;
+    emoji?: string;
+    count?: number;
 }
 
-interface IFish extends JsonValue {
+interface IItem extends IObject {
+    objtype: "item";
+}
+
+interface IFish extends IObject {
     id: string;
+    objtype: "fish";
     name: string;
     size: number;
     rarity: number;
@@ -41,14 +49,11 @@ interface IFish extends JsonValue {
     emoji?: string;
 }
 
-interface IPokemon extends JsonValue {
+interface IPokemon extends IObject {
     id: number;
-    name: {
-        english: string;
-        japanese: string;
-        chinese: string;
-        french: string;
-    };
+    objtype: "pokemon";
+    emoji?: string;
+    name: string;
     type: string[];
     base: {
         HP: number;
@@ -60,6 +65,7 @@ interface IPokemon extends JsonValue {
     };
 }
 
+type TObjectArray = JsonArray & IObject[];
 type TInventoryItems = JsonArray & IItem[];
 type TFishSack = JsonArray & IFish[];
 type TPokemonSack = JsonArray & IPokemon[];
@@ -89,6 +95,6 @@ interface ILocation {
     id: string;
     name: string;
     nearby: string[];
-    objects: (IItem | IFish | IPokemon)[];
+    objects: IObject[];
     hasSand: boolean;
 }

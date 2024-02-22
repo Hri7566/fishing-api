@@ -1,20 +1,32 @@
 - id: pond
   name: Pond
-  nearby: []
+  nearby:
+    - lake
+    - river
+    - sea
   hasSand: true
   objects: []
 - id: lake
   name: Lake
-  nearby: []
+  nearby:
+    - pond
+    - river
+    - sea
   hasSand: false
   objects: []
 - id: river
   name: River
-  nearby: []
+  nearby:
+    - pond
+    - lake
+    - sea
   hasSand: false
   objects: []
 - id: sea
   name: Sea
-  nearby: []
+  nearby:
+    - pond
+    - lake
+    - river
   hasSand: true
   objects: []

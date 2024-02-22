@@ -1,5 +1,5 @@
 import "./api/server";
 import "./cli/readline";
-import { startSandInterval } from "./fish/locations";
+import { startObjectTimers } from "./fish/locations";
 
-startSandInterval();
+startObjectTimers();
