@@ -1,12 +1,13 @@
 import { createBunServeHandler } from "trpc-bun-adapter";
-import { appRouter } from "./trpc";
+import { appRouter, createContext } from "./trpc";
 import { Logger } from "@util/Logger";
 
 const logger = new Logger("Server");
 
 export const server = Bun.serve(
     createBunServeHandler({
-        router: appRouter
+        router: appRouter,
+        createContext: createContext
     })
 );
 

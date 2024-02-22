@@ -8,40 +8,36 @@ import { z } from "zod";
 
 const logger = new Logger("tRPC");
 
-export interface Context {
-    isAuthed: boolean;
-}
-
 export const createContext = async (opts: CreateBunContextOptions) => {
     return {
-        isAuthed: false
-    } as Context;
+        isAuthed: false,
+        req: opts.req
+    };
 };
 
-const t = initTRPC.context<typeof createContext>().create();
+export type Context = Awaited<ReturnType<typeof createContext>>;
+const t = initTRPC.context<Context>().create();
 
 export const router = t.router;
 export const publicProcedure = t.procedure;
 
 export const privateProcedure = publicProcedure.use(async opts => {
     const { ctx } = opts;
+    const { req } = ctx;
+
+    const token = req.headers.get("authorization");
+    if (!token) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+    opts.ctx.isAuthed = await checkToken(token);
+
     if (!ctx.isAuthed) throw new TRPCError({ code: "UNAUTHORIZED" });
-    return opts.next({
-        ctx: {
-            isAuthed: true
-        }
-    });
+
+    return opts.next(opts);
 });
 
 export const appRouter = router({
     prefixes: publicProcedure.query(async opts => {
         return prefixes;
-    }),
-
-    auth: publicProcedure.input(z.string()).query(async opts => {
-        logger.debug(opts);
-        const token = opts.input;
-        opts.ctx.isAuthed = await checkToken(token);
     }),
 
     command: privateProcedure
