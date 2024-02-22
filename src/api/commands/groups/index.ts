@@ -3,6 +3,7 @@ import { fish } from "./fishing/fish";
 import { help } from "./general/help";
 import { setcolor } from "./util/setcolor";
 import { data } from "./util/data";
+import { location } from "./fishing/location";
 
 interface ICommandGroup {
     id: string;
@@ -23,7 +24,7 @@ commandGroups.push(general);
 const fishing: ICommandGroup = {
     id: "fishing",
     displayName: "Fishing",
-    commands: [fish]
+    commands: [fish, location]
 };
 
 commandGroups.push(fishing);

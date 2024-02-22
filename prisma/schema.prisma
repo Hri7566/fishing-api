@@ -20,14 +20,15 @@ model User {
 }
 
 model Inventory {
-  id      Int @id @default(autoincrement())
-  balance Int @default(0)
+  id       Int    @id @default(autoincrement())
+  balance  Int    @default(0)
+  location String @default("pond")
 
   items    Json @default("[]")
   fishSack Json @default("[]")
   pokemon  Json @default("[]")
 
-  User User?
+  user User?
 }
 
 model AuthToken {

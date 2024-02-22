@@ -21,10 +21,24 @@ interface CountComponent {
     count: number;
 }
 
+interface IItem {
+    id: string;
+    name: string;
+}
+
 interface IFish extends JsonValue {
     id: string;
     name: string;
-    size: string;
+    size: number;
+    rarity: number;
+    location: string;
+
+    onlyRain?: true;
+    startHour?: number;
+    endHour?: number;
+    activeMonths?: string;
+
+    emoji?: string;
 }
 
 interface IPokemon extends JsonValue {
@@ -46,14 +60,19 @@ interface IPokemon extends JsonValue {
     };
 }
 
+type TInventoryItems = JsonArray & IItem[];
 type TFishSack = JsonArray & IFish[];
 type TPokemonSack = JsonArray & IPokemon[];
 
 interface IInventory {
     id: number;
     balance: number;
+
+    items: TInventoryItems;
     fishSack: TFishSack;
     pokemon: TPokemonSack;
+
+    user: User;
 }
 
 interface IBack<T extends string | unknown> extends Record<string, unknown> {
@@ -64,4 +83,12 @@ interface Backs extends Record<string, IBack<unknown>> {
     color: {
         m: "color";
     };
+}
+
+interface ILocation {
+    id: string;
+    name: string;
+    nearby: string[];
+    objects: (IItem | IFish | IPokemon)[];
+    hasSand: boolean;
 }
