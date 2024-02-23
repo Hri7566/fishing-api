@@ -1,7 +1,7 @@
 import { Logger } from "@util/Logger";
 import type Command from "./Command";
 import { commandGroups } from "./groups";
-import { createUser, getUser } from "@server/data/user";
+import { createUser, getUser, updateUser } from "@server/data/user";
 import { createInventory, getInventory } from "@server/data/inventory";
 
 export const logger = new Logger("Command Handler");
@@ -38,8 +38,17 @@ export async function handleCommand(
         });
     }
 
-    let inventory = await getInventory(user.inventoryId);
+    if (user.name !== part.name) {
+        user.name = part.name;
+        await updateUser(user);
+    }
 
+    if (user.color !== part.color) {
+        user.color = part.color;
+        await updateUser(user);
+    }
+
+    let inventory = await getInventory(user.inventoryId);
     if (!inventory) inventory = await createInventory({ id: user.inventoryId });
 
     // TODO Check user's (or their groups') permissions against command permission node
