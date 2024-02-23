@@ -17,7 +17,7 @@ export const sack = new Command(
             fishSack
                 .map(
                     (fish: IFish) =>
-                        `${fish.emoji || ""}${fish.name}${
+                        `${fish.emoji || "🐟"}${fish.name}${
                             fish.count ? ` (x${fish.count})` : ""
                         }`
                 )
