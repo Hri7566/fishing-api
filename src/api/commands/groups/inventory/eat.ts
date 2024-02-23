@@ -6,7 +6,7 @@ import { CosmicColor } from "@util/CosmicColor";
 
 export const eat = new Command(
     "eat",
-    ["eat"],
+    ["eat", "oot"],
     "Eat literally anything in your inventory",
     "eat <something>",
     "command.inventory.eat",
