@@ -1,8 +1,8 @@
 import Command from "@server/commands/Command";
 import { logger } from "@server/commands/handler";
 import { getInventory, updateInventory } from "@server/data/inventory";
-import { locations } from "@server/fish/locations";
-import { go } from "./go";
+import { locations, saveObjects } from "@server/fish/locations";
+import { go } from "../fishing/go";
 import { addItem } from "@server/items";
 
 export const take = new Command(
@@ -10,7 +10,7 @@ export const take = new Command(
     ["take"],
     "Take something from your surroundings",
     "take <something>",
-    "command.fishing.take",
+    "command.inventory.take",
     async ({ id, command, args, prefix, part, user }) => {
         let taking = args[0];
 
@@ -34,6 +34,9 @@ export const take = new Command(
         for (const obj of loc.objects) {
             if (obj.name.toLowerCase().includes(taking.toLowerCase()))
                 foundObject = obj;
+
+            loc.objects.splice(loc.objects.indexOf(obj), 1);
+            await saveObjects();
         }
 
         if (!foundObject) return `There is no "${taking}" here.`;
@@ -57,6 +60,7 @@ export const take = new Command(
         (inventory as any).pokemon = pokemon;
 
         await updateInventory(inventory);
+
         return `You picked up the ${foundObject.name}.`;
     }
 );

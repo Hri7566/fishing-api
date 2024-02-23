@@ -17,5 +17,6 @@ export const setcolor = new Command(
         });
 
         return "Attempting to set color.";
-    }
+    },
+    false
 );

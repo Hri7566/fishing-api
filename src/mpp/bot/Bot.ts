@@ -153,7 +153,7 @@ export class MPPNetBot {
             try {
                 const backs = (await trpc.backs.query()) as IBack<unknown>[];
                 if (backs.length > 0) {
-                    this.logger.debug(backs);
+                    // this.logger.debug(backs);
                     for (const back of backs) {
                         if (typeof back.m !== "string") return;
                         this.b.emit(back.m, back);
@@ -174,6 +174,10 @@ export class MPPNetBot {
                     color: msg.color
                 }
             ]);
+        });
+
+        this.b.on("sendchat", msg => {
+            this.sendChat(msg.message);
         });
     }
 

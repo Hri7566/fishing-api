@@ -8,5 +8,6 @@ export const data = new Command(
     "command.util.data",
     async props => {
         return JSON.stringify(props);
-    }
+    },
+    false
 );

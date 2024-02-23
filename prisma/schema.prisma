@@ -40,3 +40,8 @@ model LocationObjectStorage {
   id      String @id
   objects Json   @default("[]")
 }
+
+model KeyValueStore {
+  id   Int  @id @default(0)
+  json Json @default("{}")
+}

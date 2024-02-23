@@ -7,8 +7,11 @@ import { location } from "./fishing/location";
 import { go } from "./fishing/go";
 import { nearby } from "./fishing/nearby";
 import { look } from "./fishing/look";
-import { take } from "./fishing/take";
-import { inventory } from "./general/inventory";
+import { take } from "./inventory/take";
+import { inventory } from "./inventory/inventory";
+import { eat } from "./inventory/eat";
+import { sack } from "./inventory/sack";
+import { reel } from "./fishing/reel";
 
 interface ICommandGroup {
     id: string;
@@ -18,26 +21,34 @@ interface ICommandGroup {
 
 export const commandGroups: ICommandGroup[] = [];
 
-const general: ICommandGroup = {
+const generalGroup: ICommandGroup = {
     id: "general",
     displayName: "General",
-    commands: [help, inventory]
+    commands: [help]
 };
 
-commandGroups.push(general);
+commandGroups.push(generalGroup);
 
-const fishing: ICommandGroup = {
+const fishingGroup: ICommandGroup = {
     id: "fishing",
     displayName: "Fishing",
-    commands: [fish, location, go, nearby, look, take]
+    commands: [fish, reel, location, go, nearby, look]
 };
 
-commandGroups.push(fishing);
+commandGroups.push(fishingGroup);
 
-const util: ICommandGroup = {
+const inventoryGroup: ICommandGroup = {
+    id: "inventory",
+    displayName: "Inventory",
+    commands: [inventory, take, eat, sack]
+};
+
+commandGroups.push(inventoryGroup);
+
+const utilGroup: ICommandGroup = {
     id: "util",
     displayName: "Utility",
     commands: [data, setcolor]
 };
 
-commandGroups.push(util);
+commandGroups.push(utilGroup);
