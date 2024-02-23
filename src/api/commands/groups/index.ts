@@ -12,6 +12,7 @@ import { inventory } from "./inventory/inventory";
 import { eat } from "./inventory/eat";
 import { sack } from "./inventory/sack";
 import { reel } from "./fishing/reel";
+import { memory } from "./util/mem";
 
 interface ICommandGroup {
     id: string;
@@ -48,7 +49,7 @@ commandGroups.push(inventoryGroup);
 const utilGroup: ICommandGroup = {
     id: "util",
     displayName: "Utility",
-    commands: [data, setcolor]
+    commands: [data, setcolor, memory]
 };
 
 commandGroups.push(utilGroup);
