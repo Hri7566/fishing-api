@@ -66,7 +66,7 @@ export async function tick() {
                     : "massive";
             addBack(winner.id, {
                 m: "sendchat",
-                message: `Our good friend ${user.name} caught a ${size} ${
+                message: `Our good friend @${user.id} caught a ${size} ${
                     animal.emoji || "🐟"
                 }${animal.name}! ready to ${prefixes[0]}eat or ${
                     prefixes[0]

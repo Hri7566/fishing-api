@@ -145,7 +145,8 @@ export class MPPNetBot {
                 });
 
                 if (!command) return;
-                if (command.response) this.sendChat(command.response, msg.id);
+                if (command.response)
+                    this.sendDM(command.response, msg.sender._id, msg.id);
             }
         );
 
@@ -195,6 +196,29 @@ export class MPPNetBot {
                             .split("\r")
                             .join("")}`,
                         reply_to: reply
+                    }
+                ]);
+            } else {
+                this.sendChat(line);
+            }
+        }
+    }
+
+    public sendDM(text: string, dm: string, reply_to?: string) {
+        let lines = text.split("\n");
+
+        for (const line of lines) {
+            if (line.length <= 510) {
+                (this.client as any).sendArray([
+                    {
+                        m: "dm",
+                        message: `\u034f${line
+                            .split("\t")
+                            .join("")
+                            .split("\r")
+                            .join("")}`,
+                        _id: dm,
+                        reply_to: reply_to
                     }
                 ]);
             } else {
