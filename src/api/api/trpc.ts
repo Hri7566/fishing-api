@@ -62,13 +62,21 @@ export const appRouter = router({
                     id: z.string(),
                     name: z.string(),
                     color: z.string()
-                })
+                }),
+                isDM: z.boolean().optional()
             })
         )
         .query(async opts => {
             const id = tokenToID(opts.ctx.token);
-            const { command, args, prefix, user } = opts.input;
-            const out = await handleCommand(id, command, args, prefix, user);
+            const { command, args, prefix, user, isDM } = opts.input;
+            const out = await handleCommand(
+                id,
+                command,
+                args,
+                prefix,
+                user,
+                isDM
+            );
 
             return out;
         }),

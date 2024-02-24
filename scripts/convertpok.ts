@@ -3,7 +3,7 @@ import { argv } from "bun";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import YAML from "yaml";
 
-const logger = new Logger("Pokemon Converter");
+const logger = new Logger("Pokémon Converter");
 
 const inFile = argv[2];
 const outFile = argv[3];

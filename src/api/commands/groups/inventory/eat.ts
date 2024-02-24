@@ -7,7 +7,7 @@ import { CosmicColor } from "@util/CosmicColor";
 export const eat = new Command(
     "eat",
     ["eat", "oot"],
-    "Eat literally anything in your inventory",
+    "Eat literally anything you have (except non-fish animals)",
     "eat <something>",
     "command.inventory.eat",
     async ({ id, command, args, prefix, part, user }) => {
@@ -48,30 +48,31 @@ export const eat = new Command(
 
         i = 0;
 
-        for (const pokemon of inventory.pokemon as TPokemonSack) {
-            if (!pokemon.name.toLowerCase().includes(eating.toLowerCase())) {
-                i++;
-                continue;
-            }
+        // no more eating animals
+        // for (const pokemon of inventory.pokemon as TPokemonSack) {
+        //     if (!pokemon.name.toLowerCase().includes(eating.toLowerCase())) {
+        //         i++;
+        //         continue;
+        //     }
 
-            foundObject = pokemon as unknown as IObject;
+        //     foundObject = pokemon as unknown as IObject;
 
-            let shouldRemove = false;
+        //     let shouldRemove = false;
 
-            if (typeof pokemon.count !== "undefined") {
-                if (pokemon.count > 1) {
-                    shouldRemove = false;
-                    ((inventory.pokemon as TPokemonSack)[i].count as number)--;
-                } else {
-                    shouldRemove = true;
-                }
-            } else {
-                shouldRemove = true;
-            }
+        //     if (typeof pokemon.count !== "undefined") {
+        //         if (pokemon.count > 1) {
+        //             shouldRemove = false;
+        //             ((inventory.pokemon as TPokemonSack)[i].count as number)--;
+        //         } else {
+        //             shouldRemove = true;
+        //         }
+        //     } else {
+        //         shouldRemove = true;
+        //     }
 
-            if (shouldRemove) (inventory.pokemon as TPokemonSack).splice(i, 1);
-            break;
-        }
+        //     if (shouldRemove) (inventory.pokemon as TPokemonSack).splice(i, 1);
+        //     break;
+        // }
 
         i = 0;
 

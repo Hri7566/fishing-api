@@ -141,7 +141,8 @@ export class MPPNetBot {
                         id: msg.sender._id,
                         name: msg.sender.name,
                         color: msg.sender.color
-                    }
+                    },
+                    isDM: true
                 });
 
                 if (!command) return;
@@ -178,7 +179,12 @@ export class MPPNetBot {
         });
 
         this.b.on("sendchat", msg => {
-            this.sendChat(msg.message);
+            // this.logger.debug("sendchat message:", msg);
+            if (msg.isDM) {
+                this.sendDM(msg.message, msg.id);
+            } else {
+                this.sendChat(msg.message);
+            }
         });
     }
 
@@ -218,7 +224,7 @@ export class MPPNetBot {
                             .split("\r")
                             .join("")}`,
                         _id: dm,
-                        reply_to: reply_to
+                        reply_to
                     }
                 ]);
             } else {

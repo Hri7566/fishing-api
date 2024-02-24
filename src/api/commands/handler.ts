@@ -11,7 +11,8 @@ export async function handleCommand(
     command: string,
     args: string[],
     prefix: string,
-    part: IPart
+    part: IPart,
+    isDM: boolean = false
 ): Promise<ICommandResponse | void> {
     let foundCommand: Command | undefined;
 
@@ -60,7 +61,8 @@ export async function handleCommand(
             args,
             prefix,
             part,
-            user
+            user,
+            isDM: isDM ?? false
         });
 
         if (response) return { response };

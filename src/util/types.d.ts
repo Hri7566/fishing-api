@@ -15,6 +15,7 @@ type TCommandCallback<User> = (props: {
     prefix: string;
     part: IPart;
     user: User;
+    isDM: boolean;
 }) => Promise<string | void>;
 
 interface CountComponent {
@@ -51,6 +52,7 @@ interface IFish extends IObject {
 
 interface IPokemon extends IObject {
     id: number;
+    pokeID: number;
     objtype: "pokemon";
     emoji?: string;
     name: string;
@@ -98,3 +100,13 @@ interface ILocation {
     objects: IObject[];
     hasSand: boolean;
 }
+
+interface TFisher {
+    id: string;
+    userID: string;
+    t: number;
+    isDM: boolean;
+    autofish: boolean;
+}
+
+type TPokedex = IPokemon[];

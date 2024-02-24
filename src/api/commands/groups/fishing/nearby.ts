@@ -5,7 +5,7 @@ import { locations } from "@server/fish/locations";
 
 export const nearby = new Command(
     "nearby",
-    ["nearby"],
+    ["nearby", "noorby", "n"],
     "Look at nearby locations",
     "nearby",
     "command.fishing.nearby",

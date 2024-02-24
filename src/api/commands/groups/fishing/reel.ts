@@ -5,7 +5,7 @@ import { locations } from "@server/fish/locations";
 
 export const reel = new Command(
     "reel",
-    ["reel"],
+    ["reel", "rool", "stopfishing", "stopfoshing"],
     "Reel in and stop fishing",
     "fishing",
     "command.fishing.reel",
@@ -15,7 +15,7 @@ export const reel = new Command(
             stopFishing(id, part.id);
             return `Our friend ${part.name} reel his/her lure back inside, temporarily decreasing his/her chances of catching a fish by 100%.`;
         } else {
-            return `Friend ${part.name}: You haven't /casted it.`;
+            return `Friend ${part.name}: You haven't ${prefix}casted it.`;
         }
     }
 );

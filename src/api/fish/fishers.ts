@@ -9,14 +9,7 @@ import { addBack } from "@server/backs";
 import { prefixes } from "@server/commands/prefixes";
 import { Logger } from "@util/Logger";
 
-export let fishers: Record<
-    string,
-    {
-        id: string;
-        userId: string;
-        t: number;
-    }
-> = {};
+export let fishers: Record<string, TFisher> = {};
 
 let cooldown = Date.now() + 5000;
 
@@ -33,24 +26,24 @@ export async function tick() {
 
         if (!winner) return;
 
-        const user = await getUser(winner.userId);
+        const user = await getUser(winner.userID);
 
         if (!user) {
-            stopFishing(winner.id, winner.userId);
+            stopFishing(winner.id, winner.userID, false);
             return;
         }
 
         const inventory = await getInventory(user.inventoryId);
 
         if (!inventory) {
-            stopFishing(winner.id, winner.userId);
+            stopFishing(winner.id, winner.userID, false);
             return;
         }
 
         const r = Math.random();
 
         if (r < 0.1) {
-            stopFishing(winner.id, winner.userId);
+            stopFishing(winner.id, winner.userID, winner.autofish);
             const animal = randomFish(inventory.location);
             addItem(inventory.fishSack as TFishSack, animal);
             await updateInventory(inventory);
@@ -63,14 +56,18 @@ export async function tick() {
                     ? "large"
                     : animal.size < 100
                     ? "huge"
-                    : "massive";
+                    : animal.size < 200
+                    ? "massive"
+                    : "gigantic";
             addBack(winner.id, {
                 m: "sendchat",
                 message: `Our good friend @${user.id} caught a ${size} ${
                     animal.emoji || "🐟"
                 }${animal.name}! ready to ${prefixes[0]}eat or ${
                     prefixes[0]
-                }fish again`
+                }fish again${winner.autofish ? " (AUTOFISH is enabled)" : ""}`,
+                isDM: winner.isDM,
+                id: winner.userID
             });
         }
     }
@@ -79,14 +76,7 @@ export async function tick() {
 }
 
 export async function startFisherTick() {
-    let maybe = (await kvGet("fishers")) as Record<
-        string,
-        {
-            id: string;
-            userId: string;
-            t: number;
-        }
-    >;
+    let maybe = (await kvGet("fishers")) as Record<string, TFisher>;
 
     if (maybe) fishers = maybe;
 
@@ -97,13 +87,33 @@ export function stopFisherTick() {
     removeTickEvent(tick);
 }
 
-export function startFishing(id: string, userId: string) {
-    fishers[id + "~" + userId] = { id, userId: userId, t: Date.now() };
+export function startFishing(
+    id: string,
+    userId: string,
+    isDM: boolean = false,
+    autofish: boolean = false
+) {
+    fishers[id + "~" + userId] = {
+        id,
+        userID: userId,
+        t: Date.now(),
+        isDM,
+        autofish
+    };
 }
 
-export function stopFishing(id: string, userId: string) {
+export function stopFishing(
+    id: string,
+    userId: string,
+    autofish: boolean = false
+) {
     let key = id + "~" + userId;
+    let fisher = fishers[key];
     delete fishers[key];
+
+    if (autofish) {
+        startFishing(id, userId, true, true);
+    }
 }
 
 export function getFishing(id: string, userId: string) {

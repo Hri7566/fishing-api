@@ -13,6 +13,10 @@ import { eat } from "./inventory/eat";
 import { sack } from "./inventory/sack";
 import { reel } from "./fishing/reel";
 import { memory } from "./util/mem";
+import { pokemon } from "./inventory/pokemon";
+import { color } from "./general/color";
+import { autofish } from "./util/autofish";
+import { pokedex } from "./util/pokedex";
 
 interface ICommandGroup {
     id: string;
@@ -25,7 +29,7 @@ export const commandGroups: ICommandGroup[] = [];
 const generalGroup: ICommandGroup = {
     id: "general",
     displayName: "General",
-    commands: [help]
+    commands: [help, color]
 };
 
 commandGroups.push(generalGroup);
@@ -41,7 +45,7 @@ commandGroups.push(fishingGroup);
 const inventoryGroup: ICommandGroup = {
     id: "inventory",
     displayName: "Inventory",
-    commands: [inventory, take, eat, sack]
+    commands: [inventory, take, eat, sack, pokemon]
 };
 
 commandGroups.push(inventoryGroup);
@@ -49,7 +53,7 @@ commandGroups.push(inventoryGroup);
 const utilGroup: ICommandGroup = {
     id: "util",
     displayName: "Utility",
-    commands: [data, setcolor, memory]
+    commands: [data, setcolor, memory, autofish, pokedex]
 };
 
 commandGroups.push(utilGroup);

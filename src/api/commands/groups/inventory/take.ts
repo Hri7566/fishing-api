@@ -49,7 +49,8 @@ export const take = new Command(
                 addItem(fish, foundObject);
                 break;
             case "pokemon":
-                addItem(pokemon as unknown as IObject[], foundObject);
+                // addItem(pokemon as unknown as IObject[], foundObject);
+                return "Unlike other items, Pokémon have to be caught.";
                 break;
             default:
                 break;

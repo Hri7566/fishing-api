@@ -2,6 +2,8 @@ import Command from "@server/commands/Command";
 import { getInventory, updateInventory } from "@server/data/inventory";
 import { locations } from "@server/fish/locations";
 import { nearby } from "./nearby";
+import { getFishing, stopFishing } from "@server/fish/fishers";
+import { reel } from "./reel";
 
 export const go = new Command(
     "go",
@@ -33,7 +35,12 @@ export const go = new Command(
             return `The place "${args[0]}" is not ${prefix}${nearby.aliases[0]}.`;
 
         inventory.location = nextLoc.id;
-        updateInventory(inventory);
+        await updateInventory(inventory);
+
+        if (getFishing(id, user.id)) {
+            stopFishing(id, user.id, false);
+            return `You ${prefix}${reel.aliases[0]}ed your LURE in and went to ${nextLoc.name}.`;
+        }
 
         return `You went to ${nextLoc.name}.`;
     }
