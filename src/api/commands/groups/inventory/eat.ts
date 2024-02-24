@@ -13,26 +13,28 @@ export const eat = new Command(
     async ({ id, command, args, prefix, part, user }) => {
         const eating = args[0];
         if (!eating) return `What do you want to ${prefix}eat?`;
+
         const inventory = await getInventory(user.inventoryId);
         if (!inventory) return;
 
         let foundObject: IObject | undefined;
         let tryChangingColor = false;
+        let i = 0;
 
         for (const item of inventory.items as unknown as IItem[]) {
-            if (!item.name.toLowerCase().includes(eating.toLowerCase()))
+            if (!item.name.toLowerCase().includes(eating.toLowerCase())) {
+                i++;
                 continue;
+            }
 
             foundObject = item;
 
             let shouldRemove = false;
 
-            if (item.count) {
+            if (typeof item.count !== "undefined") {
                 if (item.count > 1) {
                     shouldRemove = false;
-                    ((inventory.items as unknown as IItem[])[
-                        (inventory.items as unknown as IItem[]).indexOf(item)
-                    ].count as number)--;
+                    ((inventory.items as TInventoryItems)[i].count as number)--;
                 } else {
                     shouldRemove = true;
                 }
@@ -40,29 +42,26 @@ export const eat = new Command(
                 shouldRemove = true;
             }
 
-            if (shouldRemove)
-                (inventory.items as unknown as IItem[]).splice(
-                    (inventory.items as unknown as IItem[]).indexOf(item, 1)
-                );
+            if (shouldRemove) (inventory.items as TInventoryItems).splice(i, 1);
             break;
         }
 
-        for (const pokemon of inventory.pokemon as unknown as IPokemon[]) {
-            if (!pokemon.name.toLowerCase().includes(eating.toLowerCase()))
+        i = 0;
+
+        for (const pokemon of inventory.pokemon as TPokemonSack) {
+            if (!pokemon.name.toLowerCase().includes(eating.toLowerCase())) {
+                i++;
                 continue;
+            }
 
             foundObject = pokemon as unknown as IObject;
 
             let shouldRemove = false;
 
-            if (pokemon.count) {
+            if (typeof pokemon.count !== "undefined") {
                 if (pokemon.count > 1) {
                     shouldRemove = false;
-                    ((inventory.pokemon as unknown as IPokemon[])[
-                        (inventory.pokemon as unknown as IPokemon[]).indexOf(
-                            pokemon
-                        )
-                    ].count as number)--;
+                    ((inventory.pokemon as TPokemonSack)[i].count as number)--;
                 } else {
                     shouldRemove = true;
                 }
@@ -70,30 +69,26 @@ export const eat = new Command(
                 shouldRemove = true;
             }
 
-            if (shouldRemove)
-                (inventory.pokemon as unknown as IPokemon[]).splice(
-                    (inventory.pokemon as unknown as IPokemon[]).indexOf(
-                        pokemon,
-                        1
-                    )
-                );
+            if (shouldRemove) (inventory.pokemon as TPokemonSack).splice(i, 1);
             break;
         }
 
-        for (const fish of inventory.fishSack as unknown as IFish[]) {
-            if (!fish.name.toLowerCase().includes(eating.toLowerCase()))
-                continue;
+        i = 0;
 
-            foundObject = fish as unknown as IObject;
+        for (const fish of inventory.fishSack as TFishSack) {
+            if (!fish.name.toLowerCase().includes(eating.toLowerCase())) {
+                i++;
+                continue;
+            }
+
+            foundObject = fish;
 
             let shouldRemove = false;
 
-            if (fish.count) {
+            if (typeof fish.count !== "undefined") {
                 if (fish.count > 1) {
                     shouldRemove = false;
-                    ((inventory.fishSack as unknown as IFish[])[
-                        (inventory.fishSack as unknown as IFish[]).indexOf(fish)
-                    ].count as number)--;
+                    ((inventory.fishSack as TFishSack)[i].count as number)--;
                 } else {
                     shouldRemove = true;
                 }
@@ -101,10 +96,7 @@ export const eat = new Command(
                 shouldRemove = true;
             }
 
-            if (shouldRemove)
-                (inventory.fishSack as unknown as IFish[]).splice(
-                    (inventory.fishSack as unknown as IFish[]).indexOf(fish, 1)
-                );
+            if (shouldRemove) (inventory.fishSack as TFishSack).splice(i, 1);
             break;
         }
 
@@ -137,11 +129,11 @@ export const eat = new Command(
                     color: color.toHexa()
                 });
 
-                return `Our friend ${part.name} at his/her ${
+                return `Our friend ${part.name} ate his/her ${
                     foundObject.name
                 } and it made him/her turn ${color.getName().toLowerCase()}.`;
             } else {
-                return `Our friend ${part.name} at his/her ${foundObject.name}.`;
+                return `Our friend ${part.name} ate his/her ${foundObject.name}.`;
             }
         }
     }
