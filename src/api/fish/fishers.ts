@@ -43,7 +43,12 @@ export async function tick() {
         const r = Math.random();
 
         if (r < 0.1) {
-            stopFishing(winner.id, winner.userID, winner.autofish);
+            stopFishing(
+                winner.id,
+                winner.userID,
+                winner.autofish,
+                winner.autofish_t
+            );
             const animal = randomFish(inventory.location);
             addItem(inventory.fishSack as TFishSack, animal);
             await updateInventory(inventory);
@@ -91,28 +96,42 @@ export function startFishing(
     id: string,
     userId: string,
     isDM: boolean = false,
-    autofish: boolean = false
+    autofish: boolean = false,
+    autofish_t: number = Date.now()
 ) {
     fishers[id + "~" + userId] = {
         id,
         userID: userId,
         t: Date.now(),
         isDM,
-        autofish
+        autofish,
+        autofish_t
     };
 }
 
 export function stopFishing(
     id: string,
     userId: string,
-    autofish: boolean = false
+    autofish: boolean = false,
+    autofish_t: number = Date.now()
 ) {
     let key = id + "~" + userId;
     let fisher = fishers[key];
     delete fishers[key];
 
+    const t = Date.now();
+    if (t > autofish_t + 5 * 60000) {
+        addBack(fisher.id, {
+            m: "sendchat",
+            message: `Friend @${fisher.userID}'s AUTOFISH has sibsided after 5.0 minutes.`,
+            isDM: fisher.isDM,
+            id: fisher.userID
+        });
+        return;
+    }
+
     if (autofish) {
-        startFishing(id, userId, true, true);
+        startFishing(id, userId, true, true, autofish_t);
     }
 }
 

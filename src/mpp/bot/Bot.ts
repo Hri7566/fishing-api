@@ -192,20 +192,25 @@ export class MPPNetBot {
         let lines = text.split("\n");
 
         for (const line of lines) {
-            if (line.length <= 510) {
-                (this.client as any).sendArray([
-                    {
-                        m: "a",
-                        message: `\u034f${line
-                            .split("\t")
-                            .join("")
-                            .split("\r")
-                            .join("")}`,
-                        reply_to: reply
-                    }
-                ]);
-            } else {
-                this.sendChat(line);
+            const splits = line.match(/.{510}|.{1,509}/gi);
+            if (!splits) continue;
+
+            for (const split of splits) {
+                if (split.length <= 510) {
+                    (this.client as any).sendArray([
+                        {
+                            m: "a",
+                            message: `\u034f${split
+                                .split("\t")
+                                .join("")
+                                .split("\r")
+                                .join("")}`,
+                            reply_to: reply
+                        }
+                    ]);
+                } else {
+                    this.sendChat(split);
+                }
             }
         }
     }

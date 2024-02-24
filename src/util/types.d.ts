@@ -107,6 +107,7 @@ interface TFisher {
     t: number;
     isDM: boolean;
     autofish: boolean;
+    autofish_t: number;
 }
 
 type TPokedex = IPokemon[];

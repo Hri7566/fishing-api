@@ -16,7 +16,7 @@ export const nearby = new Command(
         let loc = locations.find(loc => loc.id == inventory.location);
         if (!loc) loc = locations[0];
 
-        logger.debug(loc.nearby);
+        // logger.debug(loc.nearby);
 
         const nearbyList: string[] = [];
 
