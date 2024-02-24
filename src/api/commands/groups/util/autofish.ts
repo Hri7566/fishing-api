@@ -5,7 +5,7 @@ import { reel } from "../fishing/reel";
 
 export const autofish = new Command(
     "autofish",
-    ["autofish"],
+    ["autofish", "ootofosh"],
     "Fish automatically",
     "data",
     "command.util.autofish",
