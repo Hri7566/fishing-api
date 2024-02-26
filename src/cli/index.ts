@@ -1,0 +1,67 @@
+import { Logger } from "@util/Logger";
+import { createInterface, type ReadLine } from "readline";
+import { EventEmitter } from "events";
+import trpc from "@util/api/trpc";
+
+// no typedefs :/
+const cliMd = require("cli-markdown").default;
+
+const logger = new Logger("CLI");
+const b = new EventEmitter();
+
+const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+(globalThis as unknown as any).rl = rl;
+rl.setPrompt("> ");
+rl.prompt();
+
+rl.on("line", async line => {
+    if (line == "stop" || line == "exit") process.exit();
+    rl.prompt();
+
+    const msg = {
+        a: line,
+        p: {
+            _id: "stdin",
+            name: "CLI",
+            color: "#abe3d6"
+        }
+    };
+
+    let prefixes: string[];
+
+    try {
+        prefixes = await trpc.prefixes.query();
+    } catch (err) {
+        logger.error(err);
+        logger.warn("Unable to contact server");
+        return;
+    }
+
+    let usedPrefix: string | undefined = prefixes.find(pr =>
+        msg.a.startsWith(pr)
+    );
+
+    if (!usedPrefix) return;
+
+    const args = msg.a.split(" ");
+
+    const command = await trpc.command.query({
+        args: args.slice(1, args.length),
+        command: args[0].substring(usedPrefix.length),
+        prefix: usedPrefix,
+        user: {
+            id: msg.p._id,
+            name: msg.p.name,
+            color: msg.p.color
+        }
+    });
+
+    if (!command) return;
+    if (command.response) {
+        logger.info(cliMd(command.response));
+    }
+});

@@ -1,6 +1,6 @@
 import Client from "mpp-client-net";
 import { Logger } from "@util/Logger";
-import trpc from "@client/api/trpc";
+import trpc from "@util/api/trpc";
 import { EventEmitter } from "events";
 
 export interface MPPNetBotConfig {
