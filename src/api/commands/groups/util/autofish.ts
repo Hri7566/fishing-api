@@ -1,5 +1,4 @@
 import Command from "@server/commands/Command";
-import { prefixes } from "@server/commands/prefixes";
 import { getFishing, startFishing } from "@server/fish/fishers";
 import { reel } from "../fishing/reel";
 

@@ -1,5 +1,4 @@
 import Command from "@server/commands/Command";
-import { logger } from "@server/commands/handler";
 import { getInventory, updateInventory } from "@server/data/inventory";
 import { locations, saveObjects } from "@server/fish/locations";
 import { go } from "../fishing/go";

@@ -1,6 +1,5 @@
 import Command from "@server/commands/Command";
-import { logger } from "@server/commands/handler";
-import { getInventory, updateInventory } from "@server/data/inventory";
+import { getInventory } from "@server/data/inventory";
 import { locations } from "@server/fish/locations";
 
 export const look = new Command(

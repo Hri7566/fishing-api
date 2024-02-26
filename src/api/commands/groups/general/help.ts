@@ -1,6 +1,5 @@
 import Command from "@server/commands/Command";
 import { commandGroups } from "..";
-import { logger } from "@server/commands/handler";
 
 export const help = new Command(
     "help",

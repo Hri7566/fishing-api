@@ -14,6 +14,12 @@ const rl = createInterface({
     output: process.stdout
 });
 
+const user = {
+    _id: "stdin",
+    name: "CLI",
+    color: "#abe3d6"
+};
+
 (globalThis as unknown as any).rl = rl;
 rl.setPrompt("> ");
 rl.prompt();
@@ -24,11 +30,7 @@ rl.on("line", async line => {
 
     const msg = {
         a: line,
-        p: {
-            _id: "stdin",
-            name: "CLI",
-            color: "#abe3d6"
-        }
+        p: user
     };
 
     let prefixes: string[];
@@ -64,4 +66,28 @@ rl.on("line", async line => {
     if (command.response) {
         logger.info(cliMd(command.response));
     }
+});
+
+setInterval(async () => {
+    try {
+        const backs = (await trpc.backs.query()) as IBack<unknown>[];
+        if (backs.length > 0) {
+            // this.logger.debug(backs);
+            for (const back of backs) {
+                if (typeof back.m !== "string") return;
+                b.emit(back.m, back);
+            }
+        }
+    } catch (err) {
+        return;
+    }
+}, 1000 / 20);
+
+b.on("color", msg => {
+    if (typeof msg.color !== "string" || typeof msg.id !== "string") return;
+    user.color = msg.color;
+});
+
+b.on("sendchat", msg => {
+    logger.info(cliMd(msg.message));
 });

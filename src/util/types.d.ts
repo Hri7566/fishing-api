@@ -111,3 +111,15 @@ interface TFisher {
 }
 
 type TPokedex = IPokemon[];
+
+type TBehavior<T> = () => Promise<T>;
+type TBehaviorMap<T> = Record<T, TBehavior>;
+
+interface IItemBehaviorData {
+    status: boolean;
+    text: string;
+    userID: string;
+}
+
+type TItemBehavior = Behavior<IItemBehaviorData>;
+type TItemBehaviorMap = TBehaviorMap<TItemBehavior>;

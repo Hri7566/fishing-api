@@ -17,6 +17,7 @@ import { pokemon } from "./inventory/pokemon";
 import { color } from "./general/color";
 import { autofish } from "./util/autofish";
 import { pokedex } from "./util/pokedex";
+import { myid } from "./general/myid";
 
 interface ICommandGroup {
     id: string;
@@ -29,7 +30,7 @@ export const commandGroups: ICommandGroup[] = [];
 const generalGroup: ICommandGroup = {
     id: "general",
     displayName: "General",
-    commands: [help, color]
+    commands: [help, color, myid]
 };
 
 commandGroups.push(generalGroup);

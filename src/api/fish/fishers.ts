@@ -94,14 +94,14 @@ export function stopFisherTick() {
 
 export function startFishing(
     id: string,
-    userId: string,
+    userID: string,
     isDM: boolean = false,
     autofish: boolean = false,
     autofish_t: number = Date.now()
 ) {
-    fishers[id + "~" + userId] = {
+    fishers[id + "~" + userID] = {
         id,
-        userID: userId,
+        userID,
         t: Date.now(),
         isDM,
         autofish,
@@ -111,11 +111,11 @@ export function startFishing(
 
 export function stopFishing(
     id: string,
-    userId: string,
+    userID: string,
     autofish: boolean = false,
     autofish_t: number = Date.now()
 ) {
-    let key = id + "~" + userId;
+    let key = id + "~" + userID;
     let fisher = fishers[key];
     delete fishers[key];
 
@@ -131,10 +131,10 @@ export function stopFishing(
     }
 
     if (autofish) {
-        startFishing(id, userId, true, true, autofish_t);
+        startFishing(id, userID, true, true, autofish_t);
     }
 }
 
-export function getFishing(id: string, userId: string) {
-    return fishers[id + "~" + userId];
+export function getFishing(id: string, userID: string) {
+    return fishers[id + "~" + userID];
 }
