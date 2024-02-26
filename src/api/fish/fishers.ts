@@ -123,7 +123,7 @@ export function stopFishing(
     if (t > autofish_t + 5 * 60000) {
         addBack(fisher.id, {
             m: "sendchat",
-            message: `Friend @${fisher.userID}'s AUTOFISH has sibsided after 5.0 minutes.`,
+            message: `Friend @${fisher.userID}'s AUTOFISH has subsided after 5.0 minutes.`,
             isDM: fisher.isDM,
             id: fisher.userID
         });
