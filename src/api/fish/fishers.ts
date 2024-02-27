@@ -1,7 +1,7 @@
 import { kvGet, kvSet } from "@server/data/keyValueStore";
 import { getObjectStorage } from "@server/data/location";
 import { addTickEvent, removeTickEvent } from "@util/tick";
-import { randomFish } from "./fish";
+import { getSizeString, randomFish } from "./fish";
 import { getUser } from "@server/data/user";
 import { getInventory, updateInventory } from "@server/data/inventory";
 import { addItem } from "@server/items";
@@ -52,18 +52,7 @@ export async function tick() {
             const animal = randomFish(inventory.location);
             addItem(inventory.fishSack as TFishSack, animal);
             await updateInventory(inventory);
-            const size =
-                animal.size < 30
-                    ? "small"
-                    : animal.size < 60
-                    ? "medium-sized"
-                    : animal.size < 75
-                    ? "large"
-                    : animal.size < 100
-                    ? "huge"
-                    : animal.size < 200
-                    ? "massive"
-                    : "gigantic";
+            const size = getSizeString(animal.size);
             addBack(winner.id, {
                 m: "sendchat",
                 message: `Our good friend @${user.id} caught a ${size} ${
@@ -123,7 +112,11 @@ export function stopFishing(
     if (t > autofish_t + 5 * 60000) {
         addBack(fisher.id, {
             m: "sendchat",
-            message: `Friend @${fisher.userID}'s AUTOFISH has subsided after 5.0 minutes.`,
+            message: `Friend @${fisher.userID}'s AUTOFISH has sibsided after ${(
+                (Date.now() - fisher.autofish_t) /
+                1000 /
+                60
+            ).toFixed(2)} minutes.`,
             isDM: fisher.isDM,
             id: fisher.userID
         });

@@ -49,7 +49,7 @@ export const take = new Command(
                 break;
             case "pokemon":
                 // addItem(pokemon as unknown as IObject[], foundObject);
-                return "Unlike other items, Pokémon have to be caught.";
+                return "Unlike other items, Pokémon have to be caught with a Pokéball.";
                 break;
             default:
                 break;

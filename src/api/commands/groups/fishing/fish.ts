@@ -19,7 +19,13 @@ export const fish = new Command(
                 1000 /
                 60
             ).toFixed(2)} minutes ago).${
-                fishing.autofish ? ` (AUTOFISH is enabled)` : ``
+                fishing.autofish
+                    ? ` (AUTOFISH has been enabled for ${(
+                          (Date.now() - fishing.autofish_t) /
+                          1000 /
+                          60
+                      ).toFixed(2)} minutes)`
+                    : ``
             }`;
         }
     }

@@ -22,7 +22,7 @@ export const autofish = new Command(
             ).toFixed(2)} minutes ago).${
                 fishing.autofish
                     ? ` (AUTOFISH is enabled)`
-                    : ` (${props.prefix}${reel.aliases[0]} in first to AUTOFISH)`
+                    : ` (${props.prefix}${reel.aliases[0]} in first to start AUTOFISH)`
             }`;
         }
     }

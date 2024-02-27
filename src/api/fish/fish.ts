@@ -105,3 +105,24 @@ export function hasFishTime(
 
     return false;
 }
+
+export function getSizeString(cm: number) {
+    const size =
+        cm < 30
+            ? "small"
+            : cm < 60
+            ? "medium-sized"
+            : cm < 75
+            ? "large"
+            : cm < 100
+            ? "huge"
+            : cm < 200
+            ? "massive"
+            : cm < 300
+            ? "gigantic"
+            : cm < 600
+            ? "humongous"
+            : "supermassive";
+
+    return size;
+}

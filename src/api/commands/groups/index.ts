@@ -18,6 +18,7 @@ import { color } from "./general/color";
 import { autofish } from "./util/autofish";
 import { pokedex } from "./util/pokedex";
 import { myid } from "./general/myid";
+import { yeet } from "./inventory/yeet";
 
 interface ICommandGroup {
     id: string;
@@ -46,7 +47,7 @@ commandGroups.push(fishingGroup);
 const inventoryGroup: ICommandGroup = {
     id: "inventory",
     displayName: "Inventory",
-    commands: [inventory, take, eat, sack, pokemon]
+    commands: [inventory, take, eat, sack, pokemon, yeet]
 };
 
 commandGroups.push(inventoryGroup);
