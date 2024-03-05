@@ -1,7 +1,6 @@
-import { addBack } from "@server/backs";
 import Command from "@server/commands/Command";
 import { getInventory, updateInventory } from "@server/data/inventory";
-import { CosmicColor } from "@util/CosmicColor";
+import { itemBehaviorMap, runBehavior } from "@server/items/behavior";
 
 export const eat = new Command(
     "eat",
@@ -9,7 +8,8 @@ export const eat = new Command(
     "Eat literally anything you have (except non-fish animals)",
     "eat <something>",
     "command.inventory.eat",
-    async ({ id, command, args, prefix, part, user }) => {
+    async props => {
+        const { args, prefix, part, user } = props;
         const eating = args[0];
         if (!eating) return `What do you want to ${prefix}eat?`;
 
@@ -17,8 +17,8 @@ export const eat = new Command(
         if (!inventory) return;
 
         let foundObject: IObject | undefined;
-        let tryChangingColor = false;
         let i = 0;
+        let shouldRemove = false;
 
         for (const item of inventory.items as unknown as IItem[]) {
             if (!item.name.toLowerCase().includes(eating.toLowerCase())) {
@@ -27,51 +27,8 @@ export const eat = new Command(
             }
 
             foundObject = item;
-
-            let shouldRemove = false;
-
-            if (typeof item.count !== "undefined") {
-                if (item.count > 1) {
-                    shouldRemove = false;
-                    ((inventory.items as TInventoryItems)[i].count as number)--;
-                } else {
-                    shouldRemove = true;
-                }
-            } else {
-                shouldRemove = true;
-            }
-
-            if (shouldRemove) (inventory.items as TInventoryItems).splice(i, 1);
             break;
         }
-
-        i = 0;
-
-        // no more eating animals
-        // for (const pokemon of inventory.pokemon as TPokemonSack) {
-        //     if (!pokemon.name.toLowerCase().includes(eating.toLowerCase())) {
-        //         i++;
-        //         continue;
-        //     }
-
-        //     foundObject = pokemon as unknown as IObject;
-
-        //     let shouldRemove = false;
-
-        //     if (typeof pokemon.count !== "undefined") {
-        //         if (pokemon.count > 1) {
-        //             shouldRemove = false;
-        //             ((inventory.pokemon as TPokemonSack)[i].count as number)--;
-        //         } else {
-        //             shouldRemove = true;
-        //         }
-        //     } else {
-        //         shouldRemove = true;
-        //     }
-
-        //     if (shouldRemove) (inventory.pokemon as TPokemonSack).splice(i, 1);
-        //     break;
-        // }
 
         i = 0;
 
@@ -82,56 +39,77 @@ export const eat = new Command(
             }
 
             foundObject = fish;
-
-            let shouldRemove = false;
-
-            if (typeof fish.count !== "undefined") {
-                if (fish.count > 1) {
-                    shouldRemove = false;
-                    ((inventory.fishSack as TFishSack)[i].count as number)--;
-                } else {
-                    shouldRemove = true;
-                }
-            } else {
-                shouldRemove = true;
-            }
-
-            if (shouldRemove) (inventory.fishSack as TFishSack).splice(i, 1);
             break;
         }
 
         if (!foundObject) return `You don't have "${eating}" to eat.`;
-        if (foundObject.objtype == "fish") {
-            tryChangingColor = true;
+
+        // Get item behaviors and run the "eat" script
+        let thingy = foundObject.id;
+        if (foundObject.objtype == "fish") thingy = "fish";
+
+        const bhv = itemBehaviorMap[thingy];
+        if (!bhv) return `The ${foundObject.name} isn't edible.`;
+        if (!bhv["eat"]) return `You can't eat the ${foundObject.name}.`;
+
+        const res = await runBehavior(thingy, "eat", foundObject, props);
+        shouldRemove = res.shouldRemove;
+
+        if (shouldRemove) {
+            if (foundObject.objtype == "fish") {
+                i = 0;
+
+                for (const fish of inventory.fishSack as TFishSack) {
+                    if (typeof fish.count !== "undefined") {
+                        if (fish.count > 1) {
+                            shouldRemove = false;
+                            ((inventory.fishSack as TFishSack)[i]
+                                .count as number)--;
+                        } else {
+                            shouldRemove = true;
+                        }
+                    } else {
+                        shouldRemove = true;
+                    }
+
+                    if (shouldRemove)
+                        (inventory.fishSack as TFishSack).splice(i, 1);
+                    break;
+                }
+            } else if (foundObject.objtype == "item") {
+                i = 0;
+
+                for (const item of inventory.items as unknown as IItem[]) {
+                    if (typeof item.count == "number") {
+                        if (item.count > 1) {
+                            shouldRemove = false;
+                            ((inventory.items as TInventoryItems)[i]
+                                .count as number)--;
+                        } else {
+                            shouldRemove = true;
+                        }
+                    } else {
+                        shouldRemove = true;
+                    }
+
+                    if (shouldRemove)
+                        (inventory.items as TInventoryItems).splice(i, 1);
+                    break;
+                }
+            }
+
+            await updateInventory(inventory);
         }
 
-        await updateInventory(inventory);
-
-        if (!tryChangingColor) {
-            if (foundObject.id == "sand") {
-                return `Our friend ${part.name} ate of his/her ${foundObject.name}.`;
+        if (foundObject.id == "sand") {
+            if (res.and) {
+                return `Our friend ${part.name} ate of his/her ${foundObject.name} ${res.and}`;
             } else {
-                return `Our friend ${part.name} ate his/her ${foundObject.name}.`;
+                return `Our friend ${part.name} ate of his/her ${foundObject.name}.`;
             }
         } else {
-            const r = Math.random();
-
-            if (r < 0.3) {
-                const color = new CosmicColor(
-                    Math.floor(Math.random() * 255),
-                    Math.floor(Math.random() * 255),
-                    Math.floor(Math.random() * 255)
-                );
-
-                addBack(id, {
-                    m: "color",
-                    id: part.id,
-                    color: color.toHexa()
-                });
-
-                return `Our friend ${part.name} ate his/her ${
-                    foundObject.name
-                } and it made him/her turn ${color.getName().toLowerCase()}.`;
+            if (res.and) {
+                return `Our friend ${part.name} ate his/her ${foundObject.name} ${res.and}`;
             } else {
                 return `Our friend ${part.name} ate his/her ${foundObject.name}.`;
             }

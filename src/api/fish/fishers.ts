@@ -41,8 +41,11 @@ export async function tick() {
         }
 
         const r = Math.random();
+        const data = await getFishingChance(user.id);
+        // After 30 minutes, reset chance
+        if (data.t > 30 * 60000) await resetFishingChance(user.id);
 
-        if (r < 0.1) {
+        if (r < data.chance / 10) {
             stopFishing(
                 winner.id,
                 winner.userID,
@@ -130,4 +133,34 @@ export function stopFishing(
 
 export function getFishing(id: string, userID: string) {
     return fishers[id + "~" + userID];
+}
+
+export async function getFishingChance(userID: string) {
+    const key = `fishingChance~${userID}`;
+    const data = (await kvGet(key)) as IFishingChance;
+
+    if (!data) {
+        await resetFishingChance(userID);
+        return await getFishingChance(userID);
+    }
+
+    return data;
+}
+
+export async function resetFishingChance(userID: string) {
+    const key = `fishingChance~${userID}`;
+    await kvSet(key, {
+        t: Date.now(),
+        chance: 1
+    } as IFishingChance);
+}
+
+export async function incrementFishingChance(userID: string) {
+    const key = `fishingChance~${userID}`;
+    const data = (await kvGet(key)) as IFishingChance;
+    if (!data) await resetFishingChance(userID);
+    const r = Math.random();
+    data.chance += r;
+    await kvSet(key, data);
+    return r;
 }

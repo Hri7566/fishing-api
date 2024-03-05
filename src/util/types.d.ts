@@ -8,7 +8,7 @@ interface ICommandResponse {
     response: string;
 }
 
-type TCommandCallback<User> = (props: {
+interface IContextProps {
     id: string;
     command: string;
     args: string[];
@@ -16,7 +16,9 @@ type TCommandCallback<User> = (props: {
     part: IPart;
     user: User;
     isDM: boolean;
-}) => Promise<string | void>;
+}
+
+type TCommandCallback<User> = (props: IContextProps) => Promise<string | void>;
 
 interface CountComponent {
     count: number;
@@ -112,19 +114,32 @@ interface TFisher {
 
 type TPokedex = IPokemon[];
 
-type TBehavior<T> = () => Promise<T>;
-type TBehaviorMap<T> = Record<T, TBehavior>;
-
-interface IItemBehaviorData {
-    status: boolean;
-    text: string;
-    userID: string;
-}
-
-type TItemBehavior = Behavior<IItemBehaviorData>;
-type TItemBehaviorMap = TBehaviorMap<TItemBehavior>;
-
 interface IGroup {
     id: string;
     permissions: string[];
+}
+
+interface IBehaviorResponse {
+    success: boolean;
+    err?: string;
+
+    shouldRemove: boolean;
+    and?: string;
+}
+
+type TBehaviorCallback = (
+    obj: IObject,
+    props: IContextProps
+) => Promise<IBehaviorResponse>;
+type TBehavior = Record<string, TBehaviorCallback>;
+type TBehaviorMap = Record<string, TBehavior>;
+
+interface IBehaviorDefinition {
+    id: string;
+    bhv: TBehavior;
+}
+
+interface IFishingChance {
+    chance: number;
+    t: number;
 }
