@@ -49,10 +49,12 @@ export const eat = new Command(
         if (foundObject.objtype == "fish") thingy = "fish";
 
         const bhv = itemBehaviorMap[thingy];
+        let res;
+
         if (bhv) {
             if (!bhv["eat"]) return `You can't eat the ${foundObject.name}.`;
 
-            const res = await runBehavior(thingy, "eat", foundObject, props);
+            res = await runBehavior(thingy, "eat", foundObject, props);
             shouldRemove = res.shouldRemove;
         } else {
             shouldRemove = true;
@@ -105,14 +107,16 @@ export const eat = new Command(
         }
 
         if (foundObject.id == "sand") {
-            if (res.and) {
-                return `Our friend ${part.name} ate of his/her ${foundObject.name} ${res.and}`;
+            if (res) {
+                if (res.and)
+                    return `Our friend ${part.name} ate of his/her ${foundObject.name} ${res.and}`;
             } else {
                 return `Our friend ${part.name} ate of his/her ${foundObject.name}.`;
             }
         } else {
-            if (res.and) {
-                return `Our friend ${part.name} ate his/her ${foundObject.name} ${res.and}`;
+            if (res) {
+                if (res.and)
+                    return `Our friend ${part.name} ate his/her ${foundObject.name} ${res.and}`;
             } else {
                 return `Our friend ${part.name} ate his/her ${foundObject.name}.`;
             }
