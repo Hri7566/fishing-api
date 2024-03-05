@@ -14,9 +14,9 @@ export async function setFruitCount(num: number) {
 export async function treeTick() {
     const r = Math.random();
 
-    if (r < 0.00001) {
+    if (r < 0.000001) {
         await growFruit(5);
-    } else if (r < 0.0001) {
+    } else if (r < 0.00001) {
         await growFruit(1);
     }
 }
