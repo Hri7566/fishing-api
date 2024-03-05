@@ -3,6 +3,8 @@ import type Command from "./Command";
 import { commandGroups } from "./groups";
 import { createUser, getUser, updateUser } from "@server/data/user";
 import { createInventory, getInventory } from "@server/data/inventory";
+import { getUserGroup } from "@server/data/permissions";
+import { groupHasPermission } from "@server/permissions/groups";
 
 export const logger = new Logger("Command Handler");
 
@@ -52,7 +54,10 @@ export async function handleCommand(
     let inventory = await getInventory(user.inventoryId);
     if (!inventory) inventory = await createInventory({ id: user.inventoryId });
 
-    // TODO Check user's (or their groups') permissions against command permission node
+    const group = await getUserGroup(user.id);
+    if (!group) return;
+    if (!groupHasPermission(group.groupId, foundCommand.permissionNode))
+        return { response: `No permission.` };
 
     try {
         const response = await foundCommand.callback({

@@ -123,3 +123,8 @@ interface IItemBehaviorData {
 
 type TItemBehavior = Behavior<IItemBehaviorData>;
 type TItemBehaviorMap = TBehaviorMap<TItemBehavior>;
+
+interface IGroup {
+    id: string;
+    permissions: string[];
+}

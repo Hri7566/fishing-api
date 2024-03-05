@@ -46,3 +46,8 @@ model KeyValueStore {
   id   Int  @id @default(0)
   json Json @default("{}")
 }
+
+model UserPermission {
+  userId  String @id @unique
+  groupId String
+}

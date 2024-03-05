@@ -64,7 +64,7 @@ rl.on("line", async line => {
 
     if (!command) return;
     if (command.response) {
-        logger.info(cliMd(command.response));
+        logger.info(cliMd(command.response.split("\n").join("\n\n")));
     }
 });
 

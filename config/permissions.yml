@@ -1,0 +1,9 @@
+- id: default
+  permissions:
+      - command.general.*
+      - command.fishing.*
+      - command.inventory.*
+      - command.util.*
+- id: owner
+  permissions:
+      - "*"

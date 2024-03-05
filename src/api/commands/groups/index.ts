@@ -19,6 +19,8 @@ import { autofish } from "./util/autofish";
 import { pokedex } from "./util/pokedex";
 import { myid } from "./general/myid";
 import { yeet } from "./inventory/yeet";
+import { tree } from "./fishing/tree";
+import { pick } from "./fishing/pick";
 
 interface ICommandGroup {
     id: string;
@@ -39,7 +41,7 @@ commandGroups.push(generalGroup);
 const fishingGroup: ICommandGroup = {
     id: "fishing",
     displayName: "Fishing",
-    commands: [fish, reel, location, go, nearby, look]
+    commands: [fish, reel, location, go, nearby, look, tree, pick]
 };
 
 commandGroups.push(fishingGroup);

@@ -35,6 +35,14 @@ export const locations = loadConfig<ILocation[]>("config/locations.yml", [
         nearby: ["pond", "lake", "river"],
         hasSand: true,
         objects: []
+    },
+
+    {
+        id: "forest",
+        name: "Forest",
+        nearby: ["pond", "lake", "beach"],
+        hasSand: false,
+        objects: []
     }
 ]);
 
