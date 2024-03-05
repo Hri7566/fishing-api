@@ -5,6 +5,8 @@ import { getInventory, updateInventory } from "@server/data/inventory";
 import { getUser } from "@server/data/user";
 import { getSizeString } from "@server/fish/fish";
 import { fishers, getFishing } from "@server/fish/fishers";
+import { locations } from "@server/fish/locations";
+import { addItem } from "@server/items";
 import { CosmicColor } from "@util/CosmicColor";
 
 export const yeet = new Command(
@@ -45,37 +47,10 @@ export const yeet = new Command(
                 shouldRemove = true;
             }
 
-            if (shouldRemove) (inventory.items as TInventoryItems).splice(i, 1);
+            if (shouldRemove && item.id !== "sand")
+                (inventory.items as TInventoryItems).splice(i, 1);
             break;
         }
-
-        i = 0;
-
-        // no more yeeting animals
-        // for (const pokemon of inventory.pokemon as TPokemonSack) {
-        //     if (!pokemon.name.toLowerCase().includes(yeeting.toLowerCase())) {
-        //         i++;
-        //         continue;
-        //     }
-
-        //     foundObject = pokemon as unknown as IObject;
-
-        //     let shouldRemove = false;
-
-        //     if (typeof pokemon.count !== "undefined") {
-        //         if (pokemon.count > 1) {
-        //             shouldRemove = false;
-        //             ((inventory.pokemon as TPokemonSack)[i].count as number)--;
-        //         } else {
-        //             shouldRemove = true;
-        //         }
-        //     } else {
-        //         shouldRemove = true;
-        //     }
-
-        //     if (shouldRemove) (inventory.pokemon as TPokemonSack).splice(i, 1);
-        //     break;
-        // }
 
         i = 0;
 
@@ -111,9 +86,10 @@ export const yeet = new Command(
 
         await updateInventory(inventory);
 
-        // TODO Implement kekklefruit generation
         if (foundObject.id == "sand") {
-            return `No, ${part.name}, don't yeet ${foundObject.name}.`;
+            return `No, ${
+                part.name
+            }, don't yeet ${foundObject.name.toLowerCase()}.`;
         } else {
             if (Math.random() < 0.15) {
                 const randomFisher =
@@ -123,11 +99,19 @@ export const yeet = new Command(
                         )
                     ];
 
-                const person = await getUser(randomFisher.userID);
+                let person;
+
+                if (!randomFisher) {
+                    person = {
+                        name: "Anonymous"
+                    };
+                } else {
+                    person = await getUser(randomFisher.userID);
+                }
 
                 let target: string;
 
-                if (!person) {
+                if (!person || person?.id == part.id) {
                     target = "Anonymous";
                 } else {
                     target = person.name;
@@ -212,17 +196,99 @@ export const yeet = new Command(
                     } residue was left behind in ${target}'s hair.`
                 ];
 
-                return `Friend ${part.name}'s${
+                return `Friend ${part.name}'s ${
                     handsAdjective[
                         Math.floor(Math.random() * handsAdjective.length)
                     ]
-                }hands grabbed his/her ${foundObject.name} and ${
+                } hands grabbed his/her ${foundObject.name} and ${
                     pastTense[Math.floor(Math.random() * pastTense.length)]
                 } it ${
                     presentTense[
                         Math.floor(Math.random() * presentTense.length)
                     ]
-                } ${ending[Math.floor(Math.random() * ending.length)]}`;
+                } ${ending[Math.floor(Math.random() * ending.length)]} ${
+                    ps[Math.floor(Math.random() * ps.length)]
+                }`;
+            }
+
+            if (Math.random() < 0.15) {
+                let size =
+                    foundObject.objtype == "fish"
+                        ? getSizeString((foundObject as IFish).size)
+                        : "voluminous";
+
+                let fish = foundObject.name;
+                let name = part.name;
+
+                const loc = locations.find(loc => loc.id == inventory.location);
+                if (!loc)
+                    return `Friend ${part.name} carelessly hurled their ${foundObject.name} into the void.`;
+
+                addItem(locations[locations.indexOf(loc)].objects, foundObject);
+
+                let kekNames = [
+                    "kek of good fortune",
+                    "lucky kek",
+                    "kek",
+                    "fortunate kek",
+                    "the kekklefruit that was knocked from the tree",
+                    "sandy kekklefruit",
+                    "baby kekklefruit"
+                ];
+
+                addItem(locations[locations.indexOf(loc)].objects, {
+                    id: "kekklefruit",
+                    name: kekNames[Math.floor(Math.random() * kekNames.length)],
+                    objtype: "item",
+                    count: 1,
+                    emoji: "🍍"
+                });
+
+                // transcribed from the old code
+                let yeets = [
+                    "The " +
+                        size +
+                        " " +
+                        fish +
+                        " thwapped into the kekklefruit tree sending debris flying.  A kekklefruit was knocked to the ground.",
+                    "It's lying there next to the tree.",
+                    "It got splattered on the tree.",
+                    "Part of it is stuck to the tree, but it came to rest on the ground nearby.",
+                    "A distressed-looking " +
+                        fish +
+                        " on the ground near the tree.",
+                    "It landed in the grass.",
+                    "It's kinda scuffed up.",
+                    "It's got tree on it. And " + name + "prints.",
+                    "It's " + size + ".",
+                    "It belongs to the tree now.",
+                    "It's by the tree now.",
+                    "It's a " +
+                        size +
+                        " " +
+                        fish +
+                        " previously owned by " +
+                        name +
+                        " if you still want it after that."
+                ];
+
+                return yeets[Math.floor(Math.random() * yeets.length)];
+            }
+
+            if (Math.random() < 0.4) {
+                const yeets = [
+                    "Tossed " + foundObject.name + " into the water.",
+                    "It looks like somebody tossed it haphazardly into the shallow water. It is not swimming.",
+                    "It's in the shallows trying to swim away...",
+                    user.name +
+                        " tossed this into the shallows where it rests today. I don't think it's moving.",
+                    "I think it's a " +
+                        foundObject.name +
+                        ".  A very immobile one.",
+                    " It's resting at the edge of the water where you can /take it."
+                ];
+
+                return yeets[Math.floor(Math.random() * yeets.length)];
             }
 
             return `Friend ${part.name} tossed his/her ${foundObject.name}.`;
