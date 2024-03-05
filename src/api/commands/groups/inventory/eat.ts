@@ -49,11 +49,14 @@ export const eat = new Command(
         if (foundObject.objtype == "fish") thingy = "fish";
 
         const bhv = itemBehaviorMap[thingy];
-        if (!bhv) return `The ${foundObject.name} isn't edible.`;
-        if (!bhv["eat"]) return `You can't eat the ${foundObject.name}.`;
+        if (bhv) {
+            if (!bhv["eat"]) return `You can't eat the ${foundObject.name}.`;
 
-        const res = await runBehavior(thingy, "eat", foundObject, props);
-        shouldRemove = res.shouldRemove;
+            const res = await runBehavior(thingy, "eat", foundObject, props);
+            shouldRemove = res.shouldRemove;
+        } else {
+            shouldRemove = true;
+        }
 
         if (shouldRemove) {
             if (foundObject.objtype == "fish") {

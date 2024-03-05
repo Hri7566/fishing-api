@@ -2,6 +2,7 @@ import { addBack } from "@server/backs";
 import Command from "@server/commands/Command";
 import { logger } from "@server/commands/handler";
 import { getInventory, updateInventory } from "@server/data/inventory";
+import prisma from "@server/data/prisma";
 import { getUser } from "@server/data/user";
 import { getSizeString } from "@server/fish/fish";
 import { fishers, getFishing } from "@server/fish/fishers";
