@@ -25,8 +25,8 @@ export const look = new Command(
             );
         }
 
-        return `There's ${
-            objList.join(", ") + ", about." || "not much around."
-        }`;
+        const list = objList.join(", ");
+
+        return `There's ${list ? list + ", about." : "not much around."}`;
     }
 );
