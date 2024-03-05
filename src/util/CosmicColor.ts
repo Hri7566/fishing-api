@@ -176,7 +176,7 @@ CosmicColor.addToMap("#98777B", "Bazaar");
 CosmicColor.addToMap("#9F8170", "Beaver");
 CosmicColor.addToMap("#F5F5DC", "Beige");
 CosmicColor.addToMap("#2E5894", "B'dazzled blue");
-CosmicColor.addToMap("#9C2542", "Big dip oâ€™ruby");
+CosmicColor.addToMap("#9C2542", "Big dip o’ruby");
 CosmicColor.addToMap("#FFE4C4", "Bisque");
 CosmicColor.addToMap("#3D2B1F", "Bistre");
 CosmicColor.addToMap("#967117", "Bistre brown");
