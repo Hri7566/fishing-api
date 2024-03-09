@@ -2,13 +2,15 @@ import { EventEmitter } from "events";
 import Discord from "discord.js";
 import { Logger } from "@util/Logger";
 import { CosmicColor } from "@util/CosmicColor";
-import trpc from "@util/api/trpc";
+import gettRPC from "@util/api/trpc";
 
 export interface DiscordBotConfig {
     serverID: string;
     defaultChannelID: string;
     token?: string;
 }
+
+const trpc = gettRPC(process.env.DISCORD_FISHING_TOKEN as string);
 
 export class DiscordBot extends EventEmitter {
     public client: Discord.Client;

@@ -1,6 +1,6 @@
 import Client from "mpp-client-net";
 import { Logger } from "@util/Logger";
-import trpc from "@util/api/trpc";
+import gettRPC from "@util/api/trpc";
 import { EventEmitter } from "events";
 
 export interface MPPNetBotConfig {
@@ -11,6 +11,8 @@ export interface MPPNetBotConfig {
         allowColorChanging: boolean;
     };
 }
+
+const trpc = gettRPC(process.env.MPP_FISHING_TOKEN as string);
 
 export class MPPNetBot {
     public client: Client;
