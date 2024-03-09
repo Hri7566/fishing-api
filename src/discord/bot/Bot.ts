@@ -159,17 +159,20 @@ export class DiscordBot extends EventEmitter {
 
                     const role = await this.server.roles.create({
                         name: member.id,
-                        color: parseInt(msg.color.substring(1), 16)
+                        color: msg.color
                     });
 
                     await member.roles.add(role);
-                    return;
                 } catch (err) {
+                    this.logger.warn(
+                        "Unable to create and set color for user ID:",
+                        msg.id
+                    );
                     return;
                 }
+            } else {
+                await existingRole.setColor(msg.color);
             }
-
-            await existingRole.setColor(parseInt(msg.color.substring(1), 16));
         });
 
         this.b.on("sendchat", msg => {
