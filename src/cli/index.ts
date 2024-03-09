@@ -1,7 +1,9 @@
 import { Logger } from "@util/Logger";
 import { createInterface, type ReadLine } from "readline";
 import { EventEmitter } from "events";
-import trpc from "@util/api/trpc";
+import gettRPC from "@util/api/trpc";
+
+const trpc = gettRPC(process.env.CLI_FISHING_TOKEN as string);
 
 // no typedefs :/
 const cliMd = require("cli-markdown").default;

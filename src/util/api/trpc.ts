@@ -10,7 +10,7 @@ export function gettRPC(token: string) {
             //     url: "http://localhost:3000",
             //     headers() {
             //         return {
-            //             Authorization: apiToken
+            //             Authorization: token
             //         };
             //     }
             // }),
