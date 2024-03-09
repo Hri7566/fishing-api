@@ -32,7 +32,7 @@ export const help = new Command(
                 }
 
                 if (list2.length > 0)
-                    list.push(`${group.displayName}: ${list2.join(", ")}`);
+                    list.push(`**${group.displayName}:** ${list2.join(", ")}`);
             }
 
             return `__Fishing:__\n${list.join("\n")}`;
