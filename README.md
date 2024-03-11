@@ -8,10 +8,35 @@ This project was created using `bun init` in bun v1.0.25. [Bun](https://bun.sh) 
 
 ## Deployment
 
-Setup the `.env` file like other projects, then:
+Firstly, a PostgreSQL database must be ready beforehand to connect to with a URI. This shoud be self-explanatory to setup.
+
+Copy the default `.env` file:
 
 ```bash
-bunx prisma db push
+cp .env.template .env
+```
+
+Edit that file to match your environment, then install packages:
+
+```bash
 bun install
-bun run src/index.ts
+bunx prisma db push
+```
+
+Run both the http server and the clients for various services separately with these commands:
+
+```bash
+bun . # Main http server
+```
+
+```bash
+bun src/mpp/index.ts # MPP bot
+```
+
+```bash
+bun src/discord/index.ts # Discord bot
+```
+
+```bash
+bun src/cli/index.ts # Command-line client (for debugging)
 ```
