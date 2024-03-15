@@ -29,7 +29,8 @@ export class DiscordBot extends EventEmitter {
                 "Guilds",
                 "GuildMessages",
                 "MessageContent",
-                "GuildMembers"
+                "GuildMembers",
+                "GuildModeration"
             ]
         });
 
@@ -140,6 +141,8 @@ export class DiscordBot extends EventEmitter {
                     }
                 }
             } catch (err) {
+                this.logger.error(err);
+                this.logger.warn("Unable to parse server message");
                 return;
             }
         }, 1000 / 20);
@@ -173,7 +176,7 @@ export class DiscordBot extends EventEmitter {
                     return;
                 }
             } else {
-                await existingRole.setColor(msg.color);
+                await existingRole.setColor(msg.color.toUpperCase());
             }
         });
 
@@ -181,9 +184,7 @@ export class DiscordBot extends EventEmitter {
             // this.logger.debug("sendchat message:", msg);
             if (!this.defaultChannel) return;
             this.defaultChannel.send(
-                msg.message
-                    .split(`@${msg.author.id}`)
-                    .join(`<@${msg.author.id}>`)
+                msg.message.split(`@${msg.id}`).join(`<@${msg.id}>`)
             );
         });
     }
