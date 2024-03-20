@@ -21,6 +21,7 @@ import { myid } from "./general/myid";
 import { yeet } from "./inventory/yeet";
 import { tree } from "./fishing/tree";
 import { pick } from "./fishing/pick";
+import { fid } from "./util/fid";
 // import { give } from "./inventory/give";
 
 interface ICommandGroup {
@@ -58,7 +59,7 @@ commandGroups.push(inventoryGroup);
 const utilGroup: ICommandGroup = {
     id: "util",
     displayName: "Utility",
-    commands: [data, setcolor, memory, autofish, pokedex]
+    commands: [data, setcolor, memory, autofish, pokedex, fid]
 };
 
 commandGroups.push(utilGroup);
