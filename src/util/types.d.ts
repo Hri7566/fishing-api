@@ -10,6 +10,7 @@ interface ICommandResponse {
 
 interface IContextProps {
     id: string;
+    channel: string;
     command: string;
     args: string[];
     prefix: string;
@@ -106,6 +107,7 @@ interface ILocation {
 interface TFisher {
     id: string;
     userID: string;
+    channel: string;
     t: number;
     isDM: boolean;
     autofish: boolean;

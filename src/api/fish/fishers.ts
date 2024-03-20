@@ -29,14 +29,14 @@ export async function tick() {
         const user = await getUser(winner.userID);
 
         if (!user) {
-            stopFishing(winner.id, winner.userID, false);
+            stopFishing(winner.id, winner.userID, winner.channel, false);
             return;
         }
 
         const inventory = await getInventory(user.inventoryId);
 
         if (!inventory) {
-            stopFishing(winner.id, winner.userID, false);
+            stopFishing(winner.id, winner.userID, winner.channel, false);
             return;
         }
 
@@ -49,6 +49,7 @@ export async function tick() {
             stopFishing(
                 winner.id,
                 winner.userID,
+                winner.channel,
                 winner.autofish,
                 winner.autofish_t
             );
@@ -58,6 +59,7 @@ export async function tick() {
             const size = getSizeString(animal.size);
             addBack(winner.id, {
                 m: "sendchat",
+                channel: winner.channel,
                 message: `Our good friend @${user.id} caught a ${size} ${
                     animal.emoji || "🐟"
                 }${animal.name}! ready to ${prefixes[0]}eat or ${
@@ -87,6 +89,7 @@ export function stopFisherTick() {
 export function startFishing(
     id: string,
     userID: string,
+    channel: string,
     isDM: boolean = false,
     autofish: boolean = false,
     autofish_t: number = Date.now()
@@ -94,6 +97,7 @@ export function startFishing(
     fishers[id + "~" + userID] = {
         id,
         userID,
+        channel,
         t: Date.now(),
         isDM,
         autofish,
@@ -104,6 +108,7 @@ export function startFishing(
 export function stopFishing(
     id: string,
     userID: string,
+    channel: string,
     autofish: boolean = false,
     autofish_t: number = Date.now()
 ) {
@@ -120,6 +125,7 @@ export function stopFishing(
                 1000 /
                 60
             ).toFixed(2)} minutes.`,
+            channel: fisher.channel,
             isDM: fisher.isDM,
             id: fisher.userID
         });
@@ -127,7 +133,7 @@ export function stopFishing(
     }
 
     if (autofish) {
-        startFishing(id, userID, true, true, autofish_t);
+        startFishing(id, userID, channel, true, true, autofish_t);
     }
 }
 

@@ -12,12 +12,12 @@ export interface MPPNetBotConfig {
     };
 }
 
-const trpc = gettRPC(process.env.MPP_FISHING_TOKEN as string);
-
 export class MPPNetBot {
     public client: Client;
     public b = new EventEmitter();
     public logger: Logger;
+    public trpc = gettRPC(process.env.MPP_FISHING_TOKEN as string);
+    public started = false;
 
     constructor(
         public config: MPPNetBotConfig,
@@ -32,11 +32,14 @@ export class MPPNetBot {
     }
 
     public start() {
+        this.logger.debug("Starting");
         this.client.start();
+        this.started = true;
     }
 
     public stop() {
         this.client.stop();
+        this.started = false;
     }
 
     public bindEventListeners() {
@@ -54,7 +57,7 @@ export class MPPNetBot {
             let prefixes: string[];
 
             try {
-                prefixes = await trpc.prefixes.query();
+                prefixes = await this.trpc.prefixes.query();
             } catch (err) {
                 this.logger.error(err);
                 this.logger.warn("Unable to contact server");
@@ -69,7 +72,8 @@ export class MPPNetBot {
 
             const args = msg.a.split(" ");
 
-            const command = await trpc.command.query({
+            const command = await this.trpc.command.query({
+                channel: this.client.channel._id,
                 args: args.slice(1, args.length),
                 command: args[0].substring(usedPrefix.length),
                 prefix: usedPrefix,
@@ -120,7 +124,7 @@ export class MPPNetBot {
                 let prefixes: string[];
 
                 try {
-                    prefixes = await trpc.prefixes.query();
+                    prefixes = await this.trpc.prefixes.query();
                 } catch (err) {
                     this.logger.error(err);
                     this.logger.warn("Unable to contact server");
@@ -135,7 +139,8 @@ export class MPPNetBot {
 
                 const args = msg.a.split(" ");
 
-                const command = await trpc.command.query({
+                const command = await this.trpc.command.query({
+                    channel: this.client.channel._id,
                     args: args.slice(1, args.length),
                     command: args[0].substring(usedPrefix.length),
                     prefix: usedPrefix,
@@ -155,7 +160,8 @@ export class MPPNetBot {
 
         setInterval(async () => {
             try {
-                const backs = (await trpc.backs.query()) as IBack<unknown>[];
+                const backs =
+                    (await this.trpc.backs.query()) as IBack<unknown>[];
                 if (backs.length > 0) {
                     // this.logger.debug(backs);
                     for (const back of backs) {
@@ -182,6 +188,11 @@ export class MPPNetBot {
 
         this.b.on("sendchat", msg => {
             // this.logger.debug("sendchat message:", msg);
+
+            if (typeof msg.channel === "string") {
+                if (msg.channel !== this.client.channel._id) return;
+            }
+
             if (msg.isDM) {
                 this.sendDM(msg.message, msg.id);
             } else {

@@ -54,6 +54,7 @@ rl.on("line", async line => {
     const args = msg.a.split(" ");
 
     const command = await trpc.command.query({
+        channel: logger.id,
         args: args.slice(1, args.length),
         command: args[0].substring(usedPrefix.length),
         prefix: usedPrefix,
@@ -77,6 +78,10 @@ setInterval(async () => {
             // this.logger.debug(backs);
             for (const back of backs) {
                 if (typeof back.m !== "string") return;
+                if (typeof back.channel === "string") {
+                    if (back.channel !== logger.id) return;
+                }
+
                 b.emit(back.m, back);
             }
         }

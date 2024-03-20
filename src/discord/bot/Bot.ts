@@ -10,8 +10,6 @@ export interface DiscordBotConfig {
     token?: string;
 }
 
-const trpc = gettRPC(process.env.DISCORD_FISHING_TOKEN as string);
-
 export class DiscordBot extends EventEmitter {
     public client: Discord.Client;
     public logger = new Logger("Discord Bot");
@@ -19,6 +17,7 @@ export class DiscordBot extends EventEmitter {
     public server?: Discord.Guild;
     public defaultChannel?: Discord.TextChannel;
     public b = new EventEmitter();
+    public trpc = gettRPC(process.env.DISCORD_FISHING_TOKEN as string);
 
     constructor(public conf: DiscordBotConfig) {
         super();
@@ -95,7 +94,7 @@ export class DiscordBot extends EventEmitter {
             let prefixes: string[];
 
             try {
-                prefixes = await trpc.prefixes.query();
+                prefixes = await this.trpc.prefixes.query();
             } catch (err) {
                 this.logger.error(err);
                 this.logger.warn("Unable to contact server");
@@ -110,7 +109,8 @@ export class DiscordBot extends EventEmitter {
 
             const args = msg.content.split(" ");
 
-            const command = await trpc.command.query({
+            const command = await this.trpc.command.query({
+                channel: msg.channelId,
                 args: args.slice(1, args.length),
                 command: args[0].substring(usedPrefix.length),
                 prefix: usedPrefix,
@@ -132,7 +132,8 @@ export class DiscordBot extends EventEmitter {
 
         setInterval(async () => {
             try {
-                const backs = (await trpc.backs.query()) as IBack<unknown>[];
+                const backs =
+                    (await this.trpc.backs.query()) as IBack<unknown>[];
                 if (backs.length > 0) {
                     // this.logger.debug(backs);
                     for (const back of backs) {
@@ -183,6 +184,11 @@ export class DiscordBot extends EventEmitter {
         this.b.on("sendchat", msg => {
             // this.logger.debug("sendchat message:", msg);
             if (!this.defaultChannel) return;
+
+            if (typeof msg.channel === "string") {
+                if (msg.channel !== this.defaultChannel.id) return;
+            }
+
             this.defaultChannel.send(
                 msg.message.split(`@${msg.id}`).join(`<@${msg.id}>`)
             );

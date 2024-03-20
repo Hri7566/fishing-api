@@ -15,7 +15,7 @@ interface FishingContext {
     token: string | null;
 }
 
-interface AuthedFishingContext extends FishingContext {
+interface PrivateFishingContext extends FishingContext {
     token: string;
 }
 
@@ -43,7 +43,7 @@ export const privateProcedure = publicProcedure.use(async opts => {
     if (!ctx.isAuthed) throw new TRPCError({ code: "UNAUTHORIZED" });
 
     return opts.next({
-        ctx: opts.ctx as AuthedFishingContext
+        ctx: opts.ctx as PrivateFishingContext
     });
 });
 
@@ -55,6 +55,7 @@ export const appRouter = router({
     command: privateProcedure
         .input(
             z.object({
+                channel: z.string(),
                 command: z.string(),
                 prefix: z.string(),
                 args: z.array(z.string()),
@@ -68,9 +69,10 @@ export const appRouter = router({
         )
         .query(async opts => {
             const id = tokenToID(opts.ctx.token);
-            const { command, args, prefix, user, isDM } = opts.input;
+            const { channel, command, args, prefix, user, isDM } = opts.input;
             const out = await handleCommand(
                 id,
+                channel,
                 command,
                 args,
                 prefix,

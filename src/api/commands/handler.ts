@@ -10,6 +10,7 @@ export const logger = new Logger("Command Handler");
 
 export async function handleCommand(
     id: string,
+    channel: string,
     command: string,
     args: string[],
     prefix: string,
@@ -62,6 +63,7 @@ export async function handleCommand(
     try {
         const response = await foundCommand.callback({
             id,
+            channel,
             command,
             args,
             prefix,

@@ -1,7 +1,10 @@
 import { loadConfig } from "@util/config";
 import { MPPNetBot, type MPPNetBotConfig } from "./Bot";
+import { Logger } from "@util/Logger";
 
-const bots = [];
+const logger = new Logger("big brain");
+
+const bots: MPPNetBot[] = [];
 
 const defaults = loadConfig("config/bots.yml", [
     {
@@ -26,5 +29,4 @@ export function initBot(conf: MPPNetBotConfig) {
 }
 
 export { MPPNetBot as Bot };
-
 export default MPPNetBot;
