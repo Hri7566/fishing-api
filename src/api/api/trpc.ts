@@ -1,4 +1,5 @@
 import { getBacks, flushBacks } from "@server/backs";
+import { commandGroups } from "@server/commands/groups";
 import { handleCommand } from "@server/commands/handler";
 import { prefixes } from "@server/commands/prefixes";
 import { checkToken, tokenToID } from "@server/data/token";
@@ -50,6 +51,22 @@ export const privateProcedure = publicProcedure.use(async opts => {
 export const appRouter = router({
     prefixes: publicProcedure.query(async opts => {
         return prefixes;
+    }),
+
+    commandList: publicProcedure.query(async opts => {
+        let groups = [];
+
+        for (const group of commandGroups) {
+            let commands = group.commands.filter(cmd => cmd.visible);
+
+            groups.push({
+                id: group.id,
+                displayName: group.displayName,
+                commands
+            });
+        }
+
+        return groups;
     }),
 
     command: privateProcedure

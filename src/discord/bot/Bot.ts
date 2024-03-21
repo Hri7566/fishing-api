@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import Discord from "discord.js";
+import Discord, { SlashCommandBuilder } from "discord.js";
 import { Logger } from "@util/Logger";
 import { CosmicColor } from "@util/CosmicColor";
 import gettRPC from "@util/api/trpc";
@@ -53,6 +53,37 @@ export class DiscordBot extends EventEmitter {
             if (!channel) throw "Unable to find default Discord channel.";
 
             this.defaultChannel = channel as Discord.TextChannel;
+
+            const groups = await this.trpc.commandList.query();
+            if (!groups) throw "Unable to get command list.";
+
+            const builders = [];
+
+            for (const group of groups) {
+                for (const command of group.commands) {
+                    const builder = new SlashCommandBuilder();
+                    builder.setName(command.aliases[0]);
+                    builder.setDescription(command.description);
+                    builder.addStringOption(option =>
+                        option
+                            .setName("args")
+                            .setDescription("Command arguments")
+                    );
+
+                    builders.push(builder);
+                }
+            }
+
+            const rest = new Discord.REST().setToken(this.token || "");
+            rest.put(
+                Discord.Routes.applicationGuildCommands(
+                    this.client.user?.id || "",
+                    this.conf.serverID
+                ),
+                {
+                    body: builders
+                }
+            );
         });
 
         this.client.on("guildMemberAdd", async member => {
@@ -192,6 +223,61 @@ export class DiscordBot extends EventEmitter {
             this.defaultChannel.send(
                 msg.message.split(`@${msg.id}`).join(`<@${msg.id}>`)
             );
+        });
+
+        this.client.on("interactionCreate", async msg => {
+            if (!this.server) return;
+            if (msg.guildId !== this.server.id) return;
+
+            if (!msg.isCommand()) return;
+
+            const existingRole = this.server.roles.cache.find(
+                role => role.name === msg.user.id
+            );
+
+            if (!existingRole) return;
+
+            let prefixes: string[];
+
+            try {
+                prefixes = await this.trpc.prefixes.query();
+            } catch (err) {
+                this.logger.error(err);
+                this.logger.warn("Unable to contact server");
+                return;
+            }
+
+            let usedPrefix = prefixes[0];
+            if (!usedPrefix) return;
+
+            this.logger.debug("Args:", msg.options.data);
+
+            const argsOption = msg.options.get("args");
+            const args = argsOption
+                ? argsOption.value
+                    ? argsOption.value.toString().split(" ")
+                    : []
+                : [];
+
+            const command = await this.trpc.command.query({
+                channel: msg.channelId || this.conf.defaultChannelID,
+                args: args,
+                command: msg.commandName,
+                prefix: usedPrefix,
+                user: {
+                    id: msg.user.id,
+                    name: msg.user.displayName,
+                    color: existingRole.hexColor
+                }
+            });
+
+            if (!command) return;
+            if (command.response)
+                msg.reply(
+                    command.response
+                        .split(`@${msg.user.id}`)
+                        .join(`<@${msg.user.id}>`)
+                );
         });
     }
 }
