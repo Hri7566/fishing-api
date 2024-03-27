@@ -1,3 +1,4 @@
+import { startAutorestart } from "@util/autorestart";
 import { startFisherTick } from "./fish/fishers";
 import { startObjectTimers } from "./fish/locations";
 import { initTree } from "./fish/tree";
@@ -10,3 +11,5 @@ loadDefaultBehaviors();
 
 require("./api/server");
 require("./cli/readline");
+
+startAutorestart();

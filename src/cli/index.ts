@@ -2,6 +2,7 @@ import { Logger } from "@util/Logger";
 import { createInterface, type ReadLine } from "readline";
 import { EventEmitter } from "events";
 import gettRPC from "@util/api/trpc";
+import { startAutorestart } from "@util/autorestart";
 
 const trpc = gettRPC(process.env.CLI_FISHING_TOKEN as string);
 
@@ -98,3 +99,5 @@ b.on("color", msg => {
 b.on("sendchat", msg => {
     logger.info(cliMd(msg.message));
 });
+
+startAutorestart();
