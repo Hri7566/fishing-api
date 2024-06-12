@@ -6,7 +6,7 @@ import prisma from "@server/data/prisma";
 export const inventory = new Command(
     "inventory",
     ["inventory", "inv", "items", "i"],
-    "Look at your inventory",
+    "List your inventory items and details",
     "inventory",
     "command.inventory.inventory",
     async ({ id, command, args, prefix, part, user }) => {
@@ -38,12 +38,12 @@ export const inventory = new Command(
             const items = inv.items as TInventoryItems;
 
             return `Contents of ${decidedUser.name}'s inventory: ${items
-                    .map(
-                        (item: IItem) =>
-                            `${item.emoji || "📦"}${item.name}${item.count ? ` (x${item.count})` : ""
-                            }`
-                    )
-                    .join(", ") || "(none)"
+                .map(
+                    (item: IItem) =>
+                        `${item.emoji || "📦"}${item.name}${item.count ? ` (x${item.count})` : ""
+                        }`
+                )
+                .join(", ") || "(none)"
                 }`;
         } else {
             const inv = await getInventory(user.inventoryId);
@@ -52,12 +52,12 @@ export const inventory = new Command(
             const items = inv.items as TInventoryItems;
 
             return `Contents of ${part.name}'s inventory: ${items
-                    .map(
-                        (item: IItem) =>
-                            `${item.emoji || "📦"}${item.name}${item.count ? ` (x${item.count})` : ""
-                            }`
-                    )
-                    .join(", ") || "(none)"
+                .map(
+                    (item: IItem) =>
+                        `${item.emoji || "📦"}${item.name}${item.count ? ` (x${item.count})` : ""
+                        }`
+                )
+                .join(", ") || "(none)"
                 }`;
         }
     }

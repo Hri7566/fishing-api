@@ -4,7 +4,7 @@ import { getInventory } from "@server/data/inventory";
 export const pokemon = new Command(
     "pokemon",
     ["pokemon"],
-    "Look at your Pokemon",
+    "List your Pokémon collection",
     "pokemon",
     "command.inventory.pokemon",
     async ({ id, command, args, prefix, part, user }) => {
@@ -13,16 +13,14 @@ export const pokemon = new Command(
 
         const sack = inv.pokemon as TPokemonSack[];
 
-        return `Friend ${part.name}'s Pokémon: ${
-            sack
-                .map(
-                    (pokemon: IPokemon) =>
-                        `${pokemon.emoji || ""}${pokemon.name}${
-                            pokemon.count ? ` (x${pokemon.count})` : ""
-                        }`
-                )
-                .join(", ") || "(none)"
-        }`;
+        return `Friend ${part.name}'s Pokémon: ${sack
+            .map(
+                (pokemon: IPokemon) =>
+                    `${pokemon.emoji || ""}${pokemon.name}${pokemon.count ? ` (x${pokemon.count})` : ""
+                    }`
+            )
+            .join(", ") || "(none)"
+            }`;
     },
     true
 );

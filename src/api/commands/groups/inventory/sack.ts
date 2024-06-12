@@ -5,8 +5,8 @@ import type { User } from "@prisma/client";
 
 export const sack = new Command(
     "sack",
-    ["sack", "caught"],
-    "Look at your fish sack",
+    ["sack", "caught", "catched", "sock", "fish-sack", "fishies", "myfish", "mysack", "sacks"],
+    "List your caught fish",
     "sack [user ID]",
     "command.inventory.sack",
     async ({ id, command, args, prefix, part, user }) => {
@@ -37,31 +37,27 @@ export const sack = new Command(
 
             const fishSack = inv.fishSack as TFishSack;
 
-            return `Contents of ${foundUser.name}'s fish sack: ${
-                fishSack
-                    .map(
-                        (fish: IFish) =>
-                            `${fish.emoji || "🐟"}${fish.name}${
-                                fish.count ? ` (x${fish.count})` : ""
-                            }`
-                    )
-                    .join(", ") || "(none)"
-            }`;
+            return `Contents of ${foundUser.name}'s fish sack: ${fishSack
+                .map(
+                    (fish: IFish) =>
+                        `${fish.emoji || "🐟"}${fish.name}${fish.count ? ` (x${fish.count})` : ""
+                        }`
+                )
+                .join(", ") || "(none)"
+                }`;
         } else {
             const inv = await getInventory(user.inventoryId);
             if (!inv) return;
             const fishSack = inv.fishSack as TFishSack;
 
-            return `Contents of ${part.name}'s fish sack: ${
-                fishSack
-                    .map(
-                        (fish: IFish) =>
-                            `${fish.emoji || "🐟"}${fish.name}${
-                                fish.count ? ` (x${fish.count})` : ""
-                            }`
-                    )
-                    .join(", ") || "(none)"
-            }`;
+            return `Contents of ${part.name}'s fish sack: ${fishSack
+                .map(
+                    (fish: IFish) =>
+                        `${fish.emoji || "🐟"}${fish.name}${fish.count ? ` (x${fish.count})` : ""
+                        }`
+                )
+                .join(", ") || "(none)"
+                }`;
         }
     }
 );

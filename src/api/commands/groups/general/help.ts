@@ -17,7 +17,7 @@ export const help = new Command(
         "cammands",
         "cummunds"
     ],
-    "Get command list or command usage",
+    "Get a list of commands, or how to use them",
     "help [command]",
     "command.general.help",
     async ({ id, command, args, prefix, part, user }) => {

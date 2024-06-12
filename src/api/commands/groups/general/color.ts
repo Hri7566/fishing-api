@@ -4,7 +4,7 @@ import { CosmicColor } from "@util/CosmicColor";
 export const color = new Command(
     "color",
     ["color"],
-    "Get the name of a color",
+    "Get the name of your color/any hex color",
     "color [hex color]",
     "command.general.color",
     async ({ id, command, args, prefix, part, user }) => {
