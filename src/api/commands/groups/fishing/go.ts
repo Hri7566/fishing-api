@@ -37,8 +37,9 @@ export const go = new Command(
         inventory.location = nextLoc.id;
         await updateInventory(inventory);
 
-        if (getFishing(id, user.id)) {
-            stopFishing(id, user.id, false);
+        let fisher;
+        if (fisher = getFishing(id, user.id)) {
+            stopFishing(id, user.id, fisher.channel, false);
             return `You ${prefix}${reel.aliases[0]}ed your LURE in and went to ${nextLoc.name}.`;
         }
 

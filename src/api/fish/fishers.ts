@@ -21,7 +21,7 @@ export async function tick() {
 
         let winner =
             Object.values(fishers)[
-                Math.floor(Math.random() * Object.values(fishers).length)
+            Math.floor(Math.random() * Object.values(fishers).length)
             ];
 
         if (!winner) return;
@@ -53,18 +53,20 @@ export async function tick() {
                 winner.autofish,
                 winner.autofish_t
             );
+
+            // Save to sack
             const animal = randomFish(inventory.location);
             addItem(inventory.fishSack as TFishSack, animal);
             await updateInventory(inventory);
+
             const size = getSizeString(animal.size);
+            const p = prefixes[0];
+            const emoji = animal.emoji || "🐟";
+
             addBack(winner.id, {
                 m: "sendchat",
                 channel: winner.channel,
-                message: `Our good friend @${user.id} caught a ${size} ${
-                    animal.emoji || "🐟"
-                }${animal.name}! ready to ${prefixes[0]}eat or ${
-                    prefixes[0]
-                }fish again${winner.autofish ? " (AUTOFISH is enabled)" : ""}`,
+                message: `Our good friend @${user.id} caught a ${size} ${emoji}${animal.name}! ready to ${p}eat or ${p}fish again${winner.autofish ? " (AUTOFISH is enabled)" : ""}`,
                 isDM: winner.isDM,
                 id: winner.userID
             });

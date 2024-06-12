@@ -108,15 +108,21 @@ export const eat = new Command(
 
         if (foundObject.id == "sand") {
             if (res) {
-                if (res.and)
+                if (res.and) {
                     return `Our friend ${part.name} ate of his/her ${foundObject.name} ${res.and}`;
+                } else {
+                    return `Our friend ${part.name} ate of his/her ${foundObject.name}.`;
+                }
             } else {
                 return `Our friend ${part.name} ate of his/her ${foundObject.name}.`;
             }
         } else {
             if (res) {
-                if (res.and)
+                if (res.and) {
                     return `Our friend ${part.name} ate his/her ${foundObject.name} ${res.and}`;
+                } else {
+                    return `Our friend ${part.name} ate his/her ${foundObject.name}.`;
+                }
             } else {
                 return `Our friend ${part.name} ate his/her ${foundObject.name}.`;
             }

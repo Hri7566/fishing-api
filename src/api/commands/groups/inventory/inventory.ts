@@ -5,7 +5,7 @@ import prisma from "@server/data/prisma";
 
 export const inventory = new Command(
     "inventory",
-    ["inventory", "inv", "i"],
+    ["inventory", "inv", "items", "i"],
     "Look at your inventory",
     "inventory",
     "command.inventory.inventory",
@@ -37,32 +37,28 @@ export const inventory = new Command(
 
             const items = inv.items as TInventoryItems;
 
-            return `Contents of ${decidedUser.name}'s inventory: ${
-                items
+            return `Contents of ${decidedUser.name}'s inventory: ${items
                     .map(
                         (item: IItem) =>
-                            `${item.emoji || "📦"}${item.name}${
-                                item.count ? ` (x${item.count})` : ""
+                            `${item.emoji || "📦"}${item.name}${item.count ? ` (x${item.count})` : ""
                             }`
                     )
                     .join(", ") || "(none)"
-            }`;
+                }`;
         } else {
             const inv = await getInventory(user.inventoryId);
             if (!inv)
                 return `Apparently, you have no inventory. Not sure if that can be fixed, and I don't know how you got this message.`;
             const items = inv.items as TInventoryItems;
 
-            return `Contents of ${part.name}'s inventory: ${
-                items
+            return `Contents of ${part.name}'s inventory: ${items
                     .map(
                         (item: IItem) =>
-                            `${item.emoji || "📦"}${item.name}${
-                                item.count ? ` (x${item.count})` : ""
+                            `${item.emoji || "📦"}${item.name}${item.count ? ` (x${item.count})` : ""
                             }`
                     )
                     .join(", ") || "(none)"
-            }`;
+                }`;
         }
     }
 );
