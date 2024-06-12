@@ -1,5 +1,4 @@
 import { kvGet, kvSet } from "@server/data/keyValueStore";
-import { getObjectStorage } from "@server/data/location";
 import { addTickEvent, removeTickEvent } from "@util/tick";
 import { getSizeString, randomFish } from "./fish";
 import { getUser } from "@server/data/user";
@@ -42,10 +41,11 @@ export async function tick() {
 
         const r = Math.random();
         const data = await getFishingChance(user.id);
-        // After 30 minutes, reset chance
-        if (data.t > 30 * 60000) await resetFishingChance(user.id);
 
         if (r < data.chance / 10) {
+            // After 60 minutes, reset chance
+            if (data.t > 60 * 60000) await resetFishingChance(user.id);
+
             stopFishing(
                 winner.id,
                 winner.userID,
@@ -157,6 +157,7 @@ export async function getFishingChance(userID: string) {
 
 export async function resetFishingChance(userID: string) {
     const key = `fishingChance~${userID}`;
+    logger.debug("Resetting fishing chance for user " + userID);
     await kvSet(key, {
         t: Date.now(),
         chance: 1
