@@ -1,5 +1,5 @@
 import { Logger } from "@util/Logger";
-import { createInterface, type ReadLine } from "readline";
+import { createInterface } from "readline";
 import { EventEmitter } from "events";
 import gettRPC from "@util/api/trpc";
 import { startAutorestart } from "@util/autorestart";

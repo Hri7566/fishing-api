@@ -6,14 +6,14 @@ import type { AppRouter } from "@server/api/trpc";
 export function gettRPC(token: string) {
     return createTRPCClient<AppRouter>({
         links: [
-            // httpBatchLink({
-            //     url: "http://localhost:3000",
-            //     headers() {
-            //         return {
-            //             Authorization: token
-            //         };
-            //     }
-            // }),
+            httpBatchLink({
+                url: "http://localhost:3000",
+                headers() {
+                    return {
+                        Authorization: token
+                    };
+                }
+            }),
             httpBatchLink({
                 url: "https://fishing.hri7566.info/api",
                 headers() {
