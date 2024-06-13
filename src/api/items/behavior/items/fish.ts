@@ -9,9 +9,6 @@ export const fish: IBehaviorDefinition = {
 
             const fish = obj as IFish;
 
-            console.log(fish)
-            console.log(fish.rarity);
-
             // 50%
             if (r < 0.5) {
                 const color = new CosmicColor(
@@ -37,7 +34,7 @@ export const fish: IBehaviorDefinition = {
                 return {
                     success: true,
                     shouldRemove: true
-                }
+                };
             }
         }
     }

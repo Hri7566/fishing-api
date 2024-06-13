@@ -7,11 +7,12 @@ import { Logger } from "@util/Logger";
 import { loadConfig } from "@util/config";
 import { addTickEvent, removeTickEvent } from "@util/tick";
 
-export const locations = loadConfig<ILocation[]>("config/locations.yml", [
+export const locations = loadConfig<TAnyLocation[]>("config/locations.yml", [
     {
         id: "pond",
         name: "Pond",
         nearby: ["lake", "river", "sea"],
+        canFish: true,
         hasSand: true,
         objects: []
     },
@@ -19,6 +20,7 @@ export const locations = loadConfig<ILocation[]>("config/locations.yml", [
         id: "lake",
         name: "Lake",
         nearby: ["pond", "river", "sea"],
+        canFish: true,
         hasSand: false,
         objects: []
     },
@@ -26,6 +28,7 @@ export const locations = loadConfig<ILocation[]>("config/locations.yml", [
         id: "river",
         name: "River",
         nearby: ["pond", "lake", "sea"],
+        canFish: true,
         hasSand: false,
         objects: []
     },
@@ -33,7 +36,15 @@ export const locations = loadConfig<ILocation[]>("config/locations.yml", [
         id: "sea",
         name: "Sea",
         nearby: ["pond", "lake", "river"],
+        canFish: true,
         hasSand: true,
+        objects: []
+    },
+    {
+        id: "shop",
+        name: "Shop",
+        nearby: ["pond", "lake", "river"],
+        isShop: true,
         objects: []
     }
 ]);
@@ -49,9 +60,10 @@ const logger = new Logger("Places");
 
 export function populateSand() {
     for (const loc of locations) {
+        if (!("hasSand" in loc)) continue;
         if (!loc.hasSand) continue;
 
-        let existing = loc.objects.find(obj => obj.id == "sand");
+        let existing = loc.objects.find((obj: ILocation) => obj.id == "sand");
         if (typeof existing !== "undefined") continue;
 
         loc.objects.push(sand);

@@ -23,6 +23,8 @@ import { tree } from "./fishing/tree";
 import { pick } from "./fishing/pick";
 import { fid } from "./util/fid";
 import { chance } from "./util/chance";
+import { info } from "./general/info";
+import { burger } from "./util/burger";
 // import { give } from "./inventory/give";
 
 interface ICommandGroup {
@@ -36,7 +38,7 @@ export const commandGroups: ICommandGroup[] = [];
 const generalGroup: ICommandGroup = {
     id: "general",
     displayName: "General",
-    commands: [help, color, myid]
+    commands: [help, color, myid, info]
 };
 
 commandGroups.push(generalGroup);
@@ -52,7 +54,7 @@ commandGroups.push(fishingGroup);
 const inventoryGroup: ICommandGroup = {
     id: "inventory",
     displayName: "Inventory",
-    commands: [inventory, take, eat, sack, pokemon, yeet /* give */]
+    commands: [inventory, take, eat, sack, pokemon, yeet, burger /* give */]
 };
 
 commandGroups.push(inventoryGroup);

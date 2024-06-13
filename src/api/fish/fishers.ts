@@ -20,7 +20,7 @@ export async function tick() {
 
         let winner =
             Object.values(fishers)[
-            Math.floor(Math.random() * Object.values(fishers).length)
+                Math.floor(Math.random() * Object.values(fishers).length)
             ];
 
         if (!winner) return;
@@ -44,7 +44,8 @@ export async function tick() {
 
         if (r < data.chance / 10) {
             // After 60 minutes, reset chance
-            if (data.t > 60 * 60000) await resetFishingChance(user.id);
+            if (data.t > Date.now() + 60 * 60000)
+                await resetFishingChance(user.id);
 
             stopFishing(
                 winner.id,
@@ -66,7 +67,13 @@ export async function tick() {
             addBack(winner.id, {
                 m: "sendchat",
                 channel: winner.channel,
-                message: `Our good friend @${user.id} caught a ${size} ${emoji}${animal.name}! ready to ${p}eat or ${p}fish again${winner.autofish ? " (AUTOFISH is enabled)" : ""}`,
+                message: `Our good friend @${
+                    user.id
+                } caught a ${size} ${emoji}${
+                    animal.name
+                }! ready to ${p}eat or ${p}fish again${
+                    winner.autofish ? " (AUTOFISH is enabled)" : ""
+                }`,
                 isDM: winner.isDM,
                 id: winner.userID
             });
@@ -157,7 +164,7 @@ export async function getFishingChance(userID: string) {
 
 export async function resetFishingChance(userID: string) {
     const key = `fishingChance~${userID}`;
-    logger.debug("Resetting fishing chance for user " + userID);
+    // logger.debug("Resetting fishing chance for user " + userID);
     await kvSet(key, {
         t: Date.now(),
         chance: 1

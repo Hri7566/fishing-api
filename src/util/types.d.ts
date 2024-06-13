@@ -101,8 +101,25 @@ interface ILocation {
     name: string;
     nearby: string[];
     objects: IObject[];
-    hasSand: boolean;
 }
+
+interface IFishingLocation extends ILocation {
+    canFish: true;
+}
+
+interface ISandyLocation extends ILocation {
+    hasSand: true;
+}
+
+interface IShopLocation extends ILocation {
+    isShop: true;
+}
+
+type TAnyLocation =
+    | ILocation
+    | IFishingLocation
+    | ISandyFishingLocation
+    | IShopLocation;
 
 interface TFisher {
     id: string;

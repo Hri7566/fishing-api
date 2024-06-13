@@ -2,7 +2,12 @@
 #   channel:
 #       id: "✧𝓓𝓔𝓥 𝓡𝓸𝓸𝓶✧"
 #       allowColorChanging: true
+# - uri: wss://mppclone.com:8443
+#   channel:
+#       id: "test/fishing"
+#       allowColorChanging: true
+
 - uri: wss://mppclone.com:8443
   channel:
-      id: "test/fishing"
+      id: "keller room"
       allowColorChanging: true
