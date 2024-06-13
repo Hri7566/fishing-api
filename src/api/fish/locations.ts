@@ -39,13 +39,6 @@ export const locations = loadConfig<TAnyLocation[]>("config/locations.yml", [
         canFish: true,
         hasSand: true,
         objects: []
-    },
-    {
-        id: "shop",
-        name: "Shop",
-        nearby: ["pond", "lake", "river"],
-        isShop: true,
-        objects: []
     }
 ]);
 
