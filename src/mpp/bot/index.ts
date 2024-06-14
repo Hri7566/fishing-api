@@ -6,7 +6,7 @@ const logger = new Logger("big brain");
 
 const bots: MPPNetBot[] = [];
 
-const defaults = loadConfig("config/bots.yml", [
+const defaults = loadConfig("config/mpp_bots.yml", [
     {
         uri: "wss://mppclone.com:8443",
         channel: {

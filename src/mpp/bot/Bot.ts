@@ -51,10 +51,18 @@ export class MPPNetBot {
             this.logger.info(
                 `Received channel update for channel ID "${msg.ch._id}"`
             );
+
+            if (msg._id !== this.config.channel.id) {
+                this.client.setChannel(this.config.channel.id);
+            }
         });
 
         this.client.on("a", async msg => {
             let prefixes: string[];
+
+            if (this.client.channel._id !== this.config.channel.id) {
+                return;
+            }
 
             try {
                 prefixes = await this.trpc.prefixes.query();
