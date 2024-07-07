@@ -8,21 +8,21 @@
     "start-discord": "bun src/discord/index.ts"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.4"
+    "@types/bun": "^1.1.6"
   },
   "peerDependencies": {
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@prisma/client": "^5.15.0",
+    "@prisma/client": "^5.16.1",
     "@trpc/client": "next",
     "@trpc/server": "next",
-    "@types/node": "^20.14.2",
+    "@types/node": "^20.14.10",
     "cli-markdown": "^3.4.0",
     "discord.js": "^14.15.3",
     "mpp-client-net": "^1.2.0",
-    "prisma": "^5.15.0",
-    "trpc-bun-adapter": "^1.1.0",
+    "prisma": "^5.16.1",
+    "trpc-bun-adapter": "^1.1.1",
     "yaml": "^2.4.5",
     "zod": "^3.23.8"
   }
