@@ -1,22 +1,32 @@
-export function getHHMMSS() {
-    const now = Date.now();
+export function getTime(t = Date.now(), twelveHour = true) {
+    const now = t;
 
     const s = now / 1000;
     const m = s / 60;
     const h = m / 60;
 
-    const hh = Math.floor(h % 12)
+    const hours = Math.floor(h % (twelveHour ? 12 : 24))
         .toString()
         .padStart(2, "0");
-    const mm = Math.floor(m % 60)
+    const minutes = Math.floor(m % 60)
         .toString()
         .padStart(2, "0");
-    const ss = Math.floor(s % 60)
+    const seconds = Math.floor(s % 60)
         .toString()
         .padStart(2, "0");
-    const ms = Math.floor(now % 1000)
+    const milliseconds = Math.floor(now % 1000)
         .toString()
         .padStart(3, "0");
 
-    return `${hh}:${mm}:${ss}.${ms}`;
+    return {
+        hours,
+        minutes,
+        seconds,
+        milliseconds
+    };
+}
+
+export function getHHMMSS(t = Date.now(), twelveHour = true) {
+    const { hours, minutes, seconds, milliseconds } = getTime(t, twelveHour);
+    return `${hours}:${minutes}:${seconds}.${milliseconds}`;
 }

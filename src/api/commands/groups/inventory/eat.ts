@@ -1,5 +1,7 @@
 import Command from "@server/commands/Command";
+import { logger } from "@server/commands/handler";
 import { getInventory, updateInventory } from "@server/data/inventory";
+import { removeItem } from "@server/items";
 import { itemBehaviorMap, runBehavior } from "@server/items/behavior";
 
 export const eat = new Command(
@@ -62,45 +64,9 @@ export const eat = new Command(
 
         if (shouldRemove) {
             if (foundObject.objtype == "fish") {
-                i = 0;
-
-                for (const fish of inventory.fishSack as TFishSack) {
-                    if (typeof fish.count !== "undefined") {
-                        if (fish.count > 1) {
-                            shouldRemove = false;
-                            ((inventory.fishSack as TFishSack)[i]
-                                .count as number)--;
-                        } else {
-                            shouldRemove = true;
-                        }
-                    } else {
-                        shouldRemove = true;
-                    }
-
-                    if (shouldRemove)
-                        (inventory.fishSack as TFishSack).splice(i, 1);
-                    break;
-                }
+                removeItem(inventory.fishSack, foundObject);
             } else if (foundObject.objtype == "item") {
-                i = 0;
-
-                for (const item of inventory.items as unknown as IItem[]) {
-                    if (typeof item.count == "number") {
-                        if (item.count > 1) {
-                            shouldRemove = false;
-                            ((inventory.items as TInventoryItems)[i]
-                                .count as number)--;
-                        } else {
-                            shouldRemove = true;
-                        }
-                    } else {
-                        shouldRemove = true;
-                    }
-
-                    if (shouldRemove)
-                        (inventory.items as TInventoryItems).splice(i, 1);
-                    break;
-                }
+                removeItem(inventory.items, foundObject);
             }
 
             await updateInventory(inventory);

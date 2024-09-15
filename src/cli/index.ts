@@ -1,8 +1,9 @@
 import { Logger } from "@util/Logger";
 import { createInterface } from "readline";
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import gettRPC from "@util/api/trpc";
 import { startAutorestart } from "@util/autorestart";
+import { CosmicColor } from "@util/CosmicColor";
 
 const trpc = gettRPC(process.env.CLI_FISHING_TOKEN as string);
 
@@ -15,7 +16,7 @@ const b = new EventEmitter();
 const rl = createInterface({
     input: process.stdin,
     output: process.stdout
-});
+} as any);
 
 const user = {
     _id: "stdin",
@@ -26,6 +27,12 @@ const user = {
 (globalThis as unknown as any).rl = rl;
 rl.setPrompt("> ");
 rl.prompt();
+setPrompt();
+
+function setPrompt() {
+    const color = new CosmicColor(user.color);
+    rl.setPrompt(`\x1b[38;2;${color.r};${color.g};${color.b}m> `);
+}
 
 rl.on("line", async line => {
     if (line == "stop" || line == "exit") process.exit();
@@ -94,6 +101,7 @@ setInterval(async () => {
 b.on("color", msg => {
     if (typeof msg.color !== "string" || typeof msg.id !== "string") return;
     user.color = msg.color;
+    setPrompt();
 });
 
 b.on("sendchat", msg => {

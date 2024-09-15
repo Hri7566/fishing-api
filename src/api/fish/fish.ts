@@ -108,7 +108,11 @@ export function hasFishTime(
 
 export function getSizeString(cm: number) {
     const size =
-        cm < 30
+        cm < 5
+            ? "microscopic"
+            : cm < 10
+            ? "tiny"
+            : cm < 30
             ? "small"
             : cm < 60
             ? "medium-sized"
