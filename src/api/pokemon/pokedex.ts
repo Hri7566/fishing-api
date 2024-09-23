@@ -8,3 +8,8 @@ const logger = new Logger("Pokédex");
 export function getPokemonByID(id: number) {
     return pokedex.find(p => p.pokeID == id);
 }
+
+export function getRandomPokemon() {
+    const r = Math.floor(Math.random() * pokedex.length);
+    return pokedex[r];
+}

@@ -21,7 +21,7 @@ interface IContextProps {
 
 type TCommandCallback<User> = (props: IContextProps) => Promise<string | void>;
 
-interface CountComponent {
+interface ICountComponent {
     count: number;
 }
 
@@ -54,7 +54,7 @@ interface IFish extends IObject {
 }
 
 interface IPokemon extends IObject {
-    id: number;
+    id: string;
     pokeID: number;
     objtype: "pokemon";
     emoji?: string;
@@ -78,6 +78,7 @@ type TPokemonSack = JsonArray & IPokemon[];
 interface IInventory {
     id: number;
     balance: number;
+    location: string;
 
     items: TInventoryItems;
     fishSack: TFishSack;
@@ -90,7 +91,7 @@ interface IBack<T extends string | unknown> extends Record<string, unknown> {
     m: T;
 }
 
-interface Backs extends Record<string, IBack<unknown>> {
+interface IBacks extends Record<string, IBack<unknown>> {
     color: {
         m: "color";
     };
