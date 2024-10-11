@@ -1,3 +1,5 @@
+<img src="./fish_icon.png" width="64" alt="Crucian Carp" />
+
 # fishing-api
 
 This is a rewrite of Brandon Lockaby's fishing bot for Multiplayer Piano.
@@ -16,14 +18,16 @@ Copy the default `.env` file:
 cp .env.template .env
 ```
 
-Edit that file to match your environment, then install packages:
+Edit that file to match your environment. Keep in mind that a connection token is required for all fishing service clients. These clients are for connecting to the actual service (such as Discord or MPP) and bridges the connection to the backend API. This way, the execution related to fishing itself is focused in its own process, instead of travelling between sending messages and processing fishing-related computations.
+
+Next, install the project's dependencies from npm:
 
 ```bash
 bun install
 bunx prisma db push
 ```
 
-Run both the http server and the clients for various services separately with these commands:
+Run both the HTTP API and the clients for various services separately with these commands:
 
 ```bash
 bun . # Main http server
