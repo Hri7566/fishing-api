@@ -1,9 +1,8 @@
 import { loadConfig } from "@util/config";
 import { MPPNetBot, type MPPNetBotConfig } from "./Bot";
-import { Logger } from "@util/Logger";
+// import { Logger } from "@util/Logger";
 
-const logger = new Logger("big brain");
-
+// const logger = new Logger("big brain");
 const bots: MPPNetBot[] = [];
 
 const defaults = loadConfig("config/mpp_bots.yml", [

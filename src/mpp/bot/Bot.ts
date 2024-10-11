@@ -1,7 +1,7 @@
 import Client from "mpp-client-net";
 import { Logger } from "@util/Logger";
 import gettRPC from "@util/api/trpc";
-import { EventEmitter } from "events";
+import EventEmitter from "events";
 
 export interface MPPNetBotConfig {
     uri: string;

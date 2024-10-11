@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
-import Discord, { SlashCommandBuilder } from "discord.js";
+import * as Discord from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
 import { Logger } from "@util/Logger";
 import { CosmicColor } from "@util/CosmicColor";
 import gettRPC from "@util/api/trpc";
