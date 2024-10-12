@@ -2,7 +2,7 @@ import type { User } from "@prisma/client";
 import Command from "@server/commands/Command";
 import { getInventory, updateInventory } from "@server/data/inventory";
 import prisma from "@server/data/prisma";
-import { addItem } from "@server/items";
+import { addItem, findItemByNameFuzzy, removeItem } from "@server/items";
 
 export const give = new Command(
     "give",
@@ -37,87 +37,28 @@ export const give = new Command(
         const argcat = args.slice(1).join(" ");
         let foundObject: IObject | undefined;
 
-        let i = 0;
-
-        for (const item of inventory.items as unknown as IItem[]) {
-            if (!item.name.toLowerCase().includes(argcat.toLowerCase())) {
-                i++;
-                continue;
-            }
-
-            foundObject = item;
-            break;
-        }
-
-        i = 0;
-
-        for (const fish of inventory.fishSack as TFishSack) {
-            if (!fish.name.toLowerCase().includes(argcat.toLowerCase())) {
-                i++;
-                continue;
-            }
-
-            foundObject = fish;
-            break;
-        }
+        foundObject =
+            findItemByNameFuzzy(inventory.items, argcat) ||
+            findItemByNameFuzzy(inventory.fishSack, argcat);
 
         if (!foundObject) return `You don't have any "${argcat}" to give.`;
 
         let updated = false;
-
-        if (foundObject.objtype == "item") {
+        if (foundObject.objtype == "fish") {
             addItem(foundInventory.items as unknown as IItem[], foundObject);
             updated = true;
-        } else if (foundObject.objtype == "fish") {
+        } else if (foundObject.objtype == "item") {
             addItem(foundInventory.items as unknown as IItem[], foundObject);
             updated = true;
         }
-
-        let shouldRemove = false;
 
         if (updated) {
             await updateInventory(foundInventory);
 
             if (foundObject.objtype == "fish") {
-                i = 0;
-
-                for (const fish of inventory.fishSack as TFishSack) {
-                    if (typeof fish.count !== "undefined") {
-                        if (fish.count > 1) {
-                            shouldRemove = false;
-                            ((inventory.fishSack as TFishSack)[i]
-                                .count as number)--;
-                        } else {
-                            shouldRemove = true;
-                        }
-                    } else {
-                        shouldRemove = true;
-                    }
-
-                    if (shouldRemove)
-                        (inventory.fishSack as TFishSack).splice(i, 1);
-                    break;
-                }
+                removeItem(inventory.fishSack, foundObject, 1);
             } else if (foundObject.objtype == "item") {
-                i = 0;
-
-                for (const item of inventory.items as unknown as IItem[]) {
-                    if (typeof item.count == "number") {
-                        if (item.count > 1) {
-                            shouldRemove = false;
-                            ((inventory.items as TInventoryItems)[i]
-                                .count as number)--;
-                        } else {
-                            shouldRemove = true;
-                        }
-                    } else {
-                        shouldRemove = true;
-                    }
-
-                    if (shouldRemove)
-                        (inventory.items as TInventoryItems).splice(i, 1);
-                    break;
-                }
+                removeItem(inventory.items, foundObject, 1);
             }
 
             return `You ${

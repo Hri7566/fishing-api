@@ -26,6 +26,7 @@ import { chance } from "./util/chance";
 import { info } from "./general/info";
 import { burger } from "./util/burger";
 import { daily } from "./pokemon/daily";
+import { give } from "./inventory/give";
 // import { give } from "./inventory/give";
 
 interface ICommandGroup {
@@ -55,7 +56,7 @@ commandGroups.push(fishingGroup);
 const inventoryGroup: ICommandGroup = {
     id: "inventory",
     displayName: "Inventory",
-    commands: [inventory, sack, pokemon, take, eat, yeet, burger /* give */]
+    commands: [inventory, sack, pokemon, take, eat, yeet, burger, give]
 };
 
 commandGroups.push(inventoryGroup);

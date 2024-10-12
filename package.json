@@ -1,29 +1,33 @@
 {
-  "name": "fishing-api",
-  "module": "src/api/index.ts",
-  "type": "module",
-  "scripts": {
-    "start": "bun .",
-    "start-bot": "bun src/mpp/index.ts",
-    "start-discord": "bun src/discord/index.ts"
-  },
-  "devDependencies": {
-    "@types/bun": "^1.1.9"
-  },
-  "peerDependencies": {
-    "typescript": "^5.3.3"
-  },
-  "dependencies": {
-    "@prisma/client": "^5.19.1",
-    "@trpc/client": "next",
-    "@trpc/server": "next",
-    "@types/node": "^20.16.5",
-    "cli-markdown": "^3.4.0",
-    "discord.js": "^14.16.2",
-    "mpp-client-net": "^1.2.3",
-    "prisma": "^5.19.1",
-    "trpc-bun-adapter": "^1.1.2",
-    "yaml": "^2.5.1",
-    "zod": "^3.23.8"
-  }
+    "name": "fishing-api",
+    "module": "src/api/index.ts",
+    "scripts": {
+        "start": "bun .",
+        "start-bot": "bun src/mpp/index.ts",
+        "start-discord": "bun src/discord/index.ts",
+        "build-talko": "bunx tsc --build tsconfig.talko.json"
+    },
+    "devDependencies": {
+        "@types/bun": "^1.1.9",
+        "@types/dotenv": "^8.2.0",
+        "esbuild": "^0.24.0"
+    },
+    "peerDependencies": {
+        "typescript": "^5.6.3"
+    },
+    "dependencies": {
+        "@prisma/client": "^5.19.1",
+        "@trpc/client": "next",
+        "@trpc/server": "next",
+        "@types/node": "^20.16.5",
+        "cli-markdown": "^3.4.0",
+        "discord.js": "^14.16.2",
+        "dotenv": "^16.4.5",
+        "mpp-client-net": "^1.2.3",
+        "prisma": "^5.19.1",
+        "socket.io-client": "^4.8.0",
+        "trpc-bun-adapter": "^1.1.2",
+        "yaml": "^2.5.1",
+        "zod": "^3.23.8"
+    }
 }

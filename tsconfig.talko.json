@@ -24,5 +24,10 @@
             "@client/*": ["./src/mpp/*"],
             "@util/*": ["./src/util/*"]
         },
-    }
+    },
+    "include": [
+        "src/talkomatic",
+        "src/api/api/trpc.ts",
+        "src/util"
+    ]
 }

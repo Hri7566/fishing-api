@@ -1,7 +1,7 @@
 import Command from "@server/commands/Command";
 import { logger } from "@server/commands/handler";
 import { getInventory, updateInventory } from "@server/data/inventory";
-import { removeItem } from "@server/items";
+import { findItemByNameFuzzy, removeItem } from "@server/items";
 import { itemBehaviorMap, runBehavior } from "@server/items/behavior";
 
 export const eat = new Command(
@@ -22,27 +22,9 @@ export const eat = new Command(
         let i = 0;
         let shouldRemove = false;
 
-        for (const item of inventory.items as unknown as IItem[]) {
-            if (!item.name.toLowerCase().includes(eating.toLowerCase())) {
-                i++;
-                continue;
-            }
-
-            foundObject = item;
-            break;
-        }
-
-        i = 0;
-
-        for (const fish of inventory.fishSack as TFishSack) {
-            if (!fish.name.toLowerCase().includes(eating.toLowerCase())) {
-                i++;
-                continue;
-            }
-
-            foundObject = fish;
-            break;
-        }
+        foundObject =
+            findItemByNameFuzzy(inventory.items, eating) ||
+            findItemByNameFuzzy(inventory.fishSack, eating);
 
         if (!foundObject) return `You don't have "${eating}" to eat.`;
 
@@ -73,22 +55,14 @@ export const eat = new Command(
         }
 
         if (foundObject.id == "sand") {
-            if (res) {
-                if (res.and) {
-                    return `Our friend ${part.name} ate of his/her ${foundObject.name} ${res.and}`;
-                } else {
-                    return `Our friend ${part.name} ate of his/her ${foundObject.name}.`;
-                }
+            if (res && res.and) {
+                return `Our friend ${part.name} ate of his/her ${foundObject.name} ${res.and}`;
             } else {
                 return `Our friend ${part.name} ate of his/her ${foundObject.name}.`;
             }
         } else {
-            if (res) {
-                if (res.and) {
-                    return `Our friend ${part.name} ate his/her ${foundObject.name} ${res.and}`;
-                } else {
-                    return `Our friend ${part.name} ate his/her ${foundObject.name}.`;
-                }
+            if (res && res.and) {
+                return `Our friend ${part.name} ate his/her ${foundObject.name} ${res.and}`;
             } else {
                 return `Our friend ${part.name} ate his/her ${foundObject.name}.`;
             }

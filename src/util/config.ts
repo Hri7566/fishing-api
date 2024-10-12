@@ -1,6 +1,6 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "fs";
-import YAML from "yaml";
-import { parse } from "path/posix";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import * as YAML from "yaml";
+import { parse } from "node:path/posix";
 
 export function loadConfig<T>(path: string, defaultConfig: T) {
     const parsed = parse(path);

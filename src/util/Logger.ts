@@ -1,5 +1,5 @@
 import { getHHMMSS } from "./time";
-import type { ReadLine } from "readline";
+import type { ReadLine } from "node:readline";
 
 export class Logger {
     private static log(...args: any[]) {

@@ -46,3 +46,20 @@ export function removeItem(arr: IObject[], item: IObject, count = 1) {
 
     return true;
 }
+
+export function findItemByNameFuzzy(arr: IObject[], name: string) {
+    let foundObject: IObject | undefined;
+    let i = 0;
+
+    for (const item of arr as unknown as IItem[]) {
+        if (!item.name.toLowerCase().includes(name.toLowerCase())) {
+            i++;
+            continue;
+        }
+
+        foundObject = item;
+        break;
+    }
+
+    return foundObject;
+}

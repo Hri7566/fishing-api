@@ -7,10 +7,10 @@ export const reel = new Command(
     "Reel in and stop fishing",
     "reel",
     "command.fishing.reel",
-    async ({ id, command, args, prefix, part, user }) => {
+    async ({ id, channel, command, args, prefix, part, user, isDM }) => {
         const fishing = getFishing(id, part.id);
         if (fishing) {
-            stopFishing(id, part.id);
+            stopFishing(id, part.id, channel, isDM);
             return `Our friend ${part.name} reel his/her lure back inside, temporarily decreasing his/her chances of catching a fish by 100%.`;
         } else {
             return `Friend ${part.name}: You haven't ${prefix}casted it.`;
