@@ -23,6 +23,7 @@
         "cli-markdown": "^3.4.0",
         "discord.js": "^14.16.2",
         "dotenv": "^16.4.5",
+        "markdown-to-unicode": "^1.0.2",
         "mpp-client-net": "^1.2.3",
         "prisma": "^5.19.1",
         "socket.io-client": "^4.8.0",

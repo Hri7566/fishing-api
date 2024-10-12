@@ -12,7 +12,8 @@ export const eat = new Command(
     "command.inventory.eat",
     async props => {
         const { args, prefix, part, user } = props;
-        const eating = args[0];
+        // const eating = args[0];
+        const eating = args.join(" ");
         if (!eating) return `What do you want to ${prefix}eat?`;
 
         const inventory = await getInventory(user.inventoryId);

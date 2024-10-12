@@ -14,7 +14,11 @@ export const pick = new Command(
         if (!inventory) return;
 
         if (!(await hasFruit()))
-            return crazy[Math.floor(Math.random() * crazy.length)];
+            return crazy[Math.floor(Math.random() * crazy.length)]
+                .split("$PART_NAME")
+                .join(part.name)
+                .split("$PREFIX")
+                .join(prefix);
 
         const fruit = await genFruitAndRemove();
         addItem(inventory.items as unknown as IObject[], fruit);
@@ -314,5 +318,49 @@ const crazy = [
     "You thought you spied a fruit, but were unable to procure any.",
     "You climb all over that tree and don't find a single pickable",
     "You wouldn't steal a fruit from a tree with no fruit.",
-    "Are you sure there aren't any fruit just lying around on the ground that you can /take?"
+    "Are you sure there aren't any fruit just lying around on the ground that you can /take?",
+    "Would you please stop begging for fruit? It's time for you to learn how to wait (and then maybe you will earn a watch)",
+    "Are you still trying to get the fruit?",
+    "Last time I checked, the fruit on the tree were not there.",
+    "When the fruit are gone, you can't have fun. Wait, that doesn't rhyme.",
+    "I'm Thomas Jefferson. Please wait for the fruit.",
+    "If I told you I was famous, would you listen to me? The fruit will not grow on command.",
+    "You kids can't imagine the inevitable collapse of capitalism? Incredible! The fruit are almost ready.",
+    "You picked up a ruler! Now you can figure out the length of things! You went to measure the fruit on the tree. Oh, wait, there's no fruit. Well, the ruler is useless, so you threw it away.",
+    "Fishing is a better idea right now, please keep your focus off of the fruit-less tree.",
+    "You want fruit from the bare tree? After all, it could only cost your life, and you got that for free!",
+    "This is the Earth's belly button! I don't see any fruit!",
+    "Go play EarhtBound, and then maybe when you have finished the game, there will be fruit.",
+    "Haven't you tried doing anything else? Are you still looking for the stupid fruit?",
+    "What is your favorite food? Go eat that, instead of the nonexistent kekklefruit.",
+    "Every day, the tree gets older, which means it's closer to the end of its life. Lately, there hasn't been much fruit, because people like you come and rub your sticky hands all over it.",
+    "Go wash your hands, you're filthy. The fruit hates dirt, and refuses to grow around people like you.",
+    "Patience is the key.",
+    "Impatience is the key.",
+    "For every time you decide to play the waiting game, your chances of getting fruit grows higher. So stop constantly begging for fruit, and maybe it will grow in great amounts.",
+    "Have you tried spending time outside? I heard there's this great place at the North Pole where they make other things to eat.",
+    "I have sort of neglected doing my housework... I know it's a bit of a pig sty, but anyway... I'm not growing any fruit for you.",
+    "You've travelled very far from home... and still, you have yet to see any fruit on the tree.",
+    "Maybe the tree was an illusion this whole time.",
+    "You are no longer alone in your adventure, some baby kekklefruit sprouts have appeared on the tree.",
+    "Only time can tell when you'll learn from your mistakes.",
+    "Everyone collectively has to stop trying to pick, and then the fruit will grow.",
+    "This tree hasn't grown fruit in 11 years.",
+    "Well, the tree has no fruit. I wish you luck...",
+    "Sometimes, we all want to eat to fish better, but I think you'll do fine without the fruit for now.",
+    "I wouldn't give you fruit even if you paid with a Diamond.",
+    "Go buy a hamburger instead.",
+    "Monkey: Meow Meow fss fss fssss? (What a strange chattering for a monkey.) Coo coo pepepe. (I think he's talking about the tree.) Croak croak breeeeeep? (Do you know how to wait for the fruit to grow?)",
+    "Hello! This is the kekklefruit tree. Sorry I haven't called lately. I'm still working on the way to change seeds into Kekklefruit. It's taking longer than I thought... I'm going to really work at it, though... talk to me later. *click*",
+    "You caught a glimpse of a small, cute Kekklefruit. No, wait, it's just an acorn.",
+    "What a rebellious kid! Come to the Police Station later! We have some prizes for you. Wait, you only want fruit? Well, nevermind, then. We don't have any of those fruit.",
+    "Tough out of luck! The kekklefruit tree is completely bare.",
+    "Your Luck ncreased by 5! You were filled with the Power of the Kekklefruit Tree! Your IQ decreased by 10! There's no fruit, dummy!",
+    "Hmm... maybe someone else has it.",
+    "wE fEEl GROOvE! Hi HO. mE mR. kEKkleFruIT tREe. tHis PlacE, all aRE nO FruiT.",
+    "Stinky! PEEEE-yEUUU! Get those disgusting hands off of the tree! There's no fruit for you!",
+    "You have caught all of the fish, and now you want all of the fruit? You are a menace to fish-ciety!",
+    "The boats came early this morning and took all of your fruit. I guess you'll never get any...",
+    "Our friend $PART_NAME picked 1 stag beetle from the kekklefruit tree and instantly $PREFIXyeeted it in fear.",
+    'If only you knew what the word "wait" meant.'
 ];

@@ -12284,6 +12284,113 @@ var require_main = __commonJS({
   }
 });
 
+// node_modules/markdown-to-unicode/src/partials/bold.js
+var require_bold = __commonJS({
+  "node_modules/markdown-to-unicode/src/partials/bold.js"(exports2, module2) {
+    "use strict";
+    function convertBoldToUnicode(markdownLine) {
+      let unicodeLine = markdownLine;
+      let boldRegex = /(\*\*|__)(.*?)\1/g;
+      unicodeLine = unicodeLine.replace(boldRegex, (match, p1, p2) => {
+        let unicodeCharacters = p2.split("").map((character) => {
+          return convertCharToBoldUnicode(character);
+        });
+        return unicodeCharacters.join("");
+      });
+      return unicodeLine;
+    }
+    function convertCharToBoldUnicode(char) {
+      const codePoint = char.codePointAt(0);
+      if (codePoint >= 65 && codePoint <= 90) {
+        return String.fromCodePoint(codePoint - 65 + 119808);
+      } else if (codePoint >= 97 && codePoint <= 122) {
+        return String.fromCodePoint(codePoint - 97 + 119834);
+      } else if (codePoint >= 48 && codePoint <= 57) {
+        return String.fromCodePoint(codePoint - 48 + 120782);
+      } else {
+        return char;
+      }
+    }
+    module2.exports = convertBoldToUnicode;
+  }
+});
+
+// node_modules/markdown-to-unicode/src/partials/italic.js
+var require_italic = __commonJS({
+  "node_modules/markdown-to-unicode/src/partials/italic.js"(exports2, module2) {
+    "use strict";
+    function convertItalicToUnicode(markdownLine) {
+      let unicodeLine = markdownLine;
+      let italicRegex = /(\*|_)(.*?)\1/g;
+      unicodeLine = unicodeLine.replace(italicRegex, (match, p1, p2) => {
+        let unicodeCharacters = p2.split("").map((character) => {
+          return convertCharToItalicUnicode(character);
+        });
+        return unicodeCharacters.join("");
+      });
+      return unicodeLine;
+    }
+    function convertCharToItalicUnicode(char) {
+      const codePoint = char.codePointAt(0);
+      if (codePoint >= 65 && codePoint <= 90) {
+        return String.fromCodePoint(codePoint - 65 + 119860);
+      } else if (codePoint >= 97 && codePoint <= 122) {
+        return String.fromCodePoint(codePoint - 97 + 119886);
+      } else {
+        return char;
+      }
+    }
+    module2.exports = convertItalicToUnicode;
+  }
+});
+
+// node_modules/markdown-to-unicode/src/partials/strikethrough.js
+var require_strikethrough = __commonJS({
+  "node_modules/markdown-to-unicode/src/partials/strikethrough.js"(exports2, module2) {
+    "use strict";
+    function convertStrikethroughToUnicode(markdownLine) {
+      let unicodeLine = markdownLine;
+      let strikethroughRegex = /~~(.*?)~~/g;
+      unicodeLine = unicodeLine.replace(strikethroughRegex, (match, p1) => {
+        let unicodeCharacters = p1.split("").map((character) => {
+          return convertCharToStrikethroughUnicode(character);
+        });
+        return unicodeCharacters.join("");
+      });
+      return unicodeLine;
+    }
+    function convertCharToStrikethroughUnicode(char) {
+      const strikeThroughChar = "\u0336";
+      return char + strikeThroughChar;
+    }
+    module2.exports = convertStrikethroughToUnicode;
+  }
+});
+
+// node_modules/markdown-to-unicode/src/index.js
+var require_src2 = __commonJS({
+  "node_modules/markdown-to-unicode/src/index.js"(exports2, module2) {
+    "use strict";
+    var convertBoldToUnicode = require_bold();
+    var convertItalicToUnicode = require_italic();
+    var convertStrikethroughToUnicode = require_strikethrough();
+    function convertMarkdownToUnicode2(markdownText) {
+      let getLineByLine = markdownText.split("\n");
+      let unicodeLineByLine = getLineByLine.map((line) => convertMarkdownLineToUnicode(line));
+      let unicodeText = unicodeLineByLine.join("\n");
+      return unicodeText;
+    }
+    function convertMarkdownLineToUnicode(markdownLine) {
+      let unicodeLine = markdownLine;
+      unicodeLine = convertBoldToUnicode(unicodeLine);
+      unicodeLine = convertItalicToUnicode(unicodeLine);
+      unicodeLine = convertStrikethroughToUnicode(unicodeLine);
+      return unicodeLine;
+    }
+    module2.exports = convertMarkdownToUnicode2;
+  }
+});
+
 // src/util/autorestart.ts
 function startAutorestart() {
   setTimeout(() => {
@@ -17318,12 +17425,13 @@ var trpc_default = gettRPC;
 
 // src/talkomatic/bot/TalkomaticBot.ts
 require_main().config();
+var convertMarkdownToUnicode = require_src2();
 var ppl = {};
 var TalkomaticBot = class extends import_node_events.EventEmitter {
   constructor(config) {
     super();
     this.config = config;
-    this.logger = new Logger("Talkomatic - " + config.channel.id);
+    this.logger = new Logger("Talkomatic - " + config.channel.name);
     this.client = lookup("https://talkomatic.co/", {
       extraHeaders: {
         Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
@@ -17336,13 +17444,23 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
   logger;
   trpc = trpc_default(process.env.TALKOMATIC_FISHING_TOKEN);
   started = false;
-  textColor = "#abe3d6";
-  start() {
-    this.logger.debug("Starting");
+  defaultColor = "#abe3d6";
+  channelId = "";
+  async start() {
+    this.logger.info("Starting");
     this.client.connect();
     this.bindEventListeners();
-    this.setChannel(this.config.channel.id);
-    this.started = true;
+    let data = await this.findChannel(this.config.channel.name) || await this.createChannel(this.config.channel.name);
+    this.logger.debug(data);
+    if (typeof data !== "undefined") {
+      try {
+        this.channelId = data.room.room_id;
+        this.setChannel(this.channelId);
+        this.started = true;
+      } catch (err) {
+        this.logger.error(err);
+      }
+    }
   }
   stop() {
     this.client.disconnect();
@@ -17429,16 +17547,20 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
         let part = ppl[msg.userId] || {
           name: "<unknown user>",
           id: msg.userId,
-          color: msg.color,
+          color: this.defaultColor,
           typingFlag: false
         };
         this.logger.info(`${part.name}: ${msg.text}`);
         const command = await this.trpc.command.query({
-          channel: this.config.channel.id,
+          channel: this.channelId,
           args: args.slice(1, args.length),
           command: args[0].substring(usedPrefix.length),
           prefix: usedPrefix,
-          user: part
+          user: {
+            id: part.id,
+            name: part.name,
+            color: part.color
+          }
         });
         if (!command) return;
         if (command.response)
@@ -17449,9 +17571,9 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
       "userJoined",
       (msg) => {
         const p = ppl[msg.id] || {
-          name: "<unknown user>",
+          name: msg.username,
           id: msg.id,
-          color: "#ffffff",
+          color: "#abe3d6",
           typingFlag: false
         };
         ppl[msg.id] = p;
@@ -17478,23 +17600,106 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
       } catch (err) {
       }
     });
-    this.b.on("sendchat", (msg) => {
-      if (typeof msg.channel === "string") {
-        if (msg.channel !== this.config.channel) return;
+    this.b.on(
+      "sendchat",
+      (msg) => {
+        if (typeof msg.channel === "string") {
+          if (msg.channel !== this.channelId) return;
+        }
+        this.sendChat(msg.message);
       }
-      this.sendChat(msg.message);
-    });
+    );
   }
+  oldText = "";
   sendChat(text, reply, id) {
+    if (this.oldText.split("\n").reverse()[0].toLowerCase().includes("autofish"))
+      text = [this.oldText, text].join("\n").split("\n").slice(-5).join("\n");
     const msg = {
-      roomId: this.config.channel.id,
-      text,
-      color: id ? ppl[id].color : "#ffffff"
+      roomId: this.channelId,
+      // text: text.split("sack").join("ʂасκ"),
+      text: text.split("sack").join("caught"),
+      color: id ? ppl[id].color : this.defaultColor
     };
+    for (const uuid of Object.keys(ppl)) {
+      const p = ppl[uuid];
+      msg.text = msg.text.split(`@${uuid}`).join(p.name);
+      if (!p) continue;
+      if (uuid !== id) continue;
+      msg.color = p.color;
+    }
+    try {
+      msg.text = convertMarkdownToUnicode(msg.text);
+    } catch (err) {
+      this.logger.warn("Unable to parse markdown:", err);
+    }
     this.client.emit("typing", msg);
+    this.oldText = text;
   }
   setChannel(roomId) {
     this.client.emit("joinRoom", { roomId });
+  }
+  async createChannel(roomName, roomType = "public") {
+    const response = await fetch(
+      "https://talkomatic.co/create-and-join-room",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          roomName,
+          roomType
+        })
+      }
+    );
+    if (!response.ok)
+      return void this.logger.warn(
+        "Unable to create channel:",
+        new TextDecoder().decode(
+          (await response.body?.getReader().read())?.value
+        )
+      );
+    try {
+      const data = new TextDecoder().decode(
+        (await response.body?.getReader().read())?.value
+      );
+      return JSON.parse(data.toString());
+    } catch (err) {
+      this.logger.warn(
+        "Unable to decode channel creation response data:",
+        err
+      );
+    }
+  }
+  async findChannel(name) {
+    const response = await fetch("https://talkomatic.co/rooms", {
+      method: "GET"
+    });
+    if (!response.ok)
+      return void this.logger.warn(
+        "Unable to create channel:",
+        new TextDecoder().decode(
+          (await response.body?.getReader().read())?.value
+        )
+      );
+    try {
+      const data = new TextDecoder().decode(
+        (await response.body?.getReader().read())?.value
+      );
+      const rooms = JSON.parse(data.toString());
+      for (const room of rooms.rooms) {
+        if (room.room_name == name) {
+          return { room };
+        }
+      }
+    } catch (err) {
+      this.logger.warn(
+        "Unable to decode channel creation response data:",
+        err
+      );
+    }
   }
 };
 
@@ -17503,7 +17708,7 @@ var bots = [];
 var defaults = loadConfig("config/talkomatic_bots.yml", [
   {
     channel: {
-      id: "116955"
+      name: "test/fishing"
     }
   }
 ]);

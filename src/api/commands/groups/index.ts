@@ -27,6 +27,7 @@ import { info } from "./general/info";
 import { burger } from "./util/burger";
 import { daily } from "./pokemon/daily";
 import { give } from "./inventory/give";
+import { group } from "./util/permission";
 // import { give } from "./inventory/give";
 
 interface ICommandGroup {
@@ -72,7 +73,7 @@ commandGroups.push(pokemonGroup);
 const utilGroup: ICommandGroup = {
     id: "util",
     displayName: "Utility",
-    commands: [data, setcolor, memory, autofish, fid, chance]
+    commands: [data, setcolor, memory, autofish, fid, chance, group]
 };
 
 commandGroups.push(utilGroup);

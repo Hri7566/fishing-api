@@ -6,7 +6,7 @@ const bots: TalkomaticBot[] = [];
 const defaults = loadConfig("config/talkomatic_bots.yml", [
     {
         channel: {
-            id: "116955"
+            name: "test/fishing"
         }
     }
 ] as TalkomaticBotConfig[]);

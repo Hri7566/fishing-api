@@ -4,10 +4,11 @@ import { EventEmitter } from "node:events";
 import gettRPC from "@util/api/trpc";
 
 require("dotenv").config();
+const convertMarkdownToUnicode = require("markdown-to-unicode");
 
 export interface TalkomaticBotConfig {
     channel: {
-        id: string;
+        name: string;
     };
 }
 
@@ -27,11 +28,12 @@ export class TalkomaticBot extends EventEmitter {
     public logger: Logger;
     public trpc = gettRPC(process.env.TALKOMATIC_FISHING_TOKEN as string);
     public started = false;
-    public textColor = "#abe3d6";
+    public defaultColor = "#abe3d6";
+    public channelId: string = "";
 
     constructor(public config: TalkomaticBotConfig) {
         super();
-        this.logger = new Logger("Talkomatic - " + config.channel.id);
+        this.logger = new Logger("Talkomatic - " + config.channel.name);
         // this.client = new Client(config.uri, token);
         // this.client = io(
         //     "wss://talkomatic.co/socket.io/?EIO=4&transport=websocket&sid=f_X4Z5LB8lKBlybNAdj8"
@@ -47,13 +49,26 @@ export class TalkomaticBot extends EventEmitter {
         });
     }
 
-    public start() {
-        this.logger.debug("Starting");
+    public async start() {
+        this.logger.info("Starting");
         this.client.connect();
         // this.client.io.engine.on("packetCreate", this.logger.debug);
         this.bindEventListeners();
-        this.setChannel(this.config.channel.id);
-        this.started = true;
+
+        let data =
+            (await this.findChannel(this.config.channel.name)) ||
+            (await this.createChannel(this.config.channel.name));
+        this.logger.debug(data);
+
+        if (typeof data !== "undefined") {
+            try {
+                this.channelId = (data as Record<string, any>).room.room_id;
+                this.setChannel(this.channelId);
+                this.started = true;
+            } catch (err) {
+                this.logger.error(err);
+            }
+        }
     }
 
     public stop() {
@@ -80,6 +95,7 @@ export class TalkomaticBot extends EventEmitter {
                     typingFlag: false
                 };
 
+                // this.logger.debug(msg);
                 // p.color = msg.color;
 
                 if (p.typingTimeout) clearTimeout(p.typingTimeout);
@@ -174,18 +190,22 @@ export class TalkomaticBot extends EventEmitter {
                 let part: TalkomaticParticipant = ppl[msg.userId] || {
                     name: "<unknown user>",
                     id: msg.userId,
-                    color: msg.color,
+                    color: this.defaultColor,
                     typingFlag: false
                 };
 
                 this.logger.info(`${part.name}: ${msg.text}`);
 
                 const command = await this.trpc.command.query({
-                    channel: this.config.channel.id,
+                    channel: this.channelId,
                     args: args.slice(1, args.length),
                     command: args[0].substring(usedPrefix.length),
                     prefix: usedPrefix,
-                    user: part
+                    user: {
+                        id: part.id,
+                        name: part.name,
+                        color: part.color
+                    }
                 });
 
                 if (!command) return;
@@ -203,9 +223,9 @@ export class TalkomaticBot extends EventEmitter {
                 avatar: string;
             }) => {
                 const p = ppl[msg.id] || {
-                    name: "<unknown user>",
+                    name: msg.username,
                     id: msg.id,
-                    color: "#ffffff",
+                    color: "#abe3d6",
                     typingFlag: false
                 };
 
@@ -237,47 +257,141 @@ export class TalkomaticBot extends EventEmitter {
             } catch (err) {}
         });
 
-        this.b.on("sendchat", msg => {
-            // this.logger.debug("sendchat message:", msg);
+        this.b.on(
+            "sendchat",
+            (msg: { m: "sendchat"; channel: string; message: string }) => {
+                // this.logger.debug("sendchat message:", msg);
 
-            if (typeof msg.channel === "string") {
-                if (msg.channel !== this.config.channel) return;
+                if (typeof msg.channel === "string") {
+                    if (msg.channel !== this.channelId) return;
+                }
+
+                this.sendChat(msg.message);
             }
-
-            this.sendChat(msg.message);
-        });
+        );
     }
 
+    private oldText: string = "";
+
     public sendChat(text: string, reply?: string, id?: string) {
-        // let lines = text.split("\n");
-
-        // for (const line of lines) {
-        //     const splits = line.match(/.{510}|.{1,509}/gi);
-        //     if (!splits) continue;
-
-        //     for (const split of splits) {
-        //         if (split.length <= 510) {
-        // const text = `\u034f${split
-        //     .split("\t")
-        //     .join("")
-        //     .split("\r")
-        //     .join("")}`;
+        if (
+            this.oldText
+                .split("\n")
+                .reverse()[0]
+                .toLowerCase()
+                .includes("autofish")
+        )
+            text = [this.oldText, text]
+                .join("\n")
+                .split("\n")
+                .slice(-5)
+                .join("\n");
 
         const msg = {
-            roomId: this.config.channel.id,
-            text,
-            color: id ? ppl[id].color : "#ffffff"
+            roomId: this.channelId,
+            // text: text.split("sack").join("ʂасκ"),
+            text: text.split("sack").join("caught"),
+            color: id ? ppl[id].color : this.defaultColor
         };
 
+        for (const uuid of Object.keys(ppl)) {
+            const p = ppl[uuid];
+
+            msg.text = msg.text.split(`@${uuid}`).join(p.name);
+
+            if (!p) continue;
+            if (uuid !== id) continue;
+
+            msg.color = p.color;
+        }
+
+        try {
+            msg.text = convertMarkdownToUnicode(msg.text);
+        } catch (err) {
+            this.logger.warn("Unable to parse markdown:", err);
+        }
+
         this.client.emit("typing", msg);
-        //         } else {
-        //             this.sendChat(split);
-        //         }
-        //     }
-        // }
+
+        this.oldText = text;
     }
 
     public setChannel(roomId: string) {
         this.client.emit("joinRoom", { roomId });
+    }
+
+    public async createChannel(
+        roomName: string,
+        roomType: "public" | "private" = "public"
+    ) {
+        const response = await fetch(
+            "https://talkomatic.co/create-and-join-room",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    roomName,
+                    roomType
+                })
+            }
+        );
+
+        if (!response.ok)
+            return void this.logger.warn(
+                "Unable to create channel:",
+                new TextDecoder().decode(
+                    (await response.body?.getReader().read())?.value
+                )
+            );
+
+        try {
+            const data = new TextDecoder().decode(
+                (await response.body?.getReader().read())?.value
+            );
+
+            return JSON.parse(data.toString());
+        } catch (err) {
+            this.logger.warn(
+                "Unable to decode channel creation response data:",
+                err
+            );
+        }
+    }
+
+    public async findChannel(name: string) {
+        const response = await fetch("https://talkomatic.co/rooms", {
+            method: "GET"
+        });
+
+        if (!response.ok)
+            return void this.logger.warn(
+                "Unable to create channel:",
+                new TextDecoder().decode(
+                    (await response.body?.getReader().read())?.value
+                )
+            );
+
+        try {
+            const data = new TextDecoder().decode(
+                (await response.body?.getReader().read())?.value
+            );
+
+            const rooms = JSON.parse(data.toString());
+
+            for (const room of rooms.rooms) {
+                if (room.room_name == name) {
+                    return { room };
+                }
+            }
+        } catch (err) {
+            this.logger.warn(
+                "Unable to decode channel creation response data:",
+                err
+            );
+        }
     }
 }

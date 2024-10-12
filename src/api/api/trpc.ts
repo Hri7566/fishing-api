@@ -97,7 +97,12 @@ export const appRouter = router({
                 isDM
             );
 
-            return out;
+            try {
+                return out;
+            } catch (err) {
+                logger.error(err);
+                return undefined;
+            }
         }),
 
     backs: privateProcedure.query(async opts => {
@@ -106,7 +111,12 @@ export const appRouter = router({
         const backs = getBacks<{}>(id);
         flushBacks(id);
 
-        return backs;
+        try {
+            return backs;
+        } catch (err) {
+            logger.error(err);
+            return undefined;
+        }
     })
 });
 
