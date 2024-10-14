@@ -27,11 +27,12 @@ const user = {
 (globalThis as unknown as any).rl = rl;
 rl.setPrompt("> ");
 rl.prompt();
-setPrompt();
+await setPrompt();
 
-function setPrompt() {
-    const color = new CosmicColor(user.color);
-    rl.setPrompt(`\x1b[38;2;${color.r};${color.g};${color.b}m> `);
+async function setPrompt() {
+    let color = await trpc.getUserColor.query({ userId: user._id });
+    const c = new CosmicColor(user.color);
+    rl.setPrompt(`\x1b[38;2;${c.r};${c.g};${c.b}m> `);
 }
 
 rl.on("line", async line => {
@@ -98,10 +99,17 @@ setInterval(async () => {
     }
 }, 1000 / 20);
 
-b.on("color", msg => {
+b.on("color", async msg => {
     if (typeof msg.color !== "string" || typeof msg.id !== "string") return;
+
     user.color = msg.color;
-    setPrompt();
+
+    trpc.saveColor.query({
+        userId: user._id,
+        color: msg.color
+    });
+
+    await setPrompt();
 });
 
 b.on("sendchat", msg => {

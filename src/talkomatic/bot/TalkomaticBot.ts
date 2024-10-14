@@ -9,6 +9,7 @@ const convertMarkdownToUnicode = require("markdown-to-unicode");
 export interface TalkomaticBotConfig {
     channel: {
         name: string;
+        type: "public" | "private";
     };
 }
 
@@ -33,13 +34,8 @@ export class TalkomaticBot extends EventEmitter {
 
     constructor(public config: TalkomaticBotConfig) {
         super();
-        this.logger = new Logger("Talkomatic - " + config.channel.name);
-        // this.client = new Client(config.uri, token);
-        // this.client = io(
-        //     "wss://talkomatic.co/socket.io/?EIO=4&transport=websocket&sid=f_X4Z5LB8lKBlybNAdj8"
-        // );
 
-        // this.logger.debug(process.env.TALKOMATIC_SID);
+        this.logger = new Logger("Talkomatic - " + config.channel.name);
 
         this.client = io("https://talkomatic.co/", {
             extraHeaders: {
@@ -47,17 +43,21 @@ export class TalkomaticBot extends EventEmitter {
             },
             autoConnect: false
         });
+
+        this.bindEventListeners();
     }
 
     public async start() {
         this.logger.info("Starting");
         this.client.connect();
         // this.client.io.engine.on("packetCreate", this.logger.debug);
-        this.bindEventListeners();
 
         let data =
             (await this.findChannel(this.config.channel.name)) ||
-            (await this.createChannel(this.config.channel.name));
+            (await this.createChannel(
+                this.config.channel.name,
+                this.config.channel.type
+            ));
         this.logger.debug(data);
 
         if (typeof data !== "undefined") {
@@ -113,7 +113,7 @@ export class TalkomaticBot extends EventEmitter {
 
         this.client.on(
             "udpateRoom",
-            (msg: {
+            async (msg: {
                 users: {
                     id: string;
                     username: string;
@@ -125,22 +125,35 @@ export class TalkomaticBot extends EventEmitter {
                 if (!Array.isArray(msg.users)) return;
                 try {
                     for (const user of msg.users) {
+                        let color = (
+                            await this.trpc.getUserColor.query({
+                                userId: user.id
+                            })
+                        ).color;
+
+                        this.logger.debug(
+                            "(updateRoom) user color from api:",
+                            color
+                        );
+
                         const p = ppl[user.id] || {
                             name: user.username,
                             id: user.id,
-                            color: "#abe3d6",
+                            color,
                             typingFlag: false
                         };
 
                         ppl[user.id] = p;
                     }
-                } catch (err) {}
+                } catch (err) {
+                    this.logger.warn("Unable to set user data:", err);
+                }
             }
         );
 
         this.client.on(
             "roomUsers",
-            (msg: {
+            async (msg: {
                 users: {
                     id: string;
                     username: string;
@@ -153,10 +166,23 @@ export class TalkomaticBot extends EventEmitter {
                 if (!Array.isArray(msg.users)) return;
                 try {
                     for (const user of msg.users) {
+                        let color = (
+                            await this.trpc.getUserColor.query({
+                                userId: user.id
+                            })
+                        ).color;
+
+                        if (!color) color = this.defaultColor;
+
+                        this.logger.debug(
+                            "(roomUsers) user color from api:",
+                            color
+                        );
+
                         const p = ppl[user.id] || {
                             name: user.username,
                             id: user.id,
-                            color: "#abe3d6",
+                            color,
                             typingFlag: false
                         };
 
@@ -183,6 +209,13 @@ export class TalkomaticBot extends EventEmitter {
                     msg.text.startsWith(pr)
                 );
 
+                let color = (
+                    await this.trpc.getUserColor.query({
+                        userId: msg.userId
+                    })
+                ).color;
+
+                if (!color) color = this.defaultColor;
                 if (!usedPrefix) return;
 
                 const args = msg.text.split(" ");
@@ -190,7 +223,7 @@ export class TalkomaticBot extends EventEmitter {
                 let part: TalkomaticParticipant = ppl[msg.userId] || {
                     name: "<unknown user>",
                     id: msg.userId,
-                    color: this.defaultColor,
+                    color,
                     typingFlag: false
                 };
 
@@ -248,13 +281,21 @@ export class TalkomaticBot extends EventEmitter {
             }
         }, 1000 / 20);
 
-        this.b.on("color", msg => {
+        this.b.on("color", async msg => {
             if (typeof msg.color !== "string" || typeof msg.id !== "string")
                 return;
             // this.textColor = msg.color;
+
             try {
                 ppl[msg.id].color = msg.color;
-            } catch (err) {}
+
+                await this.trpc.saveColor.query({
+                    userId: msg.id,
+                    color: msg.color
+                });
+            } catch (err) {
+                this.logger.warn("Unable to save user color:", err);
+            }
         });
 
         this.b.on(
@@ -274,18 +315,10 @@ export class TalkomaticBot extends EventEmitter {
     private oldText: string = "";
 
     public sendChat(text: string, reply?: string, id?: string) {
-        if (
-            this.oldText
-                .split("\n")
-                .reverse()[0]
-                .toLowerCase()
-                .includes("autofish")
-        )
-            text = [this.oldText, text]
-                .join("\n")
-                .split("\n")
-                .slice(-5)
-                .join("\n");
+        const fixedOld = this.oldText.split("\n")[-1];
+
+        if (text.toLowerCase().includes("autofish"))
+            text = `${fixedOld ? fixedOld + "\n" : ""}${text}`;
 
         const msg = {
             roomId: this.channelId,

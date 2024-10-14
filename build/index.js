@@ -17438,6 +17438,7 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
       },
       autoConnect: false
     });
+    this.bindEventListeners();
   }
   client;
   b = new import_node_events.EventEmitter();
@@ -17449,8 +17450,7 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
   async start() {
     this.logger.info("Starting");
     this.client.connect();
-    this.bindEventListeners();
-    let data = await this.findChannel(this.config.channel.name) || await this.createChannel(this.config.channel.name);
+    let data = await this.findChannel(this.config.channel.name) || await this.createChannel(this.config.channel.name, "private");
     this.logger.debug(data);
     if (typeof data !== "undefined") {
       try {
@@ -17494,32 +17494,48 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
     );
     this.client.on(
       "udpateRoom",
-      (msg) => {
+      async (msg) => {
         if (!Array.isArray(msg.users)) return;
         try {
           for (const user of msg.users) {
+            let color = (await this.trpc.getUserColor.query({
+              userId: user.id
+            })).color;
+            this.logger.debug(
+              "(updateRoom) user color from api:",
+              color
+            );
             const p = ppl[user.id] || {
               name: user.username,
               id: user.id,
-              color: "#abe3d6",
+              color,
               typingFlag: false
             };
             ppl[user.id] = p;
           }
         } catch (err) {
+          this.logger.warn("Unable to set user data:", err);
         }
       }
     );
     this.client.on(
       "roomUsers",
-      (msg) => {
+      async (msg) => {
         if (!Array.isArray(msg.users)) return;
         try {
           for (const user of msg.users) {
+            let color = (await this.trpc.getUserColor.query({
+              userId: user.id
+            })).color;
+            if (!color) color = this.defaultColor;
+            this.logger.debug(
+              "(roomUsers) user color from api:",
+              color
+            );
             const p = ppl[user.id] || {
               name: user.username,
               id: user.id,
-              color: "#abe3d6",
+              color,
               typingFlag: false
             };
             ppl[user.id] = p;
@@ -17542,12 +17558,16 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
         let usedPrefix = prefixes.find(
           (pr) => msg.text.startsWith(pr)
         );
+        let color = (await this.trpc.getUserColor.query({
+          userId: msg.userId
+        })).color;
+        if (!color) color = this.defaultColor;
         if (!usedPrefix) return;
         const args = msg.text.split(" ");
         let part = ppl[msg.userId] || {
           name: "<unknown user>",
           id: msg.userId,
-          color: this.defaultColor,
+          color,
           typingFlag: false
         };
         this.logger.info(`${part.name}: ${msg.text}`);
@@ -17592,12 +17612,17 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
         return;
       }
     }, 1e3 / 20);
-    this.b.on("color", (msg) => {
+    this.b.on("color", async (msg) => {
       if (typeof msg.color !== "string" || typeof msg.id !== "string")
         return;
       try {
         ppl[msg.id].color = msg.color;
+        await this.trpc.saveColor.query({
+          userId: msg.id,
+          color: msg.color
+        });
       } catch (err) {
+        this.logger.warn("Unable to save user color:", err);
       }
     });
     this.b.on(
@@ -17612,8 +17637,9 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
   }
   oldText = "";
   sendChat(text, reply, id) {
-    if (this.oldText.split("\n").reverse()[0].toLowerCase().includes("autofish"))
-      text = [this.oldText, text].join("\n").split("\n").slice(-5).join("\n");
+    const fixedOld = this.oldText.split("\n")[-1];
+    if (text.toLowerCase().includes("autofish"))
+      text = `${fixedOld ? fixedOld + "\n" : ""}${text}`;
     const msg = {
       roomId: this.channelId,
       // text: text.split("sack").join("ʂасκ"),

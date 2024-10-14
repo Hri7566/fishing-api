@@ -1,1 +1,1 @@
-export const prefixes = ["/", "fishing"];
+export const prefixes = ["/", "fish/", "fishing/", "f/", "fosh/", "foshong/"];

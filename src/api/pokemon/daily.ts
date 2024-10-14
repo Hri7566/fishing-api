@@ -22,7 +22,7 @@ export async function claimDailyPokemon(userID: string) {
         }
     }
 
-    logger.debug("Time remaining:", Date.now() - timestamp);
+    // logger.debug("Time remaining:", Date.now() - timestamp);
 
     // Check if it has been over a day
     if (Date.now() - timestamp > oneDay) {
