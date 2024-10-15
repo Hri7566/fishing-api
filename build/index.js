@@ -17450,7 +17450,10 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
   async start() {
     this.logger.info("Starting");
     this.client.connect();
-    let data = await this.findChannel(this.config.channel.name) || await this.createChannel(this.config.channel.name, "private");
+    let data = await this.findChannel(this.config.channel.name) || await this.createChannel(
+      this.config.channel.name,
+      this.config.channel.type
+    );
     this.logger.debug(data);
     if (typeof data !== "undefined") {
       try {

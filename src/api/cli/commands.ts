@@ -1,6 +1,7 @@
 import type { ReadlineCommand } from "./ReadlineCommand";
 import { deltoken } from "./commands/deltoken";
 import { gentoken } from "./commands/gentoken";
+import { grow_fruit } from "./commands/grow_fruit";
 import { help } from "./commands/help";
 import { lstoken } from "./commands/lstoken";
 import { stop } from "./commands/stop";
@@ -12,3 +13,4 @@ readlineCommands.push(gentoken);
 readlineCommands.push(deltoken);
 readlineCommands.push(lstoken);
 readlineCommands.push(stop);
+readlineCommands.push(grow_fruit);

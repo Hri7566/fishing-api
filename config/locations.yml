@@ -1,32 +1,41 @@
 - id: pond
   name: Pond
   nearby:
-    - lake
-    - river
-    - sea
+      - lake
+      - river
+      - sea
+      - shop
   hasSand: true
   objects: []
 - id: lake
   name: Lake
   nearby:
-    - pond
-    - river
-    - sea
+      - pond
+      - river
+      - sea
   hasSand: false
   objects: []
 - id: river
   name: River
   nearby:
-    - pond
-    - lake
-    - sea
+      - pond
+      - lake
+      - sea
   hasSand: false
   objects: []
 - id: sea
   name: Sea
   nearby:
-    - pond
-    - lake
-    - river
+      - pond
+      - lake
+      - river
   hasSand: true
   objects: []
+- id: shop
+  name: Shop
+  nearby:
+      - pond
+- id: bed # /go sleep?
+  name: Bed
+  nearby:
+      - pond

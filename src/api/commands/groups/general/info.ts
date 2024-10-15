@@ -3,7 +3,7 @@ import Command from "@server/commands/Command";
 export const info = new Command(
     "info",
     ["info"],
-    "Get your own user ID",
+    "Show information about the bot",
     "info",
     "command.general.info",
     async ({ id, command, args, prefix, part, user }) => {
