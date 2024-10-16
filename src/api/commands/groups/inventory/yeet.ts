@@ -39,11 +39,13 @@ export const yeet = new BehaviorCommand(
             tryKekGen = true;
         }
 
+        logger.debug("namespace:", bhvNamespace);
+
         const res = await self.behave<"yeet">(
             {
                 part
             },
-            foundObject.id,
+            bhvNamespace,
             async ctx => {
                 logger.debug("stuff");
                 if (tryKekGen) {

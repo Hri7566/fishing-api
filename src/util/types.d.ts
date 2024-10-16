@@ -126,7 +126,7 @@ interface IShopLocation extends ILocation {
 type TAnyLocation =
     | ILocation
     | IFishingLocation
-    | ISandyFishingLocation
+    | ISandyLocation
     | IShopLocation;
 
 interface TFisher {

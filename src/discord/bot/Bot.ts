@@ -59,17 +59,24 @@ export class DiscordBot extends EventEmitter {
             if (!groups) throw "Unable to get command list.";
 
             const builders = [];
+            const seen: string[] = [];
 
             for (const group of groups) {
                 for (const command of group.commands) {
+                    const discordCommand = command.aliases[0];
+                    if (seen.indexOf(discordCommand) !== -1) continue;
+
                     const builder = new SlashCommandBuilder();
-                    builder.setName(command.aliases[0]);
+
+                    builder.setName(discordCommand);
                     builder.setDescription(command.description);
                     builder.addStringOption(option =>
                         option
                             .setName("args")
                             .setDescription("Command arguments")
                     );
+
+                    seen.push(discordCommand);
 
                     builders.push(builder);
                 }
