@@ -645,3 +645,21 @@
   rarity: 0
   location: "river"
   activeMonths: 0b000001111100
+# - id: "abalone"
+#   name: "Abalone"
+#   size: 10
+#   rarity: 0
+#   location: "sea"
+#   activeMonths: 0b100001111111
+# - id: "acorn_barnacle"
+#   name: "Acorn Barnacle"
+#   size: 3
+#   rarity: 0
+#   location: "sea"
+#   activeMonths: 0b000001110000
+# - id: "chambered_nautilus"
+#   name: "Chambered nautilus"
+#   size: 35
+#   rarity: 0
+#   location: "sea"
+#   activeMonths: 0b000001110000

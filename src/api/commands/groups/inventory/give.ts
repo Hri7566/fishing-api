@@ -53,13 +53,13 @@ export const give = new Command(
         }
 
         if (updated) {
-            await updateInventory(foundInventory);
-
             if (foundObject.objtype == "fish") {
                 removeItem(inventory.fishSack, foundObject, 1);
             } else if (foundObject.objtype == "item") {
                 removeItem(inventory.items, foundObject, 1);
             }
+
+            await updateInventory(foundInventory);
 
             return `You ${
                 command.endsWith("e") ? `${command}d` : `${command}ed`

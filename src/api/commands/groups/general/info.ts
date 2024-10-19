@@ -7,7 +7,7 @@ export const info = new Command(
     "info",
     "command.general.info",
     async ({ id, command, args, prefix, part, user }) => {
-        return `🌊 Made by Hri7566 | Original created by Brandon Lockaby`;
+        return `🐟 Maintained by \`@hri7566\` (mppn @ead940199c7d9717e5149919) and developed with permission from Brandon`;
     },
     false
 );
