@@ -645,27 +645,286 @@
   rarity: 0
   location: "river"
   activeMonths: 0b000001111100
+
+# Sea creatures (https://nookipedia.com/wiki/Sea_creature)
+#* Duplicate catches are not included
 - id: "abalone"
   name: "Abalone"
   size: 10
   rarity: 0
   location: "sea"
   activeMonths: 0b100001111111
+  emoji: "🐚"
 - id: "acorn_barnacle"
   name: "Acorn Barnacle"
   size: 3
   rarity: 0
   location: "sea"
-  activeMonths: 0b000001110000
+  activeMonths: 0b111111111111
+  emoji: "🐚"
 - id: "chambered_nautilus"
   name: "Chambered nautilus"
   size: 35
   rarity: 0
   location: "sea"
-  activeMonths: 0b000001110000
+  activeMonths: 0b001111001110
+  emoji: "🦐"
 - id: "clam"
   name: "Clam"
-  size: 35
+  size: 4
   rarity: 0
   location: "sea"
+  activeMonths: 0b111100001111
+  emoji: "🐚"
+- id: "ear_shell"
+  name: "Ear Shell"
+  size: 7
+  rarity: 0
+  location: "sea"
+  activeMonths: 0b111111111111
+  emoji: "🐚"
+- id: "flatworm"
+  name: "Flatworm"
+  size: 4
+  rarity: 0
+  location: "sea"
+  activeMonths: 0b000000011000
+  emoji: "🪱"
+- id: "giant_isopod"
+  name: "Giant Isopod"
+  size: 30
+  rarity: 0
+  location: "sea"
+  activeMonths: 0b000001111100
+  emoji: "🪱"
+- id: "horsehair_crab"
+  name: "Horsehair Crab"
+  size: 24
+  rarity: 2
+  location: "sea"
+  activeMonths: 0b111100000011
+  emoji: "🦀"
+- id: "horseshoe_crab"
+  name: "Horseshoe Crab"
+  size: 40
+  rarity: 3
+  location: "sea"
+  activeMonths: 0b000000111000
+  emoji: "🧲"
+- id: "mantis_shrimp"
+  name: "Mantis Shrimp"
+  size: 12
+  rarity: 2
+  location: "sea"
+  activeMonths: 0b111111111111
+  emoji: "🦐"
+- id: "oyster"
+  name: "Oyster"
+  size: 8
+  rarity: 0
+  location: "sea"
+  activeMonths: 0b110000001111
+  emoji: "🦪"
+- id: "pearl_oyster"
+  name: "Pearl Oyster"
+  size: 10
+  rarity: 3
+  location: "sea"
+  activeMonths: 0b111111111111
+  emoji: "🦪"
+- id: "red_king_crab"
+  name: "Red King Crab"
+  size: 50
+  rarity: 4
+  location: "sea"
+  activeMonths: 0b111000000011
+  emoji: "🦀"
+- id: "scallop"
+  name: "Scallop"
+  size: 14
+  rarity: 2
+  location: "sea"
+  activeMonths: 0b111111111111
+  emoji: "🦪"
+- id: "sea_anemone"
+  name: "Sea anemone"
+  size: 20
+  rarity: 1
+  location: "sea"
+  activeMonths: 0b111111111111
+  emoji: "🪸"
+- id: "sea_cucumber"
+  name: "Sea cucumber"
+  size: 60
+  rarity: 1
+  location: "sea"
+  activeMonths: 0b111100000011
+  emoji: "🥒"
+- id: "sea_grapes"
+  name: "Sea grapes"
+  size: 20
+  rarity: 1
+  location: "sea"
+  activeMonths: 0b000001111000
+  emoji: "🍇"
+- id: "sea_slug"
+  name: "Sea slug"
+  size: 4
+  rarity: 1
+  location: "sea"
+  activeMonths: 0b111111111111
+  emoji: "🐌"
+- id: "sea_star"
+  name: "Sea star"
+  size: 25
+  rarity: 0
+  location: "sea"
+  activeMonths: 0b111111111111
+  emoji: "⭐"
+- id: "sea_urchin"
+  name: "Sea urchin"
+  size: 12
+  rarity: 1
+  location: "sea"
   activeMonths: 0b000001110000
+  emoji: "🐡"
+- id: "seaweed"
+  name: "Seaweed"
+  size: 80
+  rarity: 0
+  location: "sea"
+  activeMonths: 0b111111100111
+  emoji: "🌱"
+- id: "snow_crab"
+  name: "Snow crab"
+  size: 30
+  rarity: 2
+  location: "sea"
+  activeMonths: 0b111100000011
+  emoji: "🦀"
+- id: "spider_crab"
+  name: "Spider crab"
+  size: 120
+  rarity: 3
+  location: "sea"
+  activeMonths: 0b001100000000
+  emoji: "🦀"
+- id: "spiny_lobster"
+  name: "Spiny lobster"
+  size: 30
+  rarity: 3
+  location: "sea"
+  activeMonths: 0b000000000111
+  emoji: "🦞"
+- id: "spotted_garden_eel"
+  name: "Spotted garden eel"
+  size: 17
+  rarity: 2
+  location: "sea"
+  activeMonths: 0b000011111100
+  emoji: "🐍"
+- id: "sweet_shrimp"
+  name: "Sweet shrimp"
+  size: 12
+  rarity: 1
+  location: "sea"
+  activeMonths: 0b110000001111
+  emoji: "🦐"
+- id: "tiger_prawn"
+  name: "Tiger prawn"
+  size: 20
+  rarity: 2
+  location: "sea"
+  activeMonths: 0b000001111000
+  emoji: "🦐"
+- id: "turban_shell"
+  name: "Turban shell"
+  size: 12
+  rarity: 2
+  location: "sea"
+  activeMonths: 0b001110001111
+  emoji: "🐚"
+- id: "dungeness_crab"
+  name: "Dungeness crab"
+  size: 10
+  rarity: 1
+  location: "sea"
+  activeMonths: 0b111110000011
+  emoji: "🦀"
+- id: "firefly_squid"
+  name: "Firefly squid"
+  size: 5
+  rarity: 3
+  location: "sea"
+  activeMonths: 0b001111000000
+  emoji: "🦑"
+- id: "gazami_crab"
+  name: "Gazami crab"
+  size: 15
+  rarity: 3
+  location: "sea"
+  activeMonths: 0b000001111110
+  emoji: "🦀"
+- id: "gigas_giant_clam"
+  name: "Gigas giant clam"
+  size: 115
+  rarity: 4
+  location: "sea"
+  activeMonths: 0b000011111000
+  emoji: "🦪"
+- id: "mussel"
+  name: "Mussel"
+  size: 5
+  rarity: 1
+  location: "sea"
+  activeMonths: 0b000001111111
+  emoji: "🦪"
+- id: "sea_pig"
+  name: "Sea pig"
+  size: 3
+  rarity: 1
+  location: "sea"
+  activeMonths: 0b110000000011
+  emoji: "🐖"
+- id: "sea_pineapple"
+  name: "Sea pineapple"
+  size: 10
+  rarity: 1
+  location: "sea"
+  activeMonths: 0b000111110000
+  emoji: "🍍"
+- id: "slate_pencil_urchin"
+  name: "Slate pencil urchin"
+  size: 20
+  rarity: 2
+  location: "sea"
+  activeMonths: 0b000011111000
+  emoji: "🐡"
+- id: "umbrella_octopus"
+  name: "Umbrella octopus"
+  size: 30
+  rarity: 3
+  location: "sea"
+  activeMonths: 0b001110001110
+  emoji: "🐙"
+- id: "vampire_squid"
+  name: "Vampire squid"
+  size: 20
+  rarity: 3
+  location: "sea"
+  activeMonths: 0b000011110000
+  emoji: "🦑"
+- id: "venus_flower_basket"
+  name: "Venus' flower basket"
+  size: 25
+  rarity: 4
+  location: "sea"
+  activeMonths: 0b110000000111
+  emoji: "🧺"
+- id: "whelk"
+  name: "Whelk"
+  size: 3
+  rarity: 0
+  location: "sea"
+  activeMonths: 0b111111111111
+  emoji: "🐌"

@@ -1,0 +1,52 @@
+---
+import Layout from "../layouts/Layout.astro";
+import fs from "fs";
+
+const imageList = fs.readdirSync("./public/images");
+---
+
+<Layout title="Gallery">
+    <main>
+        <div id="container" class="px-5 py-2 mx-auto w-full lg:w-[900px]">
+            <div
+                id="page-content"
+                class="bg-[#fea] border border-[#fea] p-[10px] rounded-[6px]"
+            >
+                <h2 class="border-b border-[#f84] pb-[5px]">Gallery</h2>
+                <div
+                    class="sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 justify-items-center"
+                >
+                    {
+                        imageList.map(filename => {
+                            return (
+                                <div class="pixelated p-1 flex-col border-b border-[#f84]">
+                                    <div class="flex min-w-full place-content-center p-3">
+                                        <img
+                                            src={`/images/${filename}`}
+                                            width="64"
+                                            height="64"
+                                        />
+                                    </div>
+                                    <p class="text-xs text-center  pt-[5px]">
+                                        {filename.split(".png")[0]}
+                                    </p>
+                                </div>
+                            );
+                        })
+                    }
+                </div>
+            </div>
+        </div>
+    </main>
+</Layout>
+
+<style>
+    .pixelated {
+        image-rendering: pixelated;
+    }
+
+    #page-content {
+        color: #444;
+        text-shadow: #ccc 1px 1px;
+    }
+</style>

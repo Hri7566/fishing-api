@@ -4,23 +4,82 @@ import Layout from "../layouts/Layout.astro";
 
 <Layout title="Home">
     <main>
-        <div id="container" class="px-5 py-2 mx-auto w-[60%]">
-            <h1 class="text-xl">Fishing Bot</h1>
-            <br />
-
+        <div id="container" class="px-5 py-2 mx-auto w-full lg:w-[900px]">
             <div
                 id="page-content"
-                class="bg-[#fea] border border-[#fea] p-[10px]"
+                class="bg-[#fea] border border-[#fea] p-[10px] rounded-[6px]"
             >
-                <h2 class="border-b border-[#f84]">Discord</h2>
+                <h2 class="border-b border-[#f84] pb-[5px]">About</h2>
+                <p class="text-[14pt] py-2">
+                    The Fishing Bot is a text-based fishing simulator where you
+                    can fish, eat, and throw various objects. It is designed as
+                    a multiplayer experience for people who enjoy text-based
+                    games or just want to mess with their friends.
+                </p>
+
+                <br />
+
+                <h2 class="border-b border-[#f84] pb-[5px]">History</h2>
+                <p class="text-[14pt] py-2">
+                    It was originally created by Axyo in 2013 for his website,
+                    Multiplayer Piano. The Fishing Bot became the only way users
+                    can change their colors, so it grew in popularity as people
+                    wanted to get their favorite color. Nowadays, Multiplayer
+                    Piano is run by different people and the Fishing Bot is only
+                    on MultiplayerPiano.net, as the color changing admin
+                    functionality does not work on the original site anymore as
+                    of 2020 (we don't have the admin password anymore). Brandon
+                    no longer runs the Fishing Bot, that is now done with his
+                    permission by me, <a
+                        class="hover:text-[#8d3f50] hover:underline"
+                        href="https://hri7566.info">Hri7566</a
+                    >.
+                </p>
+
+                <br />
+
+                <h2 class="border-b border-[#f84] pb-[5px]">
+                    MultiplayerPiano.net
+                </h2>
+                <p class="text-[14pt] py-2">
+                    Click <a
+                        href="https://multiplayerpiano.net/test/fishing"
+                        class="text-[#f46] hover:text-[#e05] hover:underline"
+                        >here</a
+                    > to join the test/fishing room on MPP.net! (Max 50 users at
+                    a time)
+                </p>
+
+                <br />
+
+                <h2 class="border-b border-[#f84] pb-[5px]">Discord</h2>
                 <p class="text-[14pt] py-2">
                     Click <a
                         href="https://discord.gg/HN7UkGnR9h"
                         class="text-[#f46] hover:text-[#e05] hover:underline"
                         >here</a
-                    > to join the Discord server!
+                    > to join the Discord fishing server!
+                </p>
+
+                <br />
+
+                <h2 class="border-b border-[#f84] pb-[5px]">Talkomatic</h2>
+                <p class="text-[14pt] py-2">
+                    As of October 2024, the Fishing Bot is also on <a
+                        href="https://talkomatic.co"
+                        class="text-[#f46] hover:text-[#e05] hover:underline"
+                        >Talkomatic</a
+                    >! If you don't see it there, the bot has likely gone
+                    offline, so let me know on Discord - @hri7566
                 </p>
             </div>
         </div>
     </main>
 </Layout>
+
+<style>
+    #page-content {
+        color: #444;
+        text-shadow: #ccc 1px 1px;
+    }
+</style>
