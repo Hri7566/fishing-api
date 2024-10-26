@@ -128,9 +128,12 @@ export const appRouter = router({
             })
         )
         .query(async opts => {
+            if (typeof opts.input.color !== "string") return { success: false };
             const { id, json } = await kvSet(`usercolor~${opts.input.userId}`, {
                 color: opts.input.color
             });
+
+            logger.debug(json);
 
             return {
                 success: true,
@@ -148,6 +151,7 @@ export const appRouter = router({
         .query(async opts => {
             const color = await kvGet(`usercolor~${opts.input.userId}`);
 
+            if (typeof color === "object") return { color: color.color };
             return {
                 color
             };

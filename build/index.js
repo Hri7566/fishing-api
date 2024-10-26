@@ -90,13 +90,13 @@ var require_identity = __commonJS({
 var require_visit = __commonJS({
   "node_modules/yaml/dist/visit.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var BREAK = Symbol("break visit");
     var SKIP = Symbol("skip children");
     var REMOVE = Symbol("remove node");
     function visit(node, visitor) {
       const visitor_ = initVisitor(visitor);
-      if (identity.isDocument(node)) {
+      if (identity2.isDocument(node)) {
         const cd = visit_(null, node.contents, visitor_, Object.freeze([node]));
         if (cd === REMOVE)
           node.contents = null;
@@ -108,12 +108,12 @@ var require_visit = __commonJS({
     visit.REMOVE = REMOVE;
     function visit_(key, node, visitor, path) {
       const ctrl = callVisitor(key, node, visitor, path);
-      if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
+      if (identity2.isNode(ctrl) || identity2.isPair(ctrl)) {
         replaceNode(key, path, ctrl);
         return visit_(key, ctrl, visitor, path);
       }
       if (typeof ctrl !== "symbol") {
-        if (identity.isCollection(node)) {
+        if (identity2.isCollection(node)) {
           path = Object.freeze(path.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
             const ci = visit_(i, node.items[i], visitor, path);
@@ -126,7 +126,7 @@ var require_visit = __commonJS({
               i -= 1;
             }
           }
-        } else if (identity.isPair(node)) {
+        } else if (identity2.isPair(node)) {
           path = Object.freeze(path.concat(node));
           const ck = visit_("key", node.key, visitor, path);
           if (ck === BREAK)
@@ -144,7 +144,7 @@ var require_visit = __commonJS({
     }
     async function visitAsync(node, visitor) {
       const visitor_ = initVisitor(visitor);
-      if (identity.isDocument(node)) {
+      if (identity2.isDocument(node)) {
         const cd = await visitAsync_(null, node.contents, visitor_, Object.freeze([node]));
         if (cd === REMOVE)
           node.contents = null;
@@ -156,12 +156,12 @@ var require_visit = __commonJS({
     visitAsync.REMOVE = REMOVE;
     async function visitAsync_(key, node, visitor, path) {
       const ctrl = await callVisitor(key, node, visitor, path);
-      if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
+      if (identity2.isNode(ctrl) || identity2.isPair(ctrl)) {
         replaceNode(key, path, ctrl);
         return visitAsync_(key, ctrl, visitor, path);
       }
       if (typeof ctrl !== "symbol") {
-        if (identity.isCollection(node)) {
+        if (identity2.isCollection(node)) {
           path = Object.freeze(path.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
             const ci = await visitAsync_(i, node.items[i], visitor, path);
@@ -174,7 +174,7 @@ var require_visit = __commonJS({
               i -= 1;
             }
           }
-        } else if (identity.isPair(node)) {
+        } else if (identity2.isPair(node)) {
           path = Object.freeze(path.concat(node));
           const ck = await visitAsync_("key", node.key, visitor, path);
           if (ck === BREAK)
@@ -211,31 +211,31 @@ var require_visit = __commonJS({
     function callVisitor(key, node, visitor, path) {
       if (typeof visitor === "function")
         return visitor(key, node, path);
-      if (identity.isMap(node))
+      if (identity2.isMap(node))
         return visitor.Map?.(key, node, path);
-      if (identity.isSeq(node))
+      if (identity2.isSeq(node))
         return visitor.Seq?.(key, node, path);
-      if (identity.isPair(node))
+      if (identity2.isPair(node))
         return visitor.Pair?.(key, node, path);
-      if (identity.isScalar(node))
+      if (identity2.isScalar(node))
         return visitor.Scalar?.(key, node, path);
-      if (identity.isAlias(node))
+      if (identity2.isAlias(node))
         return visitor.Alias?.(key, node, path);
       return void 0;
     }
     function replaceNode(key, path, node) {
       const parent = path[path.length - 1];
-      if (identity.isCollection(parent)) {
+      if (identity2.isCollection(parent)) {
         parent.items[key] = node;
-      } else if (identity.isPair(parent)) {
+      } else if (identity2.isPair(parent)) {
         if (key === "key")
           parent.key = node;
         else
           parent.value = node;
-      } else if (identity.isDocument(parent)) {
+      } else if (identity2.isDocument(parent)) {
         parent.contents = node;
       } else {
-        const pt = identity.isAlias(parent) ? "alias" : "scalar";
+        const pt = identity2.isAlias(parent) ? "alias" : "scalar";
         throw new Error(`Cannot replace node with ${pt} parent`);
       }
     }
@@ -248,7 +248,7 @@ var require_visit = __commonJS({
 var require_directives = __commonJS({
   "node_modules/yaml/dist/doc/directives.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var visit = require_visit();
     var escapeChars = {
       "!": "%21",
@@ -391,10 +391,10 @@ var require_directives = __commonJS({
         const lines = this.yaml.explicit ? [`%YAML ${this.yaml.version || "1.2"}`] : [];
         const tagEntries = Object.entries(this.tags);
         let tagNames;
-        if (doc && tagEntries.length > 0 && identity.isNode(doc.contents)) {
+        if (doc && tagEntries.length > 0 && identity2.isNode(doc.contents)) {
           const tags = {};
           visit.visit(doc.contents, (_key, node) => {
-            if (identity.isNode(node) && node.tag)
+            if (identity2.isNode(node) && node.tag)
               tags[node.tag] = true;
           });
           tagNames = Object.keys(tags);
@@ -419,7 +419,7 @@ var require_directives = __commonJS({
 var require_anchors = __commonJS({
   "node_modules/yaml/dist/doc/anchors.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var visit = require_visit();
     function anchorIsValid(anchor) {
       if (/[\x00-\x19\s,[\]{}]/.test(anchor)) {
@@ -467,7 +467,7 @@ var require_anchors = __commonJS({
         setAnchors: () => {
           for (const source of aliasObjects) {
             const ref = sourceObjects.get(source);
-            if (typeof ref === "object" && ref.anchor && (identity.isScalar(ref.node) || identity.isCollection(ref.node))) {
+            if (typeof ref === "object" && ref.anchor && (identity2.isScalar(ref.node) || identity2.isCollection(ref.node))) {
               ref.node.anchor = ref.anchor;
             } else {
               const error = new Error("Failed to resolve repeated object (this should not happen)");
@@ -540,12 +540,12 @@ var require_applyReviver = __commonJS({
 var require_toJS = __commonJS({
   "node_modules/yaml/dist/nodes/toJS.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     function toJS(value2, arg, ctx) {
       if (Array.isArray(value2))
         return value2.map((v, i) => toJS(v, String(i), ctx));
       if (value2 && typeof value2.toJSON === "function") {
-        if (!ctx || !identity.hasAnchor(value2))
+        if (!ctx || !identity2.hasAnchor(value2))
           return value2.toJSON(arg, ctx);
         const data = { aliasCount: 0, count: 1, res: void 0 };
         ctx.anchors.set(value2, data);
@@ -571,11 +571,11 @@ var require_Node = __commonJS({
   "node_modules/yaml/dist/nodes/Node.js"(exports2) {
     "use strict";
     var applyReviver = require_applyReviver();
-    var identity = require_identity();
+    var identity2 = require_identity();
     var toJS = require_toJS();
     var NodeBase = class {
       constructor(type) {
-        Object.defineProperty(this, identity.NODE_TYPE, { value: type });
+        Object.defineProperty(this, identity2.NODE_TYPE, { value: type });
       }
       /** Create a copy of this node.  */
       clone() {
@@ -586,7 +586,7 @@ var require_Node = __commonJS({
       }
       /** A plain JavaScript representation of this node. */
       toJS(doc, { mapAsMap, maxAliasCount, onAnchor, reviver } = {}) {
-        if (!identity.isDocument(doc))
+        if (!identity2.isDocument(doc))
           throw new TypeError("A document argument is required");
         const ctx = {
           anchors: /* @__PURE__ */ new Map(),
@@ -613,12 +613,12 @@ var require_Alias = __commonJS({
     "use strict";
     var anchors = require_anchors();
     var visit = require_visit();
-    var identity = require_identity();
+    var identity2 = require_identity();
     var Node = require_Node();
     var toJS = require_toJS();
     var Alias = class extends Node.NodeBase {
       constructor(source) {
-        super(identity.ALIAS);
+        super(identity2.ALIAS);
         this.source = source;
         Object.defineProperty(this, "tag", {
           set() {
@@ -686,11 +686,11 @@ var require_Alias = __commonJS({
       }
     };
     function getAliasCount(doc, node, anchors2) {
-      if (identity.isAlias(node)) {
+      if (identity2.isAlias(node)) {
         const source = node.resolve(doc);
         const anchor = anchors2 && source && anchors2.get(source);
         return anchor ? anchor.count * anchor.aliasCount : 0;
-      } else if (identity.isCollection(node)) {
+      } else if (identity2.isCollection(node)) {
         let count = 0;
         for (const item of node.items) {
           const c = getAliasCount(doc, item, anchors2);
@@ -698,7 +698,7 @@ var require_Alias = __commonJS({
             count = c;
         }
         return count;
-      } else if (identity.isPair(node)) {
+      } else if (identity2.isPair(node)) {
         const kc = getAliasCount(doc, node.key, anchors2);
         const vc = getAliasCount(doc, node.value, anchors2);
         return Math.max(kc, vc);
@@ -713,13 +713,13 @@ var require_Alias = __commonJS({
 var require_Scalar = __commonJS({
   "node_modules/yaml/dist/nodes/Scalar.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var Node = require_Node();
     var toJS = require_toJS();
     var isScalarValue = (value2) => !value2 || typeof value2 !== "function" && typeof value2 !== "object";
     var Scalar = class extends Node.NodeBase {
       constructor(value2) {
-        super(identity.SCALAR);
+        super(identity2.SCALAR);
         this.value = value2;
       }
       toJSON(arg, ctx) {
@@ -744,7 +744,7 @@ var require_createNode = __commonJS({
   "node_modules/yaml/dist/doc/createNode.js"(exports2) {
     "use strict";
     var Alias = require_Alias();
-    var identity = require_identity();
+    var identity2 = require_identity();
     var Scalar = require_Scalar();
     var defaultTagPrefix = "tag:yaml.org,2002:";
     function findTagObject(value2, tagName, tags) {
@@ -758,12 +758,12 @@ var require_createNode = __commonJS({
       return tags.find((t) => t.identify?.(value2) && !t.format);
     }
     function createNode(value2, tagName, ctx) {
-      if (identity.isDocument(value2))
+      if (identity2.isDocument(value2))
         value2 = value2.contents;
-      if (identity.isNode(value2))
+      if (identity2.isNode(value2))
         return value2;
-      if (identity.isPair(value2)) {
-        const map2 = ctx.schema[identity.MAP].createNode?.(ctx.schema, null, ctx);
+      if (identity2.isPair(value2)) {
+        const map2 = ctx.schema[identity2.MAP].createNode?.(ctx.schema, null, ctx);
         map2.items.push(value2);
         return map2;
       }
@@ -796,7 +796,7 @@ var require_createNode = __commonJS({
             ref.node = node2;
           return node2;
         }
-        tagObj = value2 instanceof Map ? schema[identity.MAP] : Symbol.iterator in Object(value2) ? schema[identity.SEQ] : schema[identity.MAP];
+        tagObj = value2 instanceof Map ? schema[identity2.MAP] : Symbol.iterator in Object(value2) ? schema[identity2.SEQ] : schema[identity2.MAP];
       }
       if (onTagObj) {
         onTagObj(tagObj);
@@ -820,7 +820,7 @@ var require_Collection = __commonJS({
   "node_modules/yaml/dist/nodes/Collection.js"(exports2) {
     "use strict";
     var createNode = require_createNode();
-    var identity = require_identity();
+    var identity2 = require_identity();
     var Node = require_Node();
     function collectionFromPath(schema, path, value2) {
       let v = value2;
@@ -864,7 +864,7 @@ var require_Collection = __commonJS({
         const copy = Object.create(Object.getPrototypeOf(this), Object.getOwnPropertyDescriptors(this));
         if (schema)
           copy.schema = schema;
-        copy.items = copy.items.map((it) => identity.isNode(it) || identity.isPair(it) ? it.clone(schema) : it);
+        copy.items = copy.items.map((it) => identity2.isNode(it) || identity2.isPair(it) ? it.clone(schema) : it);
         if (this.range)
           copy.range = this.range.slice();
         return copy;
@@ -880,7 +880,7 @@ var require_Collection = __commonJS({
         else {
           const [key, ...rest] = path;
           const node = this.get(key, true);
-          if (identity.isCollection(node))
+          if (identity2.isCollection(node))
             node.addIn(rest, value2);
           else if (node === void 0 && this.schema)
             this.set(key, collectionFromPath(this.schema, rest, value2));
@@ -897,7 +897,7 @@ var require_Collection = __commonJS({
         if (rest.length === 0)
           return this.delete(key);
         const node = this.get(key, true);
-        if (identity.isCollection(node))
+        if (identity2.isCollection(node))
           return node.deleteIn(rest);
         else
           throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
@@ -911,16 +911,16 @@ var require_Collection = __commonJS({
         const [key, ...rest] = path;
         const node = this.get(key, true);
         if (rest.length === 0)
-          return !keepScalar && identity.isScalar(node) ? node.value : node;
+          return !keepScalar && identity2.isScalar(node) ? node.value : node;
         else
-          return identity.isCollection(node) ? node.getIn(rest, keepScalar) : void 0;
+          return identity2.isCollection(node) ? node.getIn(rest, keepScalar) : void 0;
       }
       hasAllNullValues(allowScalar) {
         return this.items.every((node) => {
-          if (!identity.isPair(node))
+          if (!identity2.isPair(node))
             return false;
           const n = node.value;
-          return n == null || allowScalar && identity.isScalar(n) && n.value == null && !n.commentBefore && !n.comment && !n.tag;
+          return n == null || allowScalar && identity2.isScalar(n) && n.value == null && !n.commentBefore && !n.comment && !n.tag;
         });
       }
       /**
@@ -931,7 +931,7 @@ var require_Collection = __commonJS({
         if (rest.length === 0)
           return this.has(key);
         const node = this.get(key, true);
-        return identity.isCollection(node) ? node.hasIn(rest) : false;
+        return identity2.isCollection(node) ? node.hasIn(rest) : false;
       }
       /**
        * Sets a value in this collection. For `!!set`, `value` needs to be a
@@ -943,7 +943,7 @@ var require_Collection = __commonJS({
           this.set(key, value2);
         } else {
           const node = this.get(key, true);
-          if (identity.isCollection(node))
+          if (identity2.isCollection(node))
             node.setIn(rest, value2);
           else if (node === void 0 && this.schema)
             this.set(key, collectionFromPath(this.schema, rest, value2));
@@ -1391,7 +1391,7 @@ var require_stringify = __commonJS({
   "node_modules/yaml/dist/stringify/stringify.js"(exports2) {
     "use strict";
     var anchors = require_anchors();
-    var identity = require_identity();
+    var identity2 = require_identity();
     var stringifyComment = require_stringifyComment();
     var stringifyString = require_stringifyString();
     function createStringifyContext(doc, options) {
@@ -1443,9 +1443,14 @@ var require_stringify = __commonJS({
       }
       let tagObj = void 0;
       let obj;
-      if (identity.isScalar(item)) {
+      if (identity2.isScalar(item)) {
         obj = item.value;
-        const match = tags.filter((t) => t.identify?.(obj));
+        let match = tags.filter((t) => t.identify?.(obj));
+        if (match.length > 1) {
+          const testMatch = match.filter((t) => t.test);
+          if (testMatch.length > 0)
+            match = testMatch;
+        }
         tagObj = match.find((t) => t.format === item.format) ?? match.find((t) => !t.format);
       } else {
         obj = item;
@@ -1461,7 +1466,7 @@ var require_stringify = __commonJS({
       if (!doc.directives)
         return "";
       const props = [];
-      const anchor = (identity.isScalar(node) || identity.isCollection(node)) && node.anchor;
+      const anchor = (identity2.isScalar(node) || identity2.isCollection(node)) && node.anchor;
       if (anchor && anchors.anchorIsValid(anchor)) {
         anchors$1.add(anchor);
         props.push(`&${anchor}`);
@@ -1472,9 +1477,9 @@ var require_stringify = __commonJS({
       return props.join(" ");
     }
     function stringify2(item, ctx, onComment, onChompKeep) {
-      if (identity.isPair(item))
+      if (identity2.isPair(item))
         return item.toString(ctx, onComment, onChompKeep);
-      if (identity.isAlias(item)) {
+      if (identity2.isAlias(item)) {
         if (ctx.doc.directives)
           return item.toString(ctx);
         if (ctx.resolvedAliases?.has(item)) {
@@ -1488,16 +1493,16 @@ var require_stringify = __commonJS({
         }
       }
       let tagObj = void 0;
-      const node = identity.isNode(item) ? item : ctx.doc.createNode(item, { onTagObj: (o) => tagObj = o });
+      const node = identity2.isNode(item) ? item : ctx.doc.createNode(item, { onTagObj: (o) => tagObj = o });
       if (!tagObj)
         tagObj = getTagObject(ctx.doc.schema.tags, node);
       const props = stringifyProps(node, tagObj, ctx);
       if (props.length > 0)
         ctx.indentAtStart = (ctx.indentAtStart ?? 0) + props.length + 1;
-      const str = typeof tagObj.stringify === "function" ? tagObj.stringify(node, ctx, onComment, onChompKeep) : identity.isScalar(node) ? stringifyString.stringifyString(node, ctx, onComment, onChompKeep) : node.toString(ctx, onComment, onChompKeep);
+      const str = typeof tagObj.stringify === "function" ? tagObj.stringify(node, ctx, onComment, onChompKeep) : identity2.isScalar(node) ? stringifyString.stringifyString(node, ctx, onComment, onChompKeep) : node.toString(ctx, onComment, onChompKeep);
       if (!props)
         return str;
-      return identity.isScalar(node) || str[0] === "{" || str[0] === "[" ? `${props} ${str}` : `${props}
+      return identity2.isScalar(node) || str[0] === "{" || str[0] === "[" ? `${props} ${str}` : `${props}
 ${ctx.indent}${str}`;
     }
     exports2.createStringifyContext = createStringifyContext;
@@ -1509,23 +1514,23 @@ ${ctx.indent}${str}`;
 var require_stringifyPair = __commonJS({
   "node_modules/yaml/dist/stringify/stringifyPair.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var Scalar = require_Scalar();
     var stringify2 = require_stringify();
     var stringifyComment = require_stringifyComment();
     function stringifyPair({ key, value: value2 }, ctx, onComment, onChompKeep) {
       const { allNullValues, doc, indent, indentStep, options: { commentString, indentSeq, simpleKeys } } = ctx;
-      let keyComment = identity.isNode(key) && key.comment || null;
+      let keyComment = identity2.isNode(key) && key.comment || null;
       if (simpleKeys) {
         if (keyComment) {
           throw new Error("With simple keys, key nodes cannot have comments");
         }
-        if (identity.isCollection(key) || !identity.isNode(key) && typeof key === "object") {
+        if (identity2.isCollection(key) || !identity2.isNode(key) && typeof key === "object") {
           const msg = "With simple keys, collection cannot be used as a key value";
           throw new Error(msg);
         }
       }
-      let explicitKey = !simpleKeys && (!key || keyComment && value2 == null && !ctx.inFlow || identity.isCollection(key) || (identity.isScalar(key) ? key.type === Scalar.Scalar.BLOCK_FOLDED || key.type === Scalar.Scalar.BLOCK_LITERAL : typeof key === "object"));
+      let explicitKey = !simpleKeys && (!key || keyComment && value2 == null && !ctx.inFlow || identity2.isCollection(key) || (identity2.isScalar(key) ? key.type === Scalar.Scalar.BLOCK_FOLDED || key.type === Scalar.Scalar.BLOCK_LITERAL : typeof key === "object"));
       ctx = Object.assign({}, ctx, {
         allNullValues: false,
         implicitKey: !explicitKey && (simpleKeys || !allNullValues),
@@ -1566,7 +1571,7 @@ ${indent}:`;
           str += stringifyComment.lineComment(str, ctx.indent, commentString(keyComment));
       }
       let vsb, vcb, valueComment;
-      if (identity.isNode(value2)) {
+      if (identity2.isNode(value2)) {
         vsb = !!value2.spaceBefore;
         vcb = value2.commentBefore;
         valueComment = value2.comment;
@@ -1578,10 +1583,10 @@ ${indent}:`;
           value2 = doc.createNode(value2);
       }
       ctx.implicitKey = false;
-      if (!explicitKey && !keyComment && identity.isScalar(value2))
+      if (!explicitKey && !keyComment && identity2.isScalar(value2))
         ctx.indentAtStart = str.length + 1;
       chompKeep = false;
-      if (!indentSeq && indentStep.length >= 2 && !ctx.inFlow && !explicitKey && identity.isSeq(value2) && !value2.flow && !value2.tag && !value2.anchor) {
+      if (!indentSeq && indentStep.length >= 2 && !ctx.inFlow && !explicitKey && identity2.isSeq(value2) && !value2.flow && !value2.tag && !value2.anchor) {
         ctx.indent = ctx.indent.substring(2);
       }
       let valueCommentDone = false;
@@ -1601,7 +1606,7 @@ ${stringifyComment.indentComment(cs, ctx.indent)}`;
           ws += `
 ${ctx.indent}`;
         }
-      } else if (!explicitKey && identity.isCollection(value2)) {
+      } else if (!explicitKey && identity2.isCollection(value2)) {
         const vs0 = valueStr[0];
         const nl0 = valueStr.indexOf("\n");
         const hasNewline = nl0 !== -1;
@@ -1659,28 +1664,78 @@ var require_log = __commonJS({
   }
 });
 
+// node_modules/yaml/dist/schema/yaml-1.1/merge.js
+var require_merge = __commonJS({
+  "node_modules/yaml/dist/schema/yaml-1.1/merge.js"(exports2) {
+    "use strict";
+    var identity2 = require_identity();
+    var Scalar = require_Scalar();
+    var MERGE_KEY = "<<";
+    var merge = {
+      identify: (value2) => value2 === MERGE_KEY || typeof value2 === "symbol" && value2.description === MERGE_KEY,
+      default: "key",
+      tag: "tag:yaml.org,2002:merge",
+      test: /^<<$/,
+      resolve: () => Object.assign(new Scalar.Scalar(Symbol(MERGE_KEY)), {
+        addToJSMap: addMergeToJSMap
+      }),
+      stringify: () => MERGE_KEY
+    };
+    var isMergeKey = (ctx, key) => (merge.identify(key) || identity2.isScalar(key) && (!key.type || key.type === Scalar.Scalar.PLAIN) && merge.identify(key.value)) && ctx?.doc.schema.tags.some((tag) => tag.tag === merge.tag && tag.default);
+    function addMergeToJSMap(ctx, map2, value2) {
+      value2 = ctx && identity2.isAlias(value2) ? value2.resolve(ctx.doc) : value2;
+      if (identity2.isSeq(value2))
+        for (const it of value2.items)
+          mergeValue(ctx, map2, it);
+      else if (Array.isArray(value2))
+        for (const it of value2)
+          mergeValue(ctx, map2, it);
+      else
+        mergeValue(ctx, map2, value2);
+    }
+    function mergeValue(ctx, map2, value2) {
+      const source = ctx && identity2.isAlias(value2) ? value2.resolve(ctx.doc) : value2;
+      if (!identity2.isMap(source))
+        throw new Error("Merge sources must be maps or map aliases");
+      const srcMap = source.toJSON(null, ctx, Map);
+      for (const [key, value3] of srcMap) {
+        if (map2 instanceof Map) {
+          if (!map2.has(key))
+            map2.set(key, value3);
+        } else if (map2 instanceof Set) {
+          map2.add(key);
+        } else if (!Object.prototype.hasOwnProperty.call(map2, key)) {
+          Object.defineProperty(map2, key, {
+            value: value3,
+            writable: true,
+            enumerable: true,
+            configurable: true
+          });
+        }
+      }
+      return map2;
+    }
+    exports2.addMergeToJSMap = addMergeToJSMap;
+    exports2.isMergeKey = isMergeKey;
+    exports2.merge = merge;
+  }
+});
+
 // node_modules/yaml/dist/nodes/addPairToJSMap.js
 var require_addPairToJSMap = __commonJS({
   "node_modules/yaml/dist/nodes/addPairToJSMap.js"(exports2) {
     "use strict";
     var log = require_log();
+    var merge = require_merge();
     var stringify2 = require_stringify();
-    var identity = require_identity();
-    var Scalar = require_Scalar();
+    var identity2 = require_identity();
     var toJS = require_toJS();
-    var MERGE_KEY = "<<";
     function addPairToJSMap(ctx, map2, { key, value: value2 }) {
-      if (ctx?.doc.schema.merge && isMergeKey(key)) {
-        value2 = identity.isAlias(value2) ? value2.resolve(ctx.doc) : value2;
-        if (identity.isSeq(value2))
-          for (const it of value2.items)
-            mergeToJSMap(ctx, map2, it);
-        else if (Array.isArray(value2))
-          for (const it of value2)
-            mergeToJSMap(ctx, map2, it);
-        else
-          mergeToJSMap(ctx, map2, value2);
-      } else {
+      if (identity2.isNode(key) && key.addToJSMap)
+        key.addToJSMap(ctx, map2, value2);
+      else if (merge.isMergeKey(ctx, key))
+        merge.addMergeToJSMap(ctx, map2, value2);
+      else {
         const jsKey = toJS.toJS(key, "", ctx);
         if (map2 instanceof Map) {
           map2.set(jsKey, toJS.toJS(value2, jsKey, ctx));
@@ -1702,35 +1757,12 @@ var require_addPairToJSMap = __commonJS({
       }
       return map2;
     }
-    var isMergeKey = (key) => key === MERGE_KEY || identity.isScalar(key) && key.value === MERGE_KEY && (!key.type || key.type === Scalar.Scalar.PLAIN);
-    function mergeToJSMap(ctx, map2, value2) {
-      const source = ctx && identity.isAlias(value2) ? value2.resolve(ctx.doc) : value2;
-      if (!identity.isMap(source))
-        throw new Error("Merge sources must be maps or map aliases");
-      const srcMap = source.toJSON(null, ctx, Map);
-      for (const [key, value3] of srcMap) {
-        if (map2 instanceof Map) {
-          if (!map2.has(key))
-            map2.set(key, value3);
-        } else if (map2 instanceof Set) {
-          map2.add(key);
-        } else if (!Object.prototype.hasOwnProperty.call(map2, key)) {
-          Object.defineProperty(map2, key, {
-            value: value3,
-            writable: true,
-            enumerable: true,
-            configurable: true
-          });
-        }
-      }
-      return map2;
-    }
     function stringifyKey(key, jsKey, ctx) {
       if (jsKey === null)
         return "";
       if (typeof jsKey !== "object")
         return String(jsKey);
-      if (identity.isNode(key) && ctx?.doc) {
+      if (identity2.isNode(key) && ctx?.doc) {
         const strCtx = stringify2.createStringifyContext(ctx.doc, {});
         strCtx.anchors = /* @__PURE__ */ new Set();
         for (const node of ctx.anchors.keys())
@@ -1760,7 +1792,7 @@ var require_Pair = __commonJS({
     var createNode = require_createNode();
     var stringifyPair = require_stringifyPair();
     var addPairToJSMap = require_addPairToJSMap();
-    var identity = require_identity();
+    var identity2 = require_identity();
     function createPair(key, value2, ctx) {
       const k = createNode.createNode(key, void 0, ctx);
       const v = createNode.createNode(value2, void 0, ctx);
@@ -1768,15 +1800,15 @@ var require_Pair = __commonJS({
     }
     var Pair = class _Pair {
       constructor(key, value2 = null) {
-        Object.defineProperty(this, identity.NODE_TYPE, { value: identity.PAIR });
+        Object.defineProperty(this, identity2.NODE_TYPE, { value: identity2.PAIR });
         this.key = key;
         this.value = value2;
       }
       clone(schema) {
         let { key, value: value2 } = this;
-        if (identity.isNode(key))
+        if (identity2.isNode(key))
           key = key.clone(schema);
-        if (identity.isNode(value2))
+        if (identity2.isNode(value2))
           value2 = value2.clone(schema);
         return new _Pair(key, value2);
       }
@@ -1797,7 +1829,7 @@ var require_Pair = __commonJS({
 var require_stringifyCollection = __commonJS({
   "node_modules/yaml/dist/stringify/stringifyCollection.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var stringify2 = require_stringify();
     var stringifyComment = require_stringifyComment();
     function stringifyCollection(collection, ctx, options) {
@@ -1813,14 +1845,14 @@ var require_stringifyCollection = __commonJS({
       for (let i = 0; i < items.length; ++i) {
         const item = items[i];
         let comment2 = null;
-        if (identity.isNode(item)) {
+        if (identity2.isNode(item)) {
           if (!chompKeep && item.spaceBefore)
             lines.push("");
           addCommentBefore(ctx, lines, item.commentBefore, chompKeep);
           if (item.comment)
             comment2 = item.comment;
-        } else if (identity.isPair(item)) {
-          const ik = identity.isNode(item.key) ? item.key : null;
+        } else if (identity2.isPair(item)) {
+          const ik = identity2.isNode(item.key) ? item.key : null;
           if (ik) {
             if (!chompKeep && ik.spaceBefore)
               lines.push("");
@@ -1868,14 +1900,14 @@ ${indent}${line}` : "\n";
       for (let i = 0; i < items.length; ++i) {
         const item = items[i];
         let comment = null;
-        if (identity.isNode(item)) {
+        if (identity2.isNode(item)) {
           if (item.spaceBefore)
             lines.push("");
           addCommentBefore(ctx, lines, item.commentBefore, false);
           if (item.comment)
             comment = item.comment;
-        } else if (identity.isPair(item)) {
-          const ik = identity.isNode(item.key) ? item.key : null;
+        } else if (identity2.isPair(item)) {
+          const ik = identity2.isNode(item.key) ? item.key : null;
           if (ik) {
             if (ik.spaceBefore)
               lines.push("");
@@ -1883,7 +1915,7 @@ ${indent}${line}` : "\n";
             if (ik.comment)
               reqNewline = true;
           }
-          const iv = identity.isNode(item.value) ? item.value : null;
+          const iv = identity2.isNode(item.value) ? item.value : null;
           if (iv) {
             if (iv.comment)
               comment = iv.comment;
@@ -1944,16 +1976,16 @@ var require_YAMLMap = __commonJS({
     var stringifyCollection = require_stringifyCollection();
     var addPairToJSMap = require_addPairToJSMap();
     var Collection = require_Collection();
-    var identity = require_identity();
+    var identity2 = require_identity();
     var Pair = require_Pair();
     var Scalar = require_Scalar();
     function findPair(items, key) {
-      const k = identity.isScalar(key) ? key.value : key;
+      const k = identity2.isScalar(key) ? key.value : key;
       for (const it of items) {
-        if (identity.isPair(it)) {
+        if (identity2.isPair(it)) {
           if (it.key === key || it.key === k)
             return it;
-          if (identity.isScalar(it.key) && it.key.value === k)
+          if (identity2.isScalar(it.key) && it.key.value === k)
             return it;
         }
       }
@@ -1964,7 +1996,7 @@ var require_YAMLMap = __commonJS({
         return "tag:yaml.org,2002:map";
       }
       constructor(schema) {
-        super(identity.MAP, schema);
+        super(identity2.MAP, schema);
         this.items = [];
       }
       /**
@@ -2002,7 +2034,7 @@ var require_YAMLMap = __commonJS({
        */
       add(pair, overwrite) {
         let _pair;
-        if (identity.isPair(pair))
+        if (identity2.isPair(pair))
           _pair = pair;
         else if (!pair || typeof pair !== "object" || !("key" in pair)) {
           _pair = new Pair.Pair(pair, pair?.value);
@@ -2013,7 +2045,7 @@ var require_YAMLMap = __commonJS({
         if (prev) {
           if (!overwrite)
             throw new Error(`Key ${_pair.key} already set`);
-          if (identity.isScalar(prev.value) && Scalar.isScalarValue(_pair.value))
+          if (identity2.isScalar(prev.value) && Scalar.isScalarValue(_pair.value))
             prev.value.value = _pair.value;
           else
             prev.value = _pair.value;
@@ -2037,7 +2069,7 @@ var require_YAMLMap = __commonJS({
       get(key, keepScalar) {
         const it = findPair(this.items, key);
         const node = it?.value;
-        return (!keepScalar && identity.isScalar(node) ? node.value : node) ?? void 0;
+        return (!keepScalar && identity2.isScalar(node) ? node.value : node) ?? void 0;
       }
       has(key) {
         return !!findPair(this.items, key);
@@ -2062,7 +2094,7 @@ var require_YAMLMap = __commonJS({
         if (!ctx)
           return JSON.stringify(this);
         for (const item of this.items) {
-          if (!identity.isPair(item))
+          if (!identity2.isPair(item))
             throw new Error(`Map items must all be pairs; found ${JSON.stringify(item)} instead`);
         }
         if (!ctx.allNullValues && this.hasAllNullValues(false))
@@ -2085,7 +2117,7 @@ var require_YAMLMap = __commonJS({
 var require_map = __commonJS({
   "node_modules/yaml/dist/schema/common/map.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var YAMLMap = require_YAMLMap();
     var map2 = {
       collection: "map",
@@ -2093,7 +2125,7 @@ var require_map = __commonJS({
       nodeClass: YAMLMap.YAMLMap,
       tag: "tag:yaml.org,2002:map",
       resolve(map3, onError) {
-        if (!identity.isMap(map3))
+        if (!identity2.isMap(map3))
           onError("Expected a mapping for this tag");
         return map3;
       },
@@ -2110,7 +2142,7 @@ var require_YAMLSeq = __commonJS({
     var createNode = require_createNode();
     var stringifyCollection = require_stringifyCollection();
     var Collection = require_Collection();
-    var identity = require_identity();
+    var identity2 = require_identity();
     var Scalar = require_Scalar();
     var toJS = require_toJS();
     var YAMLSeq = class extends Collection.Collection {
@@ -2118,7 +2150,7 @@ var require_YAMLSeq = __commonJS({
         return "tag:yaml.org,2002:seq";
       }
       constructor(schema) {
-        super(identity.SEQ, schema);
+        super(identity2.SEQ, schema);
         this.items = [];
       }
       add(value2) {
@@ -2144,7 +2176,7 @@ var require_YAMLSeq = __commonJS({
         if (typeof idx !== "number")
           return void 0;
         const it = this.items[idx];
-        return !keepScalar && identity.isScalar(it) ? it.value : it;
+        return !keepScalar && identity2.isScalar(it) ? it.value : it;
       }
       /**
        * Checks if the collection includes a value with the key `key`.
@@ -2168,7 +2200,7 @@ var require_YAMLSeq = __commonJS({
         if (typeof idx !== "number")
           throw new Error(`Expected a valid index, not ${key}.`);
         const prev = this.items[idx];
-        if (identity.isScalar(prev) && Scalar.isScalarValue(value2))
+        if (identity2.isScalar(prev) && Scalar.isScalarValue(value2))
           prev.value = value2;
         else
           this.items[idx] = value2;
@@ -2210,7 +2242,7 @@ var require_YAMLSeq = __commonJS({
       }
     };
     function asItemIndex(key) {
-      let idx = identity.isScalar(key) ? key.value : key;
+      let idx = identity2.isScalar(key) ? key.value : key;
       if (idx && typeof idx === "string")
         idx = Number(idx);
       return typeof idx === "number" && Number.isInteger(idx) && idx >= 0 ? idx : null;
@@ -2223,7 +2255,7 @@ var require_YAMLSeq = __commonJS({
 var require_seq = __commonJS({
   "node_modules/yaml/dist/schema/common/seq.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var YAMLSeq = require_YAMLSeq();
     var seq = {
       collection: "seq",
@@ -2231,7 +2263,7 @@ var require_seq = __commonJS({
       nodeClass: YAMLSeq.YAMLSeq,
       tag: "tag:yaml.org,2002:seq",
       resolve(seq2, onError) {
-        if (!identity.isSeq(seq2))
+        if (!identity2.isSeq(seq2))
           onError("Expected a sequence for this tag");
         return seq2;
       },
@@ -2583,17 +2615,17 @@ var require_binary = __commonJS({
 var require_pairs = __commonJS({
   "node_modules/yaml/dist/schema/yaml-1.1/pairs.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var Pair = require_Pair();
     var Scalar = require_Scalar();
     var YAMLSeq = require_YAMLSeq();
     function resolvePairs(seq, onError) {
-      if (identity.isSeq(seq)) {
+      if (identity2.isSeq(seq)) {
         for (let i = 0; i < seq.items.length; ++i) {
           let item = seq.items[i];
-          if (identity.isPair(item))
+          if (identity2.isPair(item))
             continue;
-          else if (identity.isMap(item)) {
+          else if (identity2.isMap(item)) {
             if (item.items.length > 1)
               onError("Each pair must have its own sequence indicator");
             const pair = item.items[0] || new Pair.Pair(new Scalar.Scalar(null));
@@ -2607,7 +2639,7 @@ ${cn.comment}` : item.comment;
             }
             item = pair;
           }
-          seq.items[i] = identity.isPair(item) ? item : new Pair.Pair(item);
+          seq.items[i] = identity2.isPair(item) ? item : new Pair.Pair(item);
         }
       } else
         onError("Expected a sequence for this tag");
@@ -2661,7 +2693,7 @@ ${cn.comment}` : item.comment;
 var require_omap = __commonJS({
   "node_modules/yaml/dist/schema/yaml-1.1/omap.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var toJS = require_toJS();
     var YAMLMap = require_YAMLMap();
     var YAMLSeq = require_YAMLSeq();
@@ -2688,7 +2720,7 @@ var require_omap = __commonJS({
           ctx.onCreate(map2);
         for (const pair of this.items) {
           let key, value2;
-          if (identity.isPair(pair)) {
+          if (identity2.isPair(pair)) {
             key = toJS.toJS(pair.key, "", ctx);
             value2 = toJS.toJS(pair.value, key, ctx);
           } else {
@@ -2718,7 +2750,7 @@ var require_omap = __commonJS({
         const pairs$1 = pairs.resolvePairs(seq, onError);
         const seenKeys = [];
         for (const { key } of pairs$1.items) {
-          if (identity.isScalar(key)) {
+          if (identity2.isScalar(key)) {
             if (seenKeys.includes(key.value)) {
               onError(`Ordered maps must not include duplicate keys: ${key.value}`);
             } else {
@@ -2899,7 +2931,7 @@ var require_int2 = __commonJS({
 var require_set = __commonJS({
   "node_modules/yaml/dist/schema/yaml-1.1/set.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var Pair = require_Pair();
     var YAMLMap = require_YAMLMap();
     var YAMLSet = class _YAMLSet extends YAMLMap.YAMLMap {
@@ -2909,7 +2941,7 @@ var require_set = __commonJS({
       }
       add(key) {
         let pair;
-        if (identity.isPair(key))
+        if (identity2.isPair(key))
           pair = key;
         else if (key && typeof key === "object" && "key" in key && "value" in key && key.value === null)
           pair = new Pair.Pair(key.key, null);
@@ -2925,7 +2957,7 @@ var require_set = __commonJS({
        */
       get(key, keepPair) {
         const pair = YAMLMap.findPair(this.items, key);
-        return !keepPair && identity.isPair(pair) ? identity.isScalar(pair.key) ? pair.key.value : pair.key : pair;
+        return !keepPair && identity2.isPair(pair) ? identity2.isScalar(pair.key) ? pair.key.value : pair.key : pair;
       }
       set(key, value2) {
         if (typeof value2 !== "boolean")
@@ -2969,7 +3001,7 @@ var require_set = __commonJS({
       tag: "tag:yaml.org,2002:set",
       createNode: (schema, iterable, ctx) => YAMLSet.from(schema, iterable, ctx),
       resolve(map2, onError) {
-        if (identity.isMap(map2)) {
+        if (identity2.isMap(map2)) {
           if (map2.hasAllNullValues(true))
             return Object.assign(new YAMLSet(), map2);
           else
@@ -3084,6 +3116,7 @@ var require_schema3 = __commonJS({
     var bool = require_bool2();
     var float = require_float2();
     var int = require_int2();
+    var merge = require_merge();
     var omap = require_omap();
     var pairs = require_pairs();
     var set = require_set();
@@ -3103,6 +3136,7 @@ var require_schema3 = __commonJS({
       float.floatExp,
       float.float,
       binary.binary,
+      merge.merge,
       omap.omap,
       pairs.pairs,
       set.set,
@@ -3128,6 +3162,7 @@ var require_tags = __commonJS({
     var schema = require_schema();
     var schema$1 = require_schema2();
     var binary = require_binary();
+    var merge = require_merge();
     var omap = require_omap();
     var pairs = require_pairs();
     var schema$2 = require_schema3();
@@ -3152,6 +3187,7 @@ var require_tags = __commonJS({
       intOct: int.intOct,
       intTime: timestamp.intTime,
       map: map2.map,
+      merge: merge.merge,
       null: _null.nullTag,
       omap: omap.omap,
       pairs: pairs.pairs,
@@ -3161,13 +3197,18 @@ var require_tags = __commonJS({
     };
     var coreKnownTags = {
       "tag:yaml.org,2002:binary": binary.binary,
+      "tag:yaml.org,2002:merge": merge.merge,
       "tag:yaml.org,2002:omap": omap.omap,
       "tag:yaml.org,2002:pairs": pairs.pairs,
       "tag:yaml.org,2002:set": set.set,
       "tag:yaml.org,2002:timestamp": timestamp.timestamp
     };
-    function getTags(customTags, schemaName) {
-      let tags = schemas.get(schemaName);
+    function getTags(customTags, schemaName, addMergeTag) {
+      const schemaTags = schemas.get(schemaName);
+      if (schemaTags && !customTags) {
+        return addMergeTag && !schemaTags.includes(merge.merge) ? schemaTags.concat(merge.merge) : schemaTags.slice();
+      }
+      let tags = schemaTags;
       if (!tags) {
         if (Array.isArray(customTags))
           tags = [];
@@ -3182,15 +3223,19 @@ var require_tags = __commonJS({
       } else if (typeof customTags === "function") {
         tags = customTags(tags.slice());
       }
-      return tags.map((tag) => {
-        if (typeof tag !== "string")
-          return tag;
-        const tagObj = tagsByName[tag];
-        if (tagObj)
-          return tagObj;
-        const keys = Object.keys(tagsByName).map((key) => JSON.stringify(key)).join(", ");
-        throw new Error(`Unknown custom tag "${tag}"; use one of ${keys}`);
-      });
+      if (addMergeTag)
+        tags = tags.concat(merge.merge);
+      return tags.reduce((tags2, tag) => {
+        const tagObj = typeof tag === "string" ? tagsByName[tag] : tag;
+        if (!tagObj) {
+          const tagName = JSON.stringify(tag);
+          const keys = Object.keys(tagsByName).map((key) => JSON.stringify(key)).join(", ");
+          throw new Error(`Unknown custom tag ${tagName}; use one of ${keys}`);
+        }
+        if (!tags2.includes(tagObj))
+          tags2.push(tagObj);
+        return tags2;
+      }, []);
     }
     exports2.coreKnownTags = coreKnownTags;
     exports2.getTags = getTags;
@@ -3201,7 +3246,7 @@ var require_tags = __commonJS({
 var require_Schema = __commonJS({
   "node_modules/yaml/dist/schema/Schema.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var map2 = require_map();
     var seq = require_seq();
     var string = require_string();
@@ -3210,14 +3255,13 @@ var require_Schema = __commonJS({
     var Schema = class _Schema {
       constructor({ compat, customTags, merge, resolveKnownTags, schema, sortMapEntries, toStringDefaults }) {
         this.compat = Array.isArray(compat) ? tags.getTags(compat, "compat") : compat ? tags.getTags(null, compat) : null;
-        this.merge = !!merge;
         this.name = typeof schema === "string" && schema || "core";
         this.knownTags = resolveKnownTags ? tags.coreKnownTags : {};
-        this.tags = tags.getTags(customTags, this.name);
+        this.tags = tags.getTags(customTags, this.name, merge);
         this.toStringOptions = toStringDefaults ?? null;
-        Object.defineProperty(this, identity.MAP, { value: map2.map });
-        Object.defineProperty(this, identity.SCALAR, { value: string.string });
-        Object.defineProperty(this, identity.SEQ, { value: seq.seq });
+        Object.defineProperty(this, identity2.MAP, { value: map2.map });
+        Object.defineProperty(this, identity2.SCALAR, { value: string.string });
+        Object.defineProperty(this, identity2.SEQ, { value: seq.seq });
         this.sortMapEntries = typeof sortMapEntries === "function" ? sortMapEntries : sortMapEntries === true ? sortMapEntriesByKey : null;
       }
       clone() {
@@ -3234,7 +3278,7 @@ var require_Schema = __commonJS({
 var require_stringifyDocument = __commonJS({
   "node_modules/yaml/dist/stringify/stringifyDocument.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var stringify2 = require_stringify();
     var stringifyComment = require_stringifyComment();
     function stringifyDocument(doc, options) {
@@ -3261,7 +3305,7 @@ var require_stringifyDocument = __commonJS({
       let chompKeep = false;
       let contentComment = null;
       if (doc.contents) {
-        if (identity.isNode(doc.contents)) {
+        if (identity2.isNode(doc.contents)) {
           if (doc.contents.spaceBefore && hasDirectives)
             lines.push("");
           if (doc.contents.commentBefore) {
@@ -3316,7 +3360,7 @@ var require_Document = __commonJS({
     "use strict";
     var Alias = require_Alias();
     var Collection = require_Collection();
-    var identity = require_identity();
+    var identity2 = require_identity();
     var Pair = require_Pair();
     var toJS = require_toJS();
     var Schema = require_Schema();
@@ -3331,7 +3375,7 @@ var require_Document = __commonJS({
         this.comment = null;
         this.errors = [];
         this.warnings = [];
-        Object.defineProperty(this, identity.NODE_TYPE, { value: identity.DOC });
+        Object.defineProperty(this, identity2.NODE_TYPE, { value: identity2.DOC });
         let _replacer = null;
         if (typeof replacer === "function" || Array.isArray(replacer)) {
           _replacer = replacer;
@@ -3345,6 +3389,7 @@ var require_Document = __commonJS({
           logLevel: "warn",
           prettyErrors: true,
           strict: true,
+          stringKeys: false,
           uniqueKeys: true,
           version: "1.2"
         }, options);
@@ -3366,7 +3411,7 @@ var require_Document = __commonJS({
        */
       clone() {
         const copy = Object.create(_Document.prototype, {
-          [identity.NODE_TYPE]: { value: identity.DOC }
+          [identity2.NODE_TYPE]: { value: identity2.DOC }
         });
         copy.commentBefore = this.commentBefore;
         copy.comment = this.comment;
@@ -3376,7 +3421,7 @@ var require_Document = __commonJS({
         if (this.directives)
           copy.directives = this.directives.clone();
         copy.schema = this.schema.clone();
-        copy.contents = identity.isNode(this.contents) ? this.contents.clone(copy.schema) : this.contents;
+        copy.contents = identity2.isNode(this.contents) ? this.contents.clone(copy.schema) : this.contents;
         if (this.range)
           copy.range = this.range.slice();
         return copy;
@@ -3439,7 +3484,7 @@ var require_Document = __commonJS({
           sourceObjects
         };
         const node = createNode.createNode(value2, tag, ctx);
-        if (flow && identity.isCollection(node))
+        if (flow && identity2.isCollection(node))
           node.flow = true;
         setAnchors();
         return node;
@@ -3479,7 +3524,7 @@ var require_Document = __commonJS({
        * `true` (collections are always returned intact).
        */
       get(key, keepScalar) {
-        return identity.isCollection(this.contents) ? this.contents.get(key, keepScalar) : void 0;
+        return identity2.isCollection(this.contents) ? this.contents.get(key, keepScalar) : void 0;
       }
       /**
        * Returns item at `path`, or `undefined` if not found. By default unwraps
@@ -3488,14 +3533,14 @@ var require_Document = __commonJS({
        */
       getIn(path, keepScalar) {
         if (Collection.isEmptyPath(path))
-          return !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents;
-        return identity.isCollection(this.contents) ? this.contents.getIn(path, keepScalar) : void 0;
+          return !keepScalar && identity2.isScalar(this.contents) ? this.contents.value : this.contents;
+        return identity2.isCollection(this.contents) ? this.contents.getIn(path, keepScalar) : void 0;
       }
       /**
        * Checks if the document includes a value with the key `key`.
        */
       has(key) {
-        return identity.isCollection(this.contents) ? this.contents.has(key) : false;
+        return identity2.isCollection(this.contents) ? this.contents.has(key) : false;
       }
       /**
        * Checks if the document includes a value at `path`.
@@ -3503,7 +3548,7 @@ var require_Document = __commonJS({
       hasIn(path) {
         if (Collection.isEmptyPath(path))
           return this.contents !== void 0;
-        return identity.isCollection(this.contents) ? this.contents.hasIn(path) : false;
+        return identity2.isCollection(this.contents) ? this.contents.hasIn(path) : false;
       }
       /**
        * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -3546,7 +3591,7 @@ var require_Document = __commonJS({
               this.directives.yaml.version = "1.1";
             else
               this.directives = new directives.Directives({ version: "1.1" });
-            opt = { merge: true, resolveKnownTags: false, schema: "yaml-1.1" };
+            opt = { resolveKnownTags: false, schema: "yaml-1.1" };
             break;
           case "1.2":
           case "next":
@@ -3554,7 +3599,7 @@ var require_Document = __commonJS({
               this.directives.yaml.version = version;
             else
               this.directives = new directives.Directives({ version });
-            opt = { merge: false, resolveKnownTags: true, schema: "core" };
+            opt = { resolveKnownTags: true, schema: "core" };
             break;
           case null:
             if (this.directives)
@@ -3610,7 +3655,7 @@ var require_Document = __commonJS({
       }
     };
     function assertCollection(contents) {
-      if (identity.isCollection(contents))
+      if (identity2.isCollection(contents))
         return true;
       throw new Error("Expected a YAML collection as document contents");
     }
@@ -3883,12 +3928,12 @@ var require_util_flow_indent_check = __commonJS({
 var require_util_map_includes = __commonJS({
   "node_modules/yaml/dist/compose/util-map-includes.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     function mapIncludes(ctx, items, search) {
       const { uniqueKeys } = ctx.options;
       if (uniqueKeys === false)
         return false;
-      const isEqual = typeof uniqueKeys === "function" ? uniqueKeys : (a, b) => a === b || identity.isScalar(a) && identity.isScalar(b) && a.value === b.value && !(a.value === "<<" && ctx.schema.merge);
+      const isEqual = typeof uniqueKeys === "function" ? uniqueKeys : (a, b) => a === b || identity2.isScalar(a) && identity2.isScalar(b) && a.value === b.value;
       return items.some((pair) => isEqual(pair.key, search));
     }
     exports2.mapIncludes = mapIncludes;
@@ -3947,10 +3992,12 @@ var require_resolve_block_map = __commonJS({
         } else if (keyProps.found?.indent !== bm.indent) {
           onError(offset, "BAD_INDENT", startColMsg);
         }
+        ctx.atKey = true;
         const keyStart = keyProps.end;
         const keyNode = key ? composeNode(ctx, key, keyProps, onError) : composeEmptyNode(ctx, keyStart, start, null, keyProps, onError);
         if (ctx.schema.compat)
           utilFlowIndentCheck.flowIndentCheck(bm.indent, key, onError);
+        ctx.atKey = false;
         if (utilMapIncludes.mapIncludes(ctx, map2.items, keyNode))
           onError(keyStart, "DUPLICATE_KEY", "Map keys must be unique");
         const valueProps = resolveProps.resolveProps(sep ?? [], {
@@ -4013,6 +4060,8 @@ var require_resolve_block_seq = __commonJS({
       const seq = new NodeClass(ctx.schema);
       if (ctx.atRoot)
         ctx.atRoot = false;
+      if (ctx.atKey)
+        ctx.atKey = false;
       let offset = bs.offset;
       let commentEnd = null;
       for (const { start, value: value2 } of bs.items) {
@@ -4097,7 +4146,7 @@ var require_resolve_end = __commonJS({
 var require_resolve_flow_collection = __commonJS({
   "node_modules/yaml/dist/compose/resolve-flow-collection.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var Pair = require_Pair();
     var YAMLMap = require_YAMLMap();
     var YAMLSeq = require_YAMLSeq();
@@ -4116,6 +4165,8 @@ var require_resolve_flow_collection = __commonJS({
       const atRoot = ctx.atRoot;
       if (atRoot)
         ctx.atRoot = false;
+      if (ctx.atKey)
+        ctx.atKey = false;
       let offset = fc.offset + fc.start.source.length;
       for (let i = 0; i < fc.items.length; ++i) {
         const collItem = fc.items[i];
@@ -4174,7 +4225,7 @@ var require_resolve_flow_collection = __commonJS({
             }
             if (prevItemComment) {
               let prev = coll.items[coll.items.length - 1];
-              if (identity.isPair(prev))
+              if (identity2.isPair(prev))
                 prev = prev.value ?? prev.key;
               if (prev.comment)
                 prev.comment += "\n" + prevItemComment;
@@ -4191,10 +4242,12 @@ var require_resolve_flow_collection = __commonJS({
           if (isBlock(value2))
             onError(valueNode.range, "BLOCK_IN_FLOW", blockMsg);
         } else {
+          ctx.atKey = true;
           const keyStart = props.end;
           const keyNode = key ? composeNode(ctx, key, props, onError) : composeEmptyNode(ctx, keyStart, start, null, props, onError);
           if (isBlock(key))
             onError(keyNode.range, "BLOCK_IN_FLOW", blockMsg);
+          ctx.atKey = false;
           const valueProps = resolveProps.resolveProps(sep ?? [], {
             flow: fcName,
             indicator: "map-value-ind",
@@ -4287,7 +4340,7 @@ var require_resolve_flow_collection = __commonJS({
 var require_compose_collection = __commonJS({
   "node_modules/yaml/dist/compose/compose-collection.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var Scalar = require_Scalar();
     var YAMLMap = require_YAMLMap();
     var YAMLSeq = require_YAMLSeq();
@@ -4337,7 +4390,7 @@ var require_compose_collection = __commonJS({
       }
       const coll = resolveCollection(CN, ctx, token, onError, tagName, tag);
       const res = tag.resolve?.(coll, (msg) => onError(tagToken, "TAG_RESOLVE_FAILED", msg), ctx.options) ?? coll;
-      const node = identity.isNode(res) ? res : new Scalar.Scalar(res);
+      const node = identity2.isNode(res) ? res : new Scalar.Scalar(res);
       node.range = coll.range;
       node.tag = tagName;
       if (tag?.format)
@@ -4754,18 +4807,26 @@ var require_resolve_flow_scalar = __commonJS({
 var require_compose_scalar = __commonJS({
   "node_modules/yaml/dist/compose/compose-scalar.js"(exports2) {
     "use strict";
-    var identity = require_identity();
+    var identity2 = require_identity();
     var Scalar = require_Scalar();
     var resolveBlockScalar = require_resolve_block_scalar();
     var resolveFlowScalar = require_resolve_flow_scalar();
     function composeScalar(ctx, token, tagToken, onError) {
       const { value: value2, type, comment, range } = token.type === "block-scalar" ? resolveBlockScalar.resolveBlockScalar(ctx, token, onError) : resolveFlowScalar.resolveFlowScalar(token, ctx.options.strict, onError);
       const tagName = tagToken ? ctx.directives.tagName(tagToken.source, (msg) => onError(tagToken, "TAG_RESOLVE_FAILED", msg)) : null;
-      const tag = tagToken && tagName ? findScalarTagByName(ctx.schema, value2, tagName, tagToken, onError) : token.type === "scalar" ? findScalarTagByTest(ctx, value2, token, onError) : ctx.schema[identity.SCALAR];
+      let tag;
+      if (ctx.options.stringKeys && ctx.atKey) {
+        tag = ctx.schema[identity2.SCALAR];
+      } else if (tagName)
+        tag = findScalarTagByName(ctx.schema, value2, tagName, tagToken, onError);
+      else if (token.type === "scalar")
+        tag = findScalarTagByTest(ctx, value2, token, onError);
+      else
+        tag = ctx.schema[identity2.SCALAR];
       let scalar;
       try {
         const res = tag.resolve(value2, (msg) => onError(tagToken ?? token, "TAG_RESOLVE_FAILED", msg), ctx.options);
-        scalar = identity.isScalar(res) ? res : new Scalar.Scalar(res);
+        scalar = identity2.isScalar(res) ? res : new Scalar.Scalar(res);
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         onError(tagToken ?? token, "TAG_RESOLVE_FAILED", msg);
@@ -4785,7 +4846,7 @@ var require_compose_scalar = __commonJS({
     }
     function findScalarTagByName(schema, value2, tagName, tagToken, onError) {
       if (tagName === "!")
-        return schema[identity.SCALAR];
+        return schema[identity2.SCALAR];
       const matchWithTest = [];
       for (const tag of schema.tags) {
         if (!tag.collection && tag.tag === tagName) {
@@ -4804,12 +4865,12 @@ var require_compose_scalar = __commonJS({
         return kt;
       }
       onError(tagToken, "TAG_RESOLVE_FAILED", `Unresolved tag: ${tagName}`, tagName !== "tag:yaml.org,2002:str");
-      return schema[identity.SCALAR];
+      return schema[identity2.SCALAR];
     }
-    function findScalarTagByTest({ directives, schema }, value2, token, onError) {
-      const tag = schema.tags.find((tag2) => tag2.default && tag2.test?.test(value2)) || schema[identity.SCALAR];
+    function findScalarTagByTest({ atKey, directives, schema }, value2, token, onError) {
+      const tag = schema.tags.find((tag2) => (tag2.default === true || atKey && tag2.default === "key") && tag2.test?.test(value2)) || schema[identity2.SCALAR];
       if (schema.compat) {
-        const compat = schema.compat.find((tag2) => tag2.default && tag2.test?.test(value2)) ?? schema[identity.SCALAR];
+        const compat = schema.compat.find((tag2) => tag2.default && tag2.test?.test(value2)) ?? schema[identity2.SCALAR];
         if (tag.tag !== compat.tag) {
           const ts = directives.tagString(tag.tag);
           const cs = directives.tagString(compat.tag);
@@ -4859,12 +4920,14 @@ var require_compose_node = __commonJS({
   "node_modules/yaml/dist/compose/compose-node.js"(exports2) {
     "use strict";
     var Alias = require_Alias();
+    var identity2 = require_identity();
     var composeCollection = require_compose_collection();
     var composeScalar = require_compose_scalar();
     var resolveEnd = require_resolve_end();
     var utilEmptyScalarPosition = require_util_empty_scalar_position();
     var CN = { composeNode, composeEmptyNode };
     function composeNode(ctx, token, props, onError) {
+      const atKey = ctx.atKey;
       const { spaceBefore, comment, anchor, tag } = props;
       let node;
       let isSrcToken = true;
@@ -4898,6 +4961,10 @@ var require_compose_node = __commonJS({
       }
       if (anchor && node.anchor === "")
         onError(anchor, "BAD_ALIAS", "Anchor cannot be an empty string");
+      if (atKey && ctx.options.stringKeys && (!identity2.isScalar(node) || typeof node.value !== "string" || node.tag && node.tag !== "tag:yaml.org,2002:str")) {
+        const msg = "With stringKeys, all keys must be strings";
+        onError(tag ?? token, "NON_STRING_KEY", msg);
+      }
       if (spaceBefore)
         node.spaceBefore = true;
       if (comment) {
@@ -4961,6 +5028,7 @@ var require_compose_doc = __commonJS({
       const opts = Object.assign({ _directives: directives }, options);
       const doc = new Document.Document(void 0, opts);
       const ctx = {
+        atKey: false,
         atRoot: true,
         directives: doc.directives,
         options: doc.options,
@@ -4998,7 +5066,7 @@ var require_composer = __commonJS({
     var directives = require_directives();
     var Document = require_Document();
     var errors = require_errors();
-    var identity = require_identity();
+    var identity2 = require_identity();
     var composeDoc = require_compose_doc();
     var resolveEnd = require_resolve_end();
     function getErrorPos(src) {
@@ -5060,9 +5128,9 @@ var require_composer = __commonJS({
 ${comment}` : comment;
           } else if (afterEmptyLine || doc.directives.docStart || !dc) {
             doc.commentBefore = comment;
-          } else if (identity.isCollection(dc) && !dc.flow && dc.items.length > 0) {
+          } else if (identity2.isCollection(dc) && !dc.flow && dc.items.length > 0) {
             let it = dc.items[0];
-            if (identity.isPair(it))
+            if (identity2.isPair(it))
               it = it.key;
             const cb = it.commentBefore;
             it.commentBefore = cb ? `${comment}
@@ -7080,6 +7148,7 @@ var require_public_api = __commonJS({
     var Document = require_Document();
     var errors = require_errors();
     var log = require_log();
+    var identity2 = require_identity();
     var lineCounter = require_line_counter();
     var parser = require_parser();
     function parseOptions(options) {
@@ -7157,6 +7226,8 @@ var require_public_api = __commonJS({
         if (!keepUndefined)
           return void 0;
       }
+      if (identity2.isDocument(value2) && !_replacer)
+        return value2.toString(options);
       return new Document.Document(value2, _replacer, options).toString(options);
     }
     exports2.parse = parse5;
@@ -7175,7 +7246,7 @@ var require_dist = __commonJS({
     var Schema = require_Schema();
     var errors = require_errors();
     var Alias = require_Alias();
-    var identity = require_identity();
+    var identity2 = require_identity();
     var Pair = require_Pair();
     var Scalar = require_Scalar();
     var YAMLMap = require_YAMLMap();
@@ -7193,14 +7264,14 @@ var require_dist = __commonJS({
     exports2.YAMLParseError = errors.YAMLParseError;
     exports2.YAMLWarning = errors.YAMLWarning;
     exports2.Alias = Alias.Alias;
-    exports2.isAlias = identity.isAlias;
-    exports2.isCollection = identity.isCollection;
-    exports2.isDocument = identity.isDocument;
-    exports2.isMap = identity.isMap;
-    exports2.isNode = identity.isNode;
-    exports2.isPair = identity.isPair;
-    exports2.isScalar = identity.isScalar;
-    exports2.isSeq = identity.isSeq;
+    exports2.isAlias = identity2.isAlias;
+    exports2.isCollection = identity2.isCollection;
+    exports2.isDocument = identity2.isDocument;
+    exports2.isMap = identity2.isMap;
+    exports2.isNode = identity2.isNode;
+    exports2.isPair = identity2.isPair;
+    exports2.isScalar = identity2.isScalar;
+    exports2.isSeq = identity2.isSeq;
     exports2.Pair = Pair.Pair;
     exports2.Scalar = Scalar.Scalar;
     exports2.YAMLMap = YAMLMap.YAMLMap;
@@ -16179,7 +16250,7 @@ var defaultFormatter = ({ shape }) => {
 };
 
 // node_modules/@trpc/server/dist/unstable-core-do-not-import/utils.mjs
-var unsetMarker = Symbol("unsetMarker");
+var unsetMarker = Symbol();
 function mergeWithoutOverrides(obj1, ...objs) {
   const newObj = Object.assign(/* @__PURE__ */ Object.create(null), obj1);
   for (const overrides of objs) {
@@ -16257,10 +16328,13 @@ var TRPCError = class extends Error {
 };
 
 // node_modules/@trpc/server/dist/unstable-core-do-not-import/stream/utils/createReadableStream.mjs
-var cancelledStreamSymbol = Symbol("cancelledReadableStream");
+var cancelledStreamSymbol = Symbol();
 
 // node_modules/@trpc/server/dist/unstable-core-do-not-import/stream/tracked.mjs
-var trackedSymbol = Symbol("TrackedEnvelope");
+var trackedSymbol = Symbol();
+
+// node_modules/@trpc/server/dist/unstable-core-do-not-import/stream/utils/withPing.mjs
+var PING_SYM = Symbol("ping");
 
 // node_modules/@trpc/server/dist/unstable-core-do-not-import/transformer.mjs
 function getDataTransformer(transformer) {
@@ -16558,47 +16632,41 @@ var codeblock = `
 This is a client-only function.
 If you want to call this function on the server, see https://trpc.io/docs/v11/server/server-side-calls
 `.trim();
+async function callRecursive(index, _def, opts) {
+  try {
+    const middleware = _def.middlewares[index];
+    const result = await middleware({
+      ...opts,
+      meta: _def.meta,
+      input: opts.input,
+      next(_nextOpts) {
+        const nextOpts = _nextOpts;
+        return callRecursive(index + 1, _def, {
+          ...opts,
+          ctx: nextOpts?.ctx ? {
+            ...opts.ctx,
+            ...nextOpts.ctx
+          } : opts.ctx,
+          input: nextOpts && "input" in nextOpts ? nextOpts.input : opts.input,
+          getRawInput: nextOpts?.getRawInput ?? opts.getRawInput
+        });
+      }
+    });
+    return result;
+  } catch (cause) {
+    return {
+      ok: false,
+      error: getTRPCErrorFromUnknown(cause),
+      marker: middlewareMarker
+    };
+  }
+}
 function createProcedureCaller(_def) {
   async function procedure(opts) {
     if (!opts || !("getRawInput" in opts)) {
       throw new Error(codeblock);
     }
-    async function callRecursive(callOpts = {
-      index: 0,
-      ctx: opts.ctx
-    }) {
-      try {
-        const middleware = _def.middlewares[callOpts.index];
-        const result2 = await middleware({
-          ctx: callOpts.ctx,
-          type: opts.type,
-          path: opts.path,
-          getRawInput: callOpts.getRawInput ?? opts.getRawInput,
-          meta: _def.meta,
-          input: callOpts.input,
-          next(_nextOpts) {
-            const nextOpts = _nextOpts;
-            return callRecursive({
-              index: callOpts.index + 1,
-              ctx: nextOpts && "ctx" in nextOpts ? {
-                ...callOpts.ctx,
-                ...nextOpts.ctx
-              } : callOpts.ctx,
-              input: nextOpts && "input" in nextOpts ? nextOpts.input : callOpts.input,
-              getRawInput: nextOpts && "getRawInput" in nextOpts ? nextOpts.getRawInput : callOpts.getRawInput
-            });
-          }
-        });
-        return result2;
-      } catch (cause) {
-        return {
-          ok: false,
-          error: getTRPCErrorFromUnknown(cause),
-          marker: middlewareMarker
-        };
-      }
-    }
-    const result = await callRecursive();
+    const result = await callRecursive(0, _def, opts);
     if (!result) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
@@ -16704,7 +16772,7 @@ function isProcedure(procedureOrRouter) {
 function createCallerFactory() {
   return function createCallerInner(router) {
     const _def = router._def;
-    return function createCaller(ctxOrCallback, options) {
+    return function createCaller(ctxOrCallback, opts) {
       return createRecursiveProxy(async ({ path, args }) => {
         const fullPath = path.join(".");
         if (path.length === 1 && path[0] === "_def") {
@@ -16718,10 +16786,11 @@ function createCallerFactory() {
             path: fullPath,
             getRawInput: async () => args[0],
             ctx,
-            type: procedure._def.type
+            type: procedure._def.type,
+            signal: opts?.signal
           });
         } catch (cause) {
-          options?.onError?.({
+          opts?.onError?.({
             ctx,
             error: getTRPCErrorFromUnknown(cause),
             input: args[0],
@@ -16769,21 +16838,21 @@ function mergeRouters(...routerList) {
 var TRPCBuilder = class _TRPCBuilder {
   /**
   * Add a context shape as a generic to the root object
-  * @link https://trpc.io/docs/v11/server/context
+  * @see https://trpc.io/docs/v11/server/context
   */
   context() {
     return new _TRPCBuilder();
   }
   /**
   * Add a meta shape as a generic to the root object
-  * @link https://trpc.io/docs/v11/quickstart
+  * @see https://trpc.io/docs/v11/quickstart
   */
   meta() {
     return new _TRPCBuilder();
   }
   /**
   * Create the root object
-  * @link https://trpc.io/docs/v11/server/routers#initialize-trpc
+  * @see https://trpc.io/docs/v11/server/routers#initialize-trpc
   */
   create(opts) {
     const config = {
@@ -16814,38 +16883,35 @@ var TRPCBuilder = class _TRPCBuilder {
       _config: config,
       /**
       * Builder object for creating procedures
-      * @link https://trpc.io/docs/v11/server/procedures
+      * @see https://trpc.io/docs/v11/server/procedures
       */
       procedure: createBuilder({
         meta: opts?.defaultMeta
       }),
       /**
       * Create reusable middlewares
-      * @link https://trpc.io/docs/v11/server/middlewares
+      * @see https://trpc.io/docs/v11/server/middlewares
       */
       middleware: createMiddlewareFactory(),
       /**
       * Create a router
-      * @link https://trpc.io/docs/v11/server/routers
+      * @see https://trpc.io/docs/v11/server/routers
       */
       router: createRouterFactory(config),
       /**
       * Merge Routers
-      * @link https://trpc.io/docs/v11/server/merging-routers
+      * @see https://trpc.io/docs/v11/server/merging-routers
       */
       mergeRouters,
       /**
       * Create a server-side caller for a router
-      * @link https://trpc.io/docs/v11/server/server-side-calls
+      * @see https://trpc.io/docs/v11/server/server-side-calls
       */
       createCallerFactory: createCallerFactory()
     };
   }
 };
 var initTRPC = new TRPCBuilder();
-
-// node_modules/@trpc/server/dist/unstable-core-do-not-import/types.mjs
-var ERROR_SYMBOL = Symbol("TypeError");
 
 // node_modules/@trpc/client/dist/TRPCClientError.mjs
 function isTRPCClientError(cause) {
@@ -16951,7 +17017,7 @@ var TRPCUntypedClient = class {
       path,
       input,
       context: opts?.context,
-      signal: null
+      signal: opts.signal
     });
     return observable$.subscribe({
       next(envelope) {
@@ -17137,6 +17203,28 @@ function dataLoader(batchLoader) {
   };
 }
 
+// node_modules/@trpc/client/dist/internals/signals.mjs
+function allAbortSignals(...signals) {
+  const ac = new AbortController();
+  const count = signals.length;
+  let abortedCount = 0;
+  const onAbort = () => {
+    if (++abortedCount === count) {
+      ac.abort();
+    }
+  };
+  for (const signal of signals) {
+    if (signal?.aborted) {
+      onAbort();
+    } else {
+      signal?.addEventListener("abort", onAbort, {
+        once: true
+      });
+    }
+  }
+  return ac.signal;
+}
+
 // node_modules/@trpc/client/dist/internals/transformer.mjs
 function getTransformer(transformer) {
   const _transformer = transformer;
@@ -17280,30 +17368,6 @@ async function httpRequest(opts) {
     meta
   };
 }
-function mergeAbortSignals(opts) {
-  const ac = new AbortController();
-  if (opts.some((o) => !o.signal)) {
-    return ac;
-  }
-  const count = opts.length;
-  let abortedCount = 0;
-  const onAbort = () => {
-    if (++abortedCount === count) {
-      ac.abort();
-    }
-  };
-  for (const o of opts) {
-    const signal = o.signal;
-    if (signal.aborted) {
-      onAbort();
-    } else {
-      signal.addEventListener("abort", onAbort, {
-        once: true
-      });
-    }
-  }
-  return ac;
-}
 
 // node_modules/@trpc/client/dist/links/httpBatchLink.mjs
 function httpBatchLink(opts) {
@@ -17330,7 +17394,7 @@ function httpBatchLink(opts) {
         async fetch(batchOps) {
           const path = batchOps.map((op) => op.path).join(",");
           const inputs = batchOps.map((op) => op.input);
-          const ac = mergeAbortSignals(batchOps);
+          const signal = allAbortSignals(...batchOps.map((op) => op.signal));
           const res = await jsonHttpRequester({
             ...resolvedOpts,
             path,
@@ -17347,7 +17411,7 @@ function httpBatchLink(opts) {
               }
               return opts.headers;
             },
-            signal: ac.signal
+            signal
           });
           const resJSON = Array.isArray(res.json) ? res.json : batchOps.map(() => res.json);
           const result = resJSON.map((item) => ({
@@ -17401,25 +17465,19 @@ function httpBatchLink(opts) {
 // src/util/api/trpc.ts
 require_main().config();
 function gettRPC(token) {
-  const fishingURL = process.env.FISHING_API_URL;
-  const firstLink = httpBatchLink({
-    url: fishingURL,
-    headers() {
-      return {
-        Authorization: token
-      };
-    }
+  const fishingURL = process.env.FISHING_API_URL || "https://fishing.hri7566.info/api";
+  return createTRPCClient({
+    links: [
+      httpBatchLink({
+        url: fishingURL,
+        headers() {
+          return {
+            Authorization: token
+          };
+        }
+      })
+    ]
   });
-  const secondLink = httpBatchLink({
-    url: "https://fishing.hri7566.info/api",
-    headers() {
-      return {
-        Authorization: token
-      };
-    }
-  });
-  const links = firstLink ? [firstLink, secondLink] : [secondLink];
-  return createTRPCClient({ links });
 }
 var trpc_default = gettRPC;
 
@@ -17433,10 +17491,13 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
     this.config = config;
     this.logger = new Logger("Talkomatic - " + config.channel.name);
     this.client = lookup("https://talkomatic.co/", {
-      extraHeaders: {
-        Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
-      },
-      autoConnect: false
+      // extraHeaders: {
+      //     Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
+      // },
+      autoConnect: false,
+      auth: {
+        apiKey: process.env.TALKOMATIC_API_KEY
+      }
     });
     this.bindEventListeners();
   }
@@ -17482,7 +17543,7 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
         const p = ppl[msg.userId] || {
           name: "<unknown user>",
           id: msg.userId,
-          color: msg.color,
+          color: msg.color.color,
           typingFlag: false
         };
         if (p.typingTimeout) clearTimeout(p.typingTimeout);
@@ -17496,7 +17557,7 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
       }
     );
     this.client.on(
-      "udpateRoom",
+      "updateRoom",
       async (msg) => {
         if (!Array.isArray(msg.users)) return;
         try {
@@ -17514,6 +17575,7 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
               color,
               typingFlag: false
             };
+            if (color) p.color = color;
             ppl[user.id] = p;
           }
         } catch (err) {
@@ -17646,7 +17708,8 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
     const msg = {
       roomId: this.channelId,
       // text: text.split("sack").join("ʂасκ"),
-      text: text.split("sack").join("caught"),
+      // text: text.split("sack").join("caught"),
+      text,
       color: id ? ppl[id].color : this.defaultColor
     };
     for (const uuid of Object.keys(ppl)) {
@@ -17661,6 +17724,7 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
     } catch (err) {
       this.logger.warn("Unable to parse markdown:", err);
     }
+    this.logger.debug("Sending typing:", msg);
     this.client.emit("typing", msg);
     this.oldText = text;
   }

@@ -5,7 +5,8 @@
         "start": "bun .",
         "start-bot": "bun src/mpp/index.ts",
         "start-discord": "bun src/discord/index.ts",
-        "build-talko": "bunx tsc --build tsconfig.talko.json"
+        "build-talko": "bun scripts/build-talko.ts",
+        "dev-talko": "bun run build-talko && node build/index.js"
     },
     "devDependencies": {
         "@types/bun": "^1.1.11",
