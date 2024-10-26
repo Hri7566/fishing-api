@@ -38,10 +38,13 @@ export class TalkomaticBot extends EventEmitter {
         this.logger = new Logger("Talkomatic - " + config.channel.name);
 
         this.client = io("https://talkomatic.co/", {
-            extraHeaders: {
-                Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
-            },
-            autoConnect: false
+            // extraHeaders: {
+            //     Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
+            // },
+            autoConnect: false,
+            auth: {
+                apiKey: process.env.TALKOMATIC_API_KEY
+            }
         });
 
         this.bindEventListeners();
@@ -87,11 +90,15 @@ export class TalkomaticBot extends EventEmitter {
 
         this.client.on(
             "userTyping",
-            (msg: { userId: string; text: string; color: string }) => {
+            (msg: {
+                userId: string;
+                text: string;
+                color: { color: string };
+            }) => {
                 const p = ppl[msg.userId] || {
                     name: "<unknown user>",
                     id: msg.userId,
-                    color: msg.color,
+                    color: msg.color.color,
                     typingFlag: false
                 };
 
@@ -112,7 +119,7 @@ export class TalkomaticBot extends EventEmitter {
         );
 
         this.client.on(
-            "udpateRoom",
+            "updateRoom",
             async (msg: {
                 users: {
                     id: string;
@@ -142,6 +149,8 @@ export class TalkomaticBot extends EventEmitter {
                             color,
                             typingFlag: false
                         };
+
+                        if (color) p.color = color;
 
                         ppl[user.id] = p;
                     }
@@ -194,7 +203,11 @@ export class TalkomaticBot extends EventEmitter {
 
         this.on(
             "command",
-            async (msg: { userId: string; text: string; color: string }) => {
+            async (msg: {
+                userId: string;
+                text: string;
+                color: { color: string };
+            }) => {
                 let prefixes: string[];
 
                 try {
@@ -209,7 +222,7 @@ export class TalkomaticBot extends EventEmitter {
                     msg.text.startsWith(pr)
                 );
 
-                let color = (
+                let color: string = (
                     await this.trpc.getUserColor.query({
                         userId: msg.userId
                     })
@@ -323,7 +336,8 @@ export class TalkomaticBot extends EventEmitter {
         const msg = {
             roomId: this.channelId,
             // text: text.split("sack").join("ʂасκ"),
-            text: text.split("sack").join("caught"),
+            // text: text.split("sack").join("caught"),
+            text,
             color: id ? ppl[id].color : this.defaultColor
         };
 
@@ -344,6 +358,7 @@ export class TalkomaticBot extends EventEmitter {
             this.logger.warn("Unable to parse markdown:", err);
         }
 
+        this.logger.debug("Sending typing:", msg);
         this.client.emit("typing", msg);
 
         this.oldText = text;
