@@ -44,7 +44,14 @@ export async function tick() {
 
         if (r < data.chance / 10) {
             // After 60 minutes, reset chance
-            if (data.t > Date.now() + 60 * 60000)
+            // logger.debug(
+            //     "Fishing chance debug:",
+            //     data.t,
+            //     Date.now() + 60 * 60000,
+            //     `(${Date.now()})`
+            // );
+            // this condition was backwards for 7 months
+            if (data.t < Date.now() + 60 * 60000)
                 await resetFishingChance(user.id);
 
             stopFishing(
