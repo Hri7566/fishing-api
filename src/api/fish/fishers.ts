@@ -136,7 +136,7 @@ export function stopFishing(
     if (t > autofish_t + 5 * 60000) {
         addBack(fisher.id, {
             m: "sendchat",
-            message: `Friend @${fisher.userID}'s AUTOFISH has sibsided after ${(
+            message: `Friend @${fisher.userID}'s AUTOFISH has subsided after ${(
                 (Date.now() - fisher.autofish_t) /
                 1000 /
                 60
