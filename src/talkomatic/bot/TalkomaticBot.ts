@@ -37,10 +37,13 @@ export class TalkomaticBot extends EventEmitter {
 
         this.logger = new Logger("Talkomatic - " + config.channel.name);
 
-        this.client = io("https://talkomatic.co/", {
-            // extraHeaders: {
-            //     Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
-            // },
+        this.logger.debug(process.env.TALKOMATIC_SID);
+        this.logger.debug(process.env.TALKOMATIC_API_KEY);
+
+        this.client = io("https://modern.talkomatic.co/", {
+            extraHeaders: {
+                Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
+            },
             autoConnect: false,
             auth: {
                 apiKey: process.env.TALKOMATIC_API_KEY
@@ -53,7 +56,7 @@ export class TalkomaticBot extends EventEmitter {
     public async start() {
         this.logger.info("Starting");
         this.client.connect();
-        // this.client.io.engine.on("packetCreate", this.logger.debug);
+        this.client.io.engine.on("packetCreate", this.logger.debug);
 
         let data =
             (await this.findChannel(this.config.channel.name)) ||
@@ -83,6 +86,7 @@ export class TalkomaticBot extends EventEmitter {
 
     public bindEventListeners() {
         this.client.onAny(msg => {
+            this.logger.debug(msg);
             if (this.connected) return;
             this.connected = true;
             this.logger.info("Connected to server");
@@ -102,7 +106,7 @@ export class TalkomaticBot extends EventEmitter {
                     typingFlag: false
                 };
 
-                // this.logger.debug(msg);
+                this.logger.debug(msg);
                 // p.color = msg.color;
 
                 if (p.typingTimeout) clearTimeout(p.typingTimeout);
@@ -365,6 +369,7 @@ export class TalkomaticBot extends EventEmitter {
     }
 
     public setChannel(roomId: string) {
+        this.logger.debug("Changing channel to", roomId);
         this.client.emit("joinRoom", { roomId });
     }
 
@@ -373,7 +378,7 @@ export class TalkomaticBot extends EventEmitter {
         roomType: "public" | "private" = "public"
     ) {
         const response = await fetch(
-            "https://talkomatic.co/create-and-join-room",
+            "https://modern.talkomatic.co/create-and-join-room",
             {
                 method: "POST",
                 headers: {
@@ -411,7 +416,7 @@ export class TalkomaticBot extends EventEmitter {
     }
 
     public async findChannel(name: string) {
-        const response = await fetch("https://talkomatic.co/rooms", {
+        const response = await fetch("https://modern.talkomatic.co/rooms", {
             method: "GET"
         });
 
