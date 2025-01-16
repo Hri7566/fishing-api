@@ -1303,21 +1303,29 @@ ${indent}`) + "'";
         start = start.replace(/\n+/g, `$&${indent}`);
       }
       const indentSize = indent ? "2" : "1";
-      let header = (literal ? "|" : ">") + (startWithSpace ? indentSize : "") + chomp;
+      let header = (startWithSpace ? indentSize : "") + chomp;
       if (comment) {
         header += " " + commentString(comment.replace(/ ?[\r\n]+/g, " "));
         if (onComment)
           onComment();
       }
-      if (literal) {
-        value2 = value2.replace(/\n+/g, `$&${indent}`);
-        return `${header}
-${indent}${start}${value2}${end}`;
-      }
-      value2 = value2.replace(/\n+/g, "\n$&").replace(/(?:^|\n)([\t ].*)(?:([\n\t ]*)\n(?![\n\t ]))?/g, "$1$2").replace(/\n+/g, `$&${indent}`);
-      const body = foldFlowLines.foldFlowLines(`${start}${value2}${end}`, indent, foldFlowLines.FOLD_BLOCK, getFoldOptions(ctx, true));
-      return `${header}
+      if (!literal) {
+        const foldedValue = value2.replace(/\n+/g, "\n$&").replace(/(?:^|\n)([\t ].*)(?:([\n\t ]*)\n(?![\n\t ]))?/g, "$1$2").replace(/\n+/g, `$&${indent}`);
+        let literalFallback = false;
+        const foldOptions = getFoldOptions(ctx, true);
+        if (blockQuote !== "folded" && type !== Scalar.Scalar.BLOCK_FOLDED) {
+          foldOptions.onOverflow = () => {
+            literalFallback = true;
+          };
+        }
+        const body = foldFlowLines.foldFlowLines(`${start}${foldedValue}${end}`, indent, foldFlowLines.FOLD_BLOCK, foldOptions);
+        if (!literalFallback)
+          return `>${header}
 ${indent}${body}`;
+      }
+      value2 = value2.replace(/\n+/g, `$&${indent}`);
+      return `|${header}
+${indent}${start}${value2}${end}`;
     }
     function plainString(item, ctx, onComment, onChompKeep) {
       const { type, value: value2 } = item;
@@ -1647,14 +1655,15 @@ ${ctx.indent}`;
 var require_log = __commonJS({
   "node_modules/yaml/dist/log.js"(exports2) {
     "use strict";
+    var node_process = require("node:process");
     function debug12(logLevel, ...messages) {
       if (logLevel === "debug")
         console.log(...messages);
     }
     function warn(logLevel, warning) {
       if (logLevel === "debug" || logLevel === "warn") {
-        if (typeof process !== "undefined" && process.emitWarning)
-          process.emitWarning(warning);
+        if (typeof node_process.emitWarning === "function")
+          node_process.emitWarning(warning);
         else
           console.warn(warning);
       }
@@ -2512,7 +2521,7 @@ var require_schema2 = __commonJS({
         identify: (value2) => typeof value2 === "boolean",
         default: true,
         tag: "tag:yaml.org,2002:bool",
-        test: /^true|false$/,
+        test: /^true$|^false$/,
         resolve: (str) => str === "true",
         stringify: stringifyJSON
       },
@@ -2551,6 +2560,7 @@ var require_schema2 = __commonJS({
 var require_binary = __commonJS({
   "node_modules/yaml/dist/schema/yaml-1.1/binary.js"(exports2) {
     "use strict";
+    var node_buffer = require("node:buffer");
     var Scalar = require_Scalar();
     var stringifyString = require_stringifyString();
     var binary = {
@@ -2567,8 +2577,8 @@ var require_binary = __commonJS({
        *   document.querySelector('#photo').src = URL.createObjectURL(blob)
        */
       resolve(src, onError) {
-        if (typeof Buffer === "function") {
-          return Buffer.from(src, "base64");
+        if (typeof node_buffer.Buffer === "function") {
+          return node_buffer.Buffer.from(src, "base64");
         } else if (typeof atob === "function") {
           const str = atob(src.replace(/[\n\r]/g, ""));
           const buffer = new Uint8Array(str.length);
@@ -2583,8 +2593,8 @@ var require_binary = __commonJS({
       stringify({ comment, type, value: value2 }, ctx, onComment, onChompKeep) {
         const buf = value2;
         let str;
-        if (typeof Buffer === "function") {
-          str = buf instanceof Buffer ? buf.toString("base64") : Buffer.from(buf.buffer).toString("base64");
+        if (typeof node_buffer.Buffer === "function") {
+          str = buf instanceof node_buffer.Buffer ? buf.toString("base64") : node_buffer.Buffer.from(buf.buffer).toString("base64");
         } else if (typeof btoa === "function") {
           let s = "";
           for (let i = 0; i < buf.length; ++i)
@@ -3096,7 +3106,7 @@ var require_timestamp = __commonJS({
         }
         return new Date(date);
       },
-      stringify: ({ value: value2 }) => value2.toISOString().replace(/((T00:00)?:00)?\.000Z$/, "")
+      stringify: ({ value: value2 }) => value2.toISOString().replace(/(T00:00:00)?\.000Z$/, "")
     };
     exports2.floatTime = floatTime;
     exports2.intTime = intTime;
@@ -3782,7 +3792,7 @@ var require_resolve_props = __commonJS({
             if (atNewline) {
               if (comment)
                 comment += token.source;
-              else
+              else if (!found || indicator !== "seq-item-ind")
                 spaceBefore = true;
             } else
               commentSep += token.source;
@@ -5063,6 +5073,7 @@ var require_compose_doc = __commonJS({
 var require_composer = __commonJS({
   "node_modules/yaml/dist/compose/composer.js"(exports2) {
     "use strict";
+    var node_process = require("node:process");
     var directives = require_directives();
     var Document = require_Document();
     var errors = require_errors();
@@ -5178,7 +5189,7 @@ ${cb}` : comment;
       }
       /** Advance the composer by one CST token. */
       *next(token) {
-        if (process.env.LOG_STREAM)
+        if (node_process.env.LOG_STREAM)
           console.dir(token, { depth: null });
         switch (token.type) {
           case "directive":
@@ -6288,6 +6299,7 @@ var require_line_counter = __commonJS({
 var require_parser = __commonJS({
   "node_modules/yaml/dist/parse/parser.js"(exports2) {
     "use strict";
+    var node_process = require("node:process");
     var cst = require_cst();
     var lexer = require_lexer();
     function includesToken(list, type) {
@@ -6411,7 +6423,7 @@ var require_parser = __commonJS({
        */
       *next(source) {
         this.source = source;
-        if (process.env.LOG_TOKENS)
+        if (node_process.env.LOG_TOKENS)
           console.log("|", cst.prettyToken(source));
         if (this.atScalar) {
           this.atScalar = false;
@@ -12021,7 +12033,7 @@ var require_package = __commonJS({
   "node_modules/dotenv/package.json"(exports2, module2) {
     module2.exports = {
       name: "dotenv",
-      version: "16.4.5",
+      version: "16.4.7",
       description: "Loads environment variables from .env file",
       main: "lib/main.js",
       types: "lib/main.d.ts",
@@ -12042,10 +12054,9 @@ var require_package = __commonJS({
       scripts: {
         "dts-check": "tsc --project tests/types/tsconfig.json",
         lint: "standard",
-        "lint-readme": "standard-markdown",
         pretest: "npm run lint && npm run dts-check",
-        test: "tap tests/*.js --100 -Rspec",
-        "test:coverage": "tap --coverage-report=lcov",
+        test: "tap run --allow-empty-coverage --disable-coverage --timeout=60000",
+        "test:coverage": "tap run --show-full-coverage --timeout=60000 --coverage-report=lcov",
         prerelease: "npm test",
         release: "standard-version"
       },
@@ -12066,15 +12077,12 @@ var require_package = __commonJS({
       readmeFilename: "README.md",
       license: "BSD-2-Clause",
       devDependencies: {
-        "@definitelytyped/dtslint": "^0.0.133",
         "@types/node": "^18.11.3",
-        decache: "^4.6.1",
+        decache: "^4.6.2",
         sinon: "^14.0.1",
         standard: "^17.0.0",
-        "standard-markdown": "^7.1.0",
         "standard-version": "^9.5.0",
-        tap: "^16.3.0",
-        tar: "^6.1.11",
+        tap: "^19.2.0",
         typescript: "^4.8.4"
       },
       engines: {
@@ -16161,6 +16169,7 @@ function share(_opts) {
     });
   };
 }
+var distinctUnsetMarker = Symbol();
 
 // node_modules/@trpc/client/dist/links/internals/createChain.mjs
 function createChain(opts) {
@@ -16185,8 +16194,6 @@ function createChain(opts) {
 }
 
 // node_modules/@trpc/server/dist/unstable-core-do-not-import/createProxy.mjs
-var _memo;
-var _cacheKey;
 var noop = () => {
 };
 var freezeIfAvailable = (obj) => {
@@ -16195,6 +16202,7 @@ var freezeIfAvailable = (obj) => {
   }
 };
 function createInnerProxy(callback, path, memo) {
+  var _memo, _cacheKey;
   const cacheKey = path.join(".");
   (_memo = memo)[_cacheKey = cacheKey] ?? (_memo[_cacheKey] = new Proxy(noop, {
     get(_obj, key) {
@@ -16249,6 +16257,38 @@ var defaultFormatter = ({ shape }) => {
   return shape;
 };
 
+// node_modules/@trpc/server/dist/unstable-core-do-not-import/rpc/codes.mjs
+var TRPC_ERROR_CODES_BY_KEY = {
+  /**
+  * Invalid JSON was received by the server.
+  * An error occurred on the server while parsing the JSON text.
+  */
+  PARSE_ERROR: -32700,
+  /**
+  * The JSON sent is not a valid Request object.
+  */
+  BAD_REQUEST: -32600,
+  // Internal JSON-RPC error
+  INTERNAL_SERVER_ERROR: -32603,
+  NOT_IMPLEMENTED: -32603,
+  BAD_GATEWAY: -32603,
+  SERVICE_UNAVAILABLE: -32603,
+  GATEWAY_TIMEOUT: -32603,
+  // Implementation specific errors
+  UNAUTHORIZED: -32001,
+  FORBIDDEN: -32003,
+  NOT_FOUND: -32004,
+  METHOD_NOT_SUPPORTED: -32005,
+  TIMEOUT: -32008,
+  CONFLICT: -32009,
+  PRECONDITION_FAILED: -32012,
+  PAYLOAD_TOO_LARGE: -32013,
+  UNSUPPORTED_MEDIA_TYPE: -32015,
+  UNPROCESSABLE_CONTENT: -32022,
+  TOO_MANY_REQUESTS: -32029,
+  CLIENT_CLOSED_REQUEST: -32099
+};
+
 // node_modules/@trpc/server/dist/unstable-core-do-not-import/utils.mjs
 var unsetMarker = Symbol();
 function mergeWithoutOverrides(obj1, ...objs) {
@@ -16274,6 +16314,19 @@ function omitPrototype(obj) {
 }
 
 // node_modules/@trpc/server/dist/unstable-core-do-not-import/error/TRPCError.mjs
+function _define_property(obj, key, value2) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value2,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value2;
+  }
+  return obj;
+}
 var UnknownCauseError = class extends Error {
 };
 function getCauseFromUnknown(cause) {
@@ -16318,7 +16371,9 @@ var TRPCError = class extends Error {
     const message = opts.message ?? cause?.message ?? opts.code;
     super(message, {
       cause
-    });
+    }), // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore override doesn't work in all environments due to "This member cannot have an 'override' modifier because it is not declared in the base class 'Error'"
+    _define_property(this, "cause", void 0), _define_property(this, "code", void 0);
     this.code = opts.code;
     this.name = "TRPCError";
     if (!this.cause) {
@@ -16327,8 +16382,18 @@ var TRPCError = class extends Error {
   }
 };
 
-// node_modules/@trpc/server/dist/unstable-core-do-not-import/stream/utils/createReadableStream.mjs
-var cancelledStreamSymbol = Symbol();
+// node_modules/@trpc/server/dist/vendor/unpromise/unpromise.mjs
+var _computedKey;
+_computedKey = Symbol.toStringTag;
+
+// node_modules/@trpc/server/dist/unstable-core-do-not-import/stream/utils/disposable.mjs
+var _Symbol;
+var _Symbol1;
+(_Symbol = Symbol).dispose ?? (_Symbol.dispose = Symbol());
+(_Symbol1 = Symbol).asyncDispose ?? (_Symbol1.asyncDispose = Symbol());
+
+// node_modules/@trpc/server/dist/unstable-core-do-not-import/stream/utils/timerResource.mjs
+var disposablePromiseTimerResult = Symbol();
 
 // node_modules/@trpc/server/dist/unstable-core-do-not-import/stream/tracked.mjs
 var trackedSymbol = Symbol();
@@ -16388,7 +16453,7 @@ function transformResult(response, transformer) {
   let result;
   try {
     result = transformResultInner(response, transformer);
-  } catch (err) {
+  } catch {
     throw new TransformResultError();
   }
   if (!result.ok && (!isObject2(result.error.error) || typeof result.error.error["code"] !== "number")) {
@@ -16856,6 +16921,7 @@ var TRPCBuilder = class _TRPCBuilder {
   */
   create(opts) {
     const config = {
+      ...opts,
       transformer: getDataTransformer(opts?.transformer ?? defaultTransformer),
       isDev: opts?.isDev ?? // eslint-disable-next-line @typescript-eslint/dot-notation
       globalThis.process?.env["NODE_ENV"] !== "production",
@@ -16866,8 +16932,7 @@ var TRPCBuilder = class _TRPCBuilder {
       * These are just types, they can't be used at runtime
       * @internal
       */
-      $types: null,
-      experimental: opts?.experimental ?? {}
+      $types: null
     };
     {
       const isServer = opts?.isServer ?? isServerDefault;
@@ -16914,6 +16979,19 @@ var TRPCBuilder = class _TRPCBuilder {
 var initTRPC = new TRPCBuilder();
 
 // node_modules/@trpc/client/dist/TRPCClientError.mjs
+function _define_property2(obj, key, value2) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value2,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value2;
+  }
+  return obj;
+}
 function isTRPCClientError(cause) {
   return cause instanceof TRPCClientError || /**
   * @deprecated
@@ -16960,7 +17038,13 @@ var TRPCClientError = class _TRPCClientError extends Error {
     const cause = opts?.cause;
     super(message, {
       cause
-    });
+    }), // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore override doesn't work in all environments due to "This member cannot have an 'override' modifier because it is not declared in the base class 'Error'"
+    _define_property2(this, "cause", void 0), _define_property2(this, "shape", void 0), _define_property2(this, "data", void 0), /**
+    * Additional meta data about the error
+    * In the case of HTTP-errors, we'll have `response` and potentially `responseJSON` here
+    */
+    _define_property2(this, "meta", void 0);
     this.meta = opts?.meta;
     this.cause = cause;
     this.shape = opts?.result?.error;
@@ -16971,6 +17055,19 @@ var TRPCClientError = class _TRPCClientError extends Error {
 };
 
 // node_modules/@trpc/client/dist/internals/TRPCUntypedClient.mjs
+function _define_property3(obj, key, value2) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value2,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value2;
+  }
+  return obj;
+}
 var TRPCUntypedClient = class {
   $request(opts) {
     const chain$ = createChain({
@@ -17016,19 +17113,31 @@ var TRPCUntypedClient = class {
       type: "subscription",
       path,
       input,
-      context: opts?.context,
+      context: opts.context,
       signal: opts.signal
     });
     return observable$.subscribe({
       next(envelope) {
-        if (envelope.result.type === "started") {
-          opts.onStarted?.({
-            context: envelope.context
-          });
-        } else if (envelope.result.type === "stopped") {
-          opts.onStopped?.();
-        } else {
-          opts.onData?.(envelope.result.data);
+        switch (envelope.result.type) {
+          case "state": {
+            opts.onConnectionStateChange?.(envelope.result);
+            break;
+          }
+          case "started": {
+            opts.onStarted?.({
+              context: envelope.context
+            });
+            break;
+          }
+          case "stopped": {
+            opts.onStopped?.();
+            break;
+          }
+          case "data":
+          case void 0: {
+            opts.onData?.(envelope.result.data);
+            break;
+          }
         }
       },
       error(err) {
@@ -17040,6 +17149,9 @@ var TRPCUntypedClient = class {
     });
   }
   constructor(opts) {
+    _define_property3(this, "links", void 0);
+    _define_property3(this, "runtime", void 0);
+    _define_property3(this, "requestId", void 0);
     this.requestId = 0;
     this.runtime = {};
     this.links = opts.links.map((link) => link(this.runtime));
@@ -17462,6 +17574,14 @@ function httpBatchLink(opts) {
   };
 }
 
+// node_modules/@trpc/client/dist/links/httpSubscriptionLink.mjs
+var codes5xx = [
+  TRPC_ERROR_CODES_BY_KEY.BAD_GATEWAY,
+  TRPC_ERROR_CODES_BY_KEY.SERVICE_UNAVAILABLE,
+  TRPC_ERROR_CODES_BY_KEY.GATEWAY_TIMEOUT,
+  TRPC_ERROR_CODES_BY_KEY.INTERNAL_SERVER_ERROR
+];
+
 // src/util/api/trpc.ts
 require_main().config();
 function gettRPC(token) {
@@ -17490,10 +17610,12 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
     super();
     this.config = config;
     this.logger = new Logger("Talkomatic - " + config.channel.name);
-    this.client = lookup("https://talkomatic.co/", {
-      // extraHeaders: {
-      //     Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
-      // },
+    this.logger.debug(process.env.TALKOMATIC_SID);
+    this.logger.debug(process.env.TALKOMATIC_API_KEY);
+    this.client = lookup("https://modern.talkomatic.co/", {
+      extraHeaders: {
+        Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
+      },
       autoConnect: false,
       auth: {
         apiKey: process.env.TALKOMATIC_API_KEY
@@ -17511,6 +17633,7 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
   async start() {
     this.logger.info("Starting");
     this.client.connect();
+    this.client.io.engine.on("packetCreate", this.logger.debug);
     let data = await this.findChannel(this.config.channel.name) || await this.createChannel(
       this.config.channel.name,
       this.config.channel.type
@@ -17533,6 +17656,7 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
   connected = false;
   bindEventListeners() {
     this.client.onAny((msg) => {
+      this.logger.debug(msg);
       if (this.connected) return;
       this.connected = true;
       this.logger.info("Connected to server");
@@ -17546,6 +17670,7 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
           color: msg.color.color,
           typingFlag: false
         };
+        this.logger.debug(msg);
         if (p.typingTimeout) clearTimeout(p.typingTimeout);
         p.typingTimeout = setTimeout(() => {
           p.typingFlag = true;
@@ -17729,11 +17854,12 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
     this.oldText = text;
   }
   setChannel(roomId) {
+    this.logger.debug("Changing channel to", roomId);
     this.client.emit("joinRoom", { roomId });
   }
   async createChannel(roomName, roomType = "public") {
     const response = await fetch(
-      "https://talkomatic.co/create-and-join-room",
+      "https://modern.talkomatic.co/create-and-join-room",
       {
         method: "POST",
         headers: {
@@ -17767,7 +17893,7 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
     }
   }
   async findChannel(name) {
-    const response = await fetch("https://talkomatic.co/rooms", {
+    const response = await fetch("https://modern.talkomatic.co/rooms", {
       method: "GET"
     });
     if (!response.ok)
@@ -17852,4 +17978,7 @@ xmlhttprequest-ssl/lib/XMLHttpRequest.js:
 
 @trpc/client/dist/links/httpBatchLink.mjs:
   (* istanbul ignore if -- @preserve *)
+
+@trpc/client/dist/links/retryLink.mjs:
+  (* istanbul ignore file -- @preserve *)
 */
