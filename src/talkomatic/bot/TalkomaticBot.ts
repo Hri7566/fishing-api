@@ -37,8 +37,8 @@ export class TalkomaticBot extends EventEmitter {
 
         this.logger = new Logger("Talkomatic - " + config.channel.name);
 
-        this.logger.debug(process.env.TALKOMATIC_SID);
-        this.logger.debug(process.env.TALKOMATIC_API_KEY);
+        //this.logger.debug(process.env.TALKOMATIC_SID);
+        //this.logger.debug(process.env.TALKOMATIC_API_KEY);
 
         this.client = io("https://modern.talkomatic.co/", {
             extraHeaders: {
@@ -86,7 +86,7 @@ export class TalkomaticBot extends EventEmitter {
 
     public bindEventListeners() {
         this.client.onAny(msg => {
-            this.logger.debug(msg);
+            //this.logger.debug(msg);
             if (this.connected) return;
             this.connected = true;
             this.logger.info("Connected to server");
@@ -106,7 +106,7 @@ export class TalkomaticBot extends EventEmitter {
                     typingFlag: false
                 };
 
-                this.logger.debug(msg);
+                //this.logger.debug(msg);
                 // p.color = msg.color;
 
                 if (p.typingTimeout) clearTimeout(p.typingTimeout);
