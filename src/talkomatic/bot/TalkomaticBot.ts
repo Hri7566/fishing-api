@@ -2,6 +2,7 @@ import { Logger } from "@util/Logger";
 import { io, type Socket } from "socket.io-client";
 import { EventEmitter } from "node:events";
 import gettRPC from "@util/api/trpc";
+import type { HeadersInit } from "undici-types/fetch.d.ts";
 
 require("dotenv").config();
 const convertMarkdownToUnicode = require("markdown-to-unicode");
@@ -283,6 +284,19 @@ export class TalkomaticBot extends EventEmitter {
             }
         );
 
+        this.client.on("disconnect", (reason, description) => {
+            this.logger.warn(
+                "Disconnected from server:",
+                reason,
+                description ? description : ""
+            );
+
+            setTimeout(() => {
+                this.stop();
+                this.start();
+            }, 5000);
+        });
+
         setInterval(async () => {
             try {
                 const backs = (await this.trpc.backs.query()) as any;
@@ -383,8 +397,9 @@ export class TalkomaticBot extends EventEmitter {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
-                },
+                    //Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
+                    "x-api-key": process.env.TALKOMATIC_API_KEY
+                } as HeadersInit,
                 credentials: "include",
                 body: JSON.stringify({
                     roomName,

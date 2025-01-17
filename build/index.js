@@ -17610,8 +17610,6 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
     super();
     this.config = config;
     this.logger = new Logger("Talkomatic - " + config.channel.name);
-    this.logger.debug(process.env.TALKOMATIC_SID);
-    this.logger.debug(process.env.TALKOMATIC_API_KEY);
     this.client = lookup("https://modern.talkomatic.co/", {
       extraHeaders: {
         Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
@@ -17656,7 +17654,6 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
   connected = false;
   bindEventListeners() {
     this.client.onAny((msg) => {
-      this.logger.debug(msg);
       if (this.connected) return;
       this.connected = true;
       this.logger.info("Connected to server");
@@ -17670,7 +17667,6 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
           color: msg.color.color,
           typingFlag: false
         };
-        this.logger.debug(msg);
         if (p.typingTimeout) clearTimeout(p.typingTimeout);
         p.typingTimeout = setTimeout(() => {
           p.typingFlag = true;
@@ -17789,6 +17785,17 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
         ppl[msg.id] = p;
       }
     );
+    this.client.on("disconnect", (reason, description) => {
+      this.logger.warn(
+        "Disconnected from server:",
+        reason,
+        description ? description : ""
+      );
+      setTimeout(() => {
+        this.stop();
+        this.start();
+      }, 5e3);
+    });
     setInterval(async () => {
       try {
         const backs = await this.trpc.backs.query();
@@ -17864,7 +17871,8 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
+          //Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
+          "x-api-key": process.env.TALKOMATIC_API_KEY
         },
         credentials: "include",
         body: JSON.stringify({

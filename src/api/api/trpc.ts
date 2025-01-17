@@ -133,7 +133,7 @@ export const appRouter = router({
                 color: opts.input.color
             });
 
-            logger.debug(json);
+            //logger.debug(json);
 
             return {
                 success: true,
