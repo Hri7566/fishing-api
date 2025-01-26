@@ -1,5 +1,6 @@
 import type { User } from "@prisma/client";
 import Command from "@server/commands/Command";
+import { logger } from "@server/commands/handler";
 import { getInventory, updateInventory } from "@server/data/inventory";
 import prisma from "@server/data/prisma";
 import { addItem, findItemByNameFuzzy, removeItem } from "@server/items";
@@ -60,8 +61,9 @@ export const give = new Command(
             }
 
             await updateInventory(foundInventory);
+            await updateInventory(inventory);
 
-            return `You ${
+            return `You ${prefix}${
                 command.endsWith("e") ? `${command}d` : `${command}ed`
             } your ${foundObject.name} to ${foundUser.name}.`;
         } else {

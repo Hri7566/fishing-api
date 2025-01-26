@@ -5,6 +5,7 @@ import EventEmitter from "events";
 
 export interface MPPNetBotConfig {
     uri: string;
+    useToken?: boolean;
 
     channel: {
         id: string;

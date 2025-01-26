@@ -21,7 +21,7 @@
 
         "paths": {
             "@server/*": ["./src/api/*"],
-            "@client/*": ["./src/mpp/*"],
+            "@mppnet/*": ["./src/mppnet/*"],
             "@util/*": ["./src/util/*"]
         },
     }
