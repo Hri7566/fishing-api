@@ -13,7 +13,8 @@ export const give = new Command(
     "command.inventory.give",
     async ({ id, command, args, prefix, part, user }) => {
         const inventory = await getInventory(user.inventoryId);
-        if (!inventory) return;
+        if (!inventory)
+            return `According to my records, you don't have an inventory whatsoever. The data is literally not there. Congratulations.`;
 
         let targetFuzzy = args[0];
         if (!targetFuzzy) return `To whom will you ${prefix}${command} to?`;

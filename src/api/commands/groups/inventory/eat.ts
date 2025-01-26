@@ -11,10 +11,10 @@ export const eat = new BehaviorCommand(
     "eat <something>",
     "command.inventory.eat",
     async (props, self) => {
-        const { args, prefix, part, user } = props;
+        const { args, prefix, part, user, command } = props;
         // const eating = args[0];
         const eating = args.join(" ");
-        if (!eating) return `What do you want to ${prefix}eat?`;
+        if (!eating) return `What do you want to ${prefix}${command}?`;
 
         const inventory = await getInventory(user.inventoryId);
         if (!inventory) return;
@@ -70,7 +70,10 @@ export const eat = new BehaviorCommand(
             }
         );
 
-        if (!res) throw new Error(`Unable to eat fish: no behavior result`);
+        if (!res)
+            throw new Error(
+                `Unable to ${prefix}${command} fish: no behavior result`
+            );
 
         if (res.success) shouldRemove = res.state.shouldRemove;
         else shouldRemove = false;
