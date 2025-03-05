@@ -12532,7 +12532,7 @@ var Logger = class _Logger {
     if (typeof globalThis.rl !== "undefined") {
       process.stdout.write("\x1B[2K\r");
     }
-    console.log(`\x1B[30m${time}\x1B[0m`, ...args);
+    console.log(`\x1B[37m${time}\x1B[0m`, ...args);
     if (typeof globalThis.rl !== "undefined") {
       try {
         globalThis.rl.prompt();
@@ -16171,6 +16171,38 @@ function share(_opts) {
 }
 var distinctUnsetMarker = Symbol();
 
+// node_modules/@trpc/server/dist/observable/behaviorSubject.mjs
+function behaviorSubject(initialValue) {
+  let value2 = initialValue;
+  const observerList = [];
+  const addObserver = (observer) => {
+    if (value2 !== void 0) {
+      observer.next(value2);
+    }
+    observerList.push(observer);
+  };
+  const removeObserver = (observer) => {
+    observerList.splice(observerList.indexOf(observer), 1);
+  };
+  const obs = observable((observer) => {
+    addObserver(observer);
+    return () => {
+      removeObserver(observer);
+    };
+  });
+  obs.next = (nextValue) => {
+    if (value2 === nextValue) {
+      return;
+    }
+    value2 = nextValue;
+    for (const observer of observerList) {
+      observer.next(nextValue);
+    }
+  };
+  obs.get = () => value2;
+  return obs;
+}
+
 // node_modules/@trpc/client/dist/links/internals/createChain.mjs
 function createChain(opts) {
   return observable((observer) => {
@@ -16244,7 +16276,7 @@ var createRecursiveProxy = (callback) => createInnerProxy(callback, [], /* @__PU
 var createFlatProxy = (callback) => {
   return new Proxy(noop, {
     get(_obj, name) {
-      if (typeof name !== "string" || name === "then") {
+      if (name === "then") {
         return void 0;
       }
       return callback(name);
@@ -16382,25 +16414,6 @@ var TRPCError = class extends Error {
   }
 };
 
-// node_modules/@trpc/server/dist/vendor/unpromise/unpromise.mjs
-var _computedKey;
-_computedKey = Symbol.toStringTag;
-
-// node_modules/@trpc/server/dist/unstable-core-do-not-import/stream/utils/disposable.mjs
-var _Symbol;
-var _Symbol1;
-(_Symbol = Symbol).dispose ?? (_Symbol.dispose = Symbol());
-(_Symbol1 = Symbol).asyncDispose ?? (_Symbol1.asyncDispose = Symbol());
-
-// node_modules/@trpc/server/dist/unstable-core-do-not-import/stream/utils/timerResource.mjs
-var disposablePromiseTimerResult = Symbol();
-
-// node_modules/@trpc/server/dist/unstable-core-do-not-import/stream/tracked.mjs
-var trackedSymbol = Symbol();
-
-// node_modules/@trpc/server/dist/unstable-core-do-not-import/stream/utils/withPing.mjs
-var PING_SYM = Symbol("ping");
-
 // node_modules/@trpc/server/dist/unstable-core-do-not-import/transformer.mjs
 function getDataTransformer(transformer) {
   if ("input" in transformer) {
@@ -16464,6 +16477,249 @@ function transformResult(response, transformer) {
   }
   return result;
 }
+
+// node_modules/@trpc/server/dist/unstable-core-do-not-import/router.mjs
+var lazySymbol = Symbol("lazy");
+function once(fn) {
+  const uncalled = Symbol();
+  let result = uncalled;
+  return () => {
+    if (result === uncalled) {
+      result = fn();
+    }
+    return result;
+  };
+}
+function isLazy(input) {
+  return typeof input === "function" && lazySymbol in input;
+}
+function isRouter(value2) {
+  return isObject2(value2) && isObject2(value2["_def"]) && "router" in value2["_def"];
+}
+var emptyRouter = {
+  _ctx: null,
+  _errorShape: null,
+  _meta: null,
+  queries: {},
+  mutations: {},
+  subscriptions: {},
+  errorFormatter: defaultFormatter,
+  transformer: defaultTransformer
+};
+var reservedWords = [
+  /**
+  * Then is a reserved word because otherwise we can't return a promise that returns a Proxy
+  * since JS will think that `.then` is something that exists
+  */
+  "then",
+  /**
+  * `fn.call()` and `fn.apply()` are reserved words because otherwise we can't call a function using `.call` or `.apply`
+  */
+  "call",
+  "apply"
+];
+function createRouterFactory(config) {
+  function createRouterInner(input) {
+    const reservedWordsUsed = new Set(Object.keys(input).filter((v) => reservedWords.includes(v)));
+    if (reservedWordsUsed.size > 0) {
+      throw new Error("Reserved words used in `router({})` call: " + Array.from(reservedWordsUsed).join(", "));
+    }
+    const procedures = omitPrototype({});
+    const lazy2 = omitPrototype({});
+    function createLazyLoader(opts) {
+      return {
+        ref: opts.ref,
+        load: once(async () => {
+          const router2 = await opts.ref();
+          const lazyPath = [
+            ...opts.path,
+            opts.key
+          ];
+          const lazyKey = lazyPath.join(".");
+          opts.aggregate[opts.key] = step(router2._def.record, lazyPath);
+          delete lazy2[lazyKey];
+          for (const [nestedKey, nestedItem] of Object.entries(router2._def.lazy)) {
+            const nestedRouterKey = [
+              ...lazyPath,
+              nestedKey
+            ].join(".");
+            lazy2[nestedRouterKey] = createLazyLoader({
+              ref: nestedItem.ref,
+              path: lazyPath,
+              key: nestedKey,
+              aggregate: opts.aggregate[opts.key]
+            });
+          }
+        })
+      };
+    }
+    function step(from, path = []) {
+      const aggregate = omitPrototype({});
+      for (const [key, item] of Object.entries(from ?? {})) {
+        if (isLazy(item)) {
+          lazy2[[
+            ...path,
+            key
+          ].join(".")] = createLazyLoader({
+            path,
+            ref: item,
+            key,
+            aggregate
+          });
+          continue;
+        }
+        if (isRouter(item)) {
+          aggregate[key] = step(item._def.record, [
+            ...path,
+            key
+          ]);
+          continue;
+        }
+        if (!isProcedure(item)) {
+          aggregate[key] = step(item, [
+            ...path,
+            key
+          ]);
+          continue;
+        }
+        const newPath = [
+          ...path,
+          key
+        ].join(".");
+        if (procedures[newPath]) {
+          throw new Error(`Duplicate key: ${newPath}`);
+        }
+        procedures[newPath] = item;
+        aggregate[key] = item;
+      }
+      return aggregate;
+    }
+    const record = step(input);
+    const _def = {
+      _config: config,
+      router: true,
+      procedures,
+      lazy: lazy2,
+      ...emptyRouter,
+      record
+    };
+    const router = {
+      ...record,
+      _def,
+      createCaller: createCallerFactory()({
+        _def
+      })
+    };
+    return router;
+  }
+  return createRouterInner;
+}
+function isProcedure(procedureOrRouter) {
+  return typeof procedureOrRouter === "function";
+}
+async function getProcedureAtPath(router, path) {
+  const { _def } = router;
+  let procedure = _def.procedures[path];
+  while (!procedure) {
+    const key = Object.keys(_def.lazy).find((key2) => path.startsWith(key2));
+    if (!key) {
+      return null;
+    }
+    const lazyRouter = _def.lazy[key];
+    await lazyRouter.load();
+    procedure = _def.procedures[path];
+  }
+  return procedure;
+}
+function createCallerFactory() {
+  return function createCallerInner(router) {
+    const { _def } = router;
+    return function createCaller(ctxOrCallback, opts) {
+      return createRecursiveProxy(async ({ path, args }) => {
+        const fullPath = path.join(".");
+        if (path.length === 1 && path[0] === "_def") {
+          return _def;
+        }
+        const procedure = await getProcedureAtPath(router, fullPath);
+        let ctx = void 0;
+        try {
+          if (!procedure) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: `No procedure found on path "${path}"`
+            });
+          }
+          ctx = isFunction(ctxOrCallback) ? await Promise.resolve(ctxOrCallback()) : ctxOrCallback;
+          return await procedure({
+            path: fullPath,
+            getRawInput: async () => args[0],
+            ctx,
+            type: procedure._def.type,
+            signal: opts?.signal
+          });
+        } catch (cause) {
+          opts?.onError?.({
+            ctx,
+            error: getTRPCErrorFromUnknown(cause),
+            input: args[0],
+            path: fullPath,
+            type: procedure?._def.type ?? "unknown"
+          });
+          throw cause;
+        }
+      });
+    };
+  };
+}
+function mergeRouters(...routerList) {
+  const record = mergeWithoutOverrides({}, ...routerList.map((r) => r._def.record));
+  const errorFormatter = routerList.reduce((currentErrorFormatter, nextRouter) => {
+    if (nextRouter._def._config.errorFormatter && nextRouter._def._config.errorFormatter !== defaultFormatter) {
+      if (currentErrorFormatter !== defaultFormatter && currentErrorFormatter !== nextRouter._def._config.errorFormatter) {
+        throw new Error("You seem to have several error formatters");
+      }
+      return nextRouter._def._config.errorFormatter;
+    }
+    return currentErrorFormatter;
+  }, defaultFormatter);
+  const transformer = routerList.reduce((prev, current) => {
+    if (current._def._config.transformer && current._def._config.transformer !== defaultTransformer) {
+      if (prev !== defaultTransformer && prev !== current._def._config.transformer) {
+        throw new Error("You seem to have several transformers");
+      }
+      return current._def._config.transformer;
+    }
+    return prev;
+  }, defaultTransformer);
+  const router = createRouterFactory({
+    errorFormatter,
+    transformer,
+    isDev: routerList.every((r) => r._def._config.isDev),
+    allowOutsideOfServer: routerList.every((r) => r._def._config.allowOutsideOfServer),
+    isServer: routerList.every((r) => r._def._config.isServer),
+    $types: routerList[0]?._def._config.$types
+  })(record);
+  return router;
+}
+
+// node_modules/@trpc/server/dist/vendor/unpromise/unpromise.mjs
+var _computedKey;
+_computedKey = Symbol.toStringTag;
+
+// node_modules/@trpc/server/dist/unstable-core-do-not-import/stream/utils/disposable.mjs
+var _Symbol;
+var _Symbol1;
+(_Symbol = Symbol).dispose ?? (_Symbol.dispose = Symbol());
+(_Symbol1 = Symbol).asyncDispose ?? (_Symbol1.asyncDispose = Symbol());
+
+// node_modules/@trpc/server/dist/unstable-core-do-not-import/stream/utils/timerResource.mjs
+var disposablePromiseTimerResult = Symbol();
+
+// node_modules/@trpc/server/dist/unstable-core-do-not-import/stream/utils/withPing.mjs
+var PING_SYM = Symbol("ping");
+
+// node_modules/@trpc/server/dist/unstable-core-do-not-import/stream/tracked.mjs
+var trackedSymbol = Symbol();
 
 // node_modules/@trpc/server/dist/unstable-core-do-not-import/middleware.mjs
 var middlewareMarker = "middlewareMarker";
@@ -16536,6 +16792,34 @@ function createOutputMiddleware(parse5) {
   return outputMiddleware;
 }
 
+// node_modules/@trpc/server/dist/vendor/standard-schema-v1/error.mjs
+function _define_property2(obj, key, value2) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value2,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value2;
+  }
+  return obj;
+}
+var StandardSchemaV1Error = class extends Error {
+  /**
+  * Creates a schema error with useful information.
+  *
+  * @param issues The schema issues.
+  */
+  constructor(issues) {
+    super(issues[0]?.message), /** The schema issues. */
+    _define_property2(this, "issues", void 0);
+    this.name = "SchemaError";
+    this.issues = issues;
+  }
+};
+
 // node_modules/@trpc/server/dist/unstable-core-do-not-import/parser.mjs
 function getParseFn(procedureParser) {
   const parser = procedureParser;
@@ -16561,6 +16845,15 @@ function getParseFn(procedureParser) {
     return (value2) => {
       parser.assert(value2);
       return value2;
+    };
+  }
+  if ("~standard" in parser) {
+    return async (value2) => {
+      const result = await parser["~standard"].validate(value2);
+      if (result.issues) {
+        throw new StandardSchemaV1Error(result.issues);
+      }
+      return result.value;
     };
   }
   throw new Error("Could not find a validator fn");
@@ -16744,160 +17037,13 @@ function createProcedureCaller(_def) {
     return result.data;
   }
   procedure._def = _def;
+  procedure.procedure = true;
   return procedure;
 }
 
 // node_modules/@trpc/server/dist/unstable-core-do-not-import/rootConfig.mjs
 var isServerDefault = typeof window === "undefined" || "Deno" in window || // eslint-disable-next-line @typescript-eslint/dot-notation
 globalThis.process?.env?.["NODE_ENV"] === "test" || !!globalThis.process?.env?.["JEST_WORKER_ID"] || !!globalThis.process?.env?.["VITEST_WORKER_ID"];
-
-// node_modules/@trpc/server/dist/unstable-core-do-not-import/router.mjs
-function isRouter(procedureOrRouter) {
-  return procedureOrRouter._def && "router" in procedureOrRouter._def;
-}
-var emptyRouter = {
-  _ctx: null,
-  _errorShape: null,
-  _meta: null,
-  queries: {},
-  mutations: {},
-  subscriptions: {},
-  errorFormatter: defaultFormatter,
-  transformer: defaultTransformer
-};
-var reservedWords = [
-  /**
-  * Then is a reserved word because otherwise we can't return a promise that returns a Proxy
-  * since JS will think that `.then` is something that exists
-  */
-  "then",
-  /**
-  * `fn.call()` and `fn.apply()` are reserved words because otherwise we can't call a function using `.call` or `.apply`
-  */
-  "call",
-  "apply"
-];
-function createRouterFactory(config) {
-  function createRouterInner(input) {
-    const reservedWordsUsed = new Set(Object.keys(input).filter((v) => reservedWords.includes(v)));
-    if (reservedWordsUsed.size > 0) {
-      throw new Error("Reserved words used in `router({})` call: " + Array.from(reservedWordsUsed).join(", "));
-    }
-    const procedures = omitPrototype({});
-    function step(from, path = []) {
-      const aggregate = omitPrototype({});
-      for (const [key, item] of Object.entries(from ?? {})) {
-        if (isRouter(item)) {
-          aggregate[key] = step(item._def.record, [
-            ...path,
-            key
-          ]);
-          continue;
-        }
-        if (!isProcedure(item)) {
-          aggregate[key] = step(item, [
-            ...path,
-            key
-          ]);
-          continue;
-        }
-        const newPath = [
-          ...path,
-          key
-        ].join(".");
-        if (procedures[newPath]) {
-          throw new Error(`Duplicate key: ${newPath}`);
-        }
-        procedures[newPath] = item;
-        aggregate[key] = item;
-      }
-      return aggregate;
-    }
-    const record = step(input);
-    const _def = {
-      _config: config,
-      router: true,
-      procedures,
-      ...emptyRouter,
-      record
-    };
-    return {
-      ...record,
-      _def,
-      createCaller: createCallerFactory()({
-        _def
-      })
-    };
-  }
-  return createRouterInner;
-}
-function isProcedure(procedureOrRouter) {
-  return typeof procedureOrRouter === "function";
-}
-function createCallerFactory() {
-  return function createCallerInner(router) {
-    const _def = router._def;
-    return function createCaller(ctxOrCallback, opts) {
-      return createRecursiveProxy(async ({ path, args }) => {
-        const fullPath = path.join(".");
-        if (path.length === 1 && path[0] === "_def") {
-          return _def;
-        }
-        const procedure = _def.procedures[fullPath];
-        let ctx = void 0;
-        try {
-          ctx = isFunction(ctxOrCallback) ? await Promise.resolve(ctxOrCallback()) : ctxOrCallback;
-          return await procedure({
-            path: fullPath,
-            getRawInput: async () => args[0],
-            ctx,
-            type: procedure._def.type,
-            signal: opts?.signal
-          });
-        } catch (cause) {
-          opts?.onError?.({
-            ctx,
-            error: getTRPCErrorFromUnknown(cause),
-            input: args[0],
-            path: fullPath,
-            type: procedure._def.type
-          });
-          throw cause;
-        }
-      });
-    };
-  };
-}
-function mergeRouters(...routerList) {
-  const record = mergeWithoutOverrides({}, ...routerList.map((r) => r._def.record));
-  const errorFormatter = routerList.reduce((currentErrorFormatter, nextRouter) => {
-    if (nextRouter._def._config.errorFormatter && nextRouter._def._config.errorFormatter !== defaultFormatter) {
-      if (currentErrorFormatter !== defaultFormatter && currentErrorFormatter !== nextRouter._def._config.errorFormatter) {
-        throw new Error("You seem to have several error formatters");
-      }
-      return nextRouter._def._config.errorFormatter;
-    }
-    return currentErrorFormatter;
-  }, defaultFormatter);
-  const transformer = routerList.reduce((prev, current) => {
-    if (current._def._config.transformer && current._def._config.transformer !== defaultTransformer) {
-      if (prev !== defaultTransformer && prev !== current._def._config.transformer) {
-        throw new Error("You seem to have several transformers");
-      }
-      return current._def._config.transformer;
-    }
-    return prev;
-  }, defaultTransformer);
-  const router = createRouterFactory({
-    errorFormatter,
-    transformer,
-    isDev: routerList.every((r) => r._def._config.isDev),
-    allowOutsideOfServer: routerList.every((r) => r._def._config.allowOutsideOfServer),
-    isServer: routerList.every((r) => r._def._config.isServer),
-    $types: routerList[0]?._def._config.$types
-  })(record);
-  return router;
-}
 
 // node_modules/@trpc/server/dist/unstable-core-do-not-import/initTRPC.mjs
 var TRPCBuilder = class _TRPCBuilder {
@@ -16979,7 +17125,7 @@ var TRPCBuilder = class _TRPCBuilder {
 var initTRPC = new TRPCBuilder();
 
 // node_modules/@trpc/client/dist/TRPCClientError.mjs
-function _define_property2(obj, key, value2) {
+function _define_property3(obj, key, value2) {
   if (key in obj) {
     Object.defineProperty(obj, key, {
       value: value2,
@@ -17040,11 +17186,11 @@ var TRPCClientError = class _TRPCClientError extends Error {
       cause
     }), // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore override doesn't work in all environments due to "This member cannot have an 'override' modifier because it is not declared in the base class 'Error'"
-    _define_property2(this, "cause", void 0), _define_property2(this, "shape", void 0), _define_property2(this, "data", void 0), /**
+    _define_property3(this, "cause", void 0), _define_property3(this, "shape", void 0), _define_property3(this, "data", void 0), /**
     * Additional meta data about the error
     * In the case of HTTP-errors, we'll have `response` and potentially `responseJSON` here
     */
-    _define_property2(this, "meta", void 0);
+    _define_property3(this, "meta", void 0);
     this.meta = opts?.meta;
     this.cause = cause;
     this.shape = opts?.result?.error;
@@ -17055,7 +17201,7 @@ var TRPCClientError = class _TRPCClientError extends Error {
 };
 
 // node_modules/@trpc/client/dist/internals/TRPCUntypedClient.mjs
-function _define_property3(obj, key, value2) {
+function _define_property4(obj, key, value2) {
   if (key in obj) {
     Object.defineProperty(obj, key, {
       value: value2,
@@ -17149,9 +17295,9 @@ var TRPCUntypedClient = class {
     });
   }
   constructor(opts) {
-    _define_property3(this, "links", void 0);
-    _define_property3(this, "runtime", void 0);
-    _define_property3(this, "requestId", void 0);
+    _define_property4(this, "links", void 0);
+    _define_property4(this, "runtime", void 0);
+    _define_property4(this, "requestId", void 0);
     this.requestId = 0;
     this.runtime = {};
     this.links = opts.links.map((link) => link(this.runtime));
@@ -17159,6 +17305,7 @@ var TRPCUntypedClient = class {
 };
 
 // node_modules/@trpc/client/dist/createTRPCClient.mjs
+var untypedClientSymbol = Symbol.for("trpc_untypedClient");
 var clientCallTypeMap = {
   query: "query",
   mutate: "mutation",
@@ -17177,10 +17324,7 @@ function createTRPCClientProxy(client) {
     return client[procedureType](fullPath, ...args);
   });
   return createFlatProxy((key) => {
-    if (client.hasOwnProperty(key)) {
-      return client[key];
-    }
-    if (key === "__untypedClient") {
+    if (key === untypedClientSymbol) {
       return client;
     }
     return proxy[key];
@@ -17574,6 +17718,172 @@ function httpBatchLink(opts) {
   };
 }
 
+// node_modules/@trpc/client/dist/links/internals/urlWithConnectionParams.mjs
+var resultOf = (value2, ...args) => {
+  return typeof value2 === "function" ? value2(...args) : value2;
+};
+
+// node_modules/@trpc/client/dist/links/wsLink/wsClient/utils.mjs
+function withResolvers() {
+  let resolve;
+  let reject;
+  const promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return {
+    promise,
+    resolve,
+    reject
+  };
+}
+async function prepareUrl(urlOptions) {
+  const url2 = await resultOf(urlOptions.url);
+  if (!urlOptions.connectionParams) return url2;
+  const prefix = url2.includes("?") ? "&" : "?";
+  const connectionParams = `${prefix}connectionParams=1`;
+  return url2 + connectionParams;
+}
+async function buildConnectionMessage(connectionParams) {
+  const message = {
+    method: "connectionParams",
+    data: await resultOf(connectionParams)
+  };
+  return JSON.stringify(message);
+}
+
+// node_modules/@trpc/client/dist/links/wsLink/wsClient/wsConnection.mjs
+function _define_property5(obj, key, value2) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value2,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value2;
+  }
+  return obj;
+}
+function asyncWsOpen(ws) {
+  const { promise, resolve, reject } = withResolvers();
+  ws.addEventListener("open", () => {
+    ws.removeEventListener("error", reject);
+    resolve();
+  });
+  ws.addEventListener("error", reject);
+  return promise;
+}
+function setupPingInterval(ws, { intervalMs, pongTimeoutMs }) {
+  let pingTimeout;
+  let pongTimeout;
+  function start() {
+    pingTimeout = setTimeout(() => {
+      ws.send("PING");
+      pongTimeout = setTimeout(() => {
+        ws.close();
+      }, pongTimeoutMs);
+    }, intervalMs);
+  }
+  function reset() {
+    clearTimeout(pingTimeout);
+    start();
+  }
+  function pong() {
+    clearTimeout(pongTimeout);
+    reset();
+  }
+  ws.addEventListener("open", start);
+  ws.addEventListener("message", ({ data }) => {
+    clearTimeout(pingTimeout);
+    start();
+    if (data === "PONG") {
+      pong();
+    }
+  });
+  ws.addEventListener("close", () => {
+    clearTimeout(pingTimeout);
+    clearTimeout(pongTimeout);
+  });
+}
+var WsConnection = class _WsConnection {
+  get ws() {
+    return this.wsObservable.get();
+  }
+  set ws(ws) {
+    this.wsObservable.next(ws);
+  }
+  /**
+  * Checks if the WebSocket connection is open and ready to communicate.
+  */
+  isOpen() {
+    return !!this.ws && this.ws.readyState === this.WebSocketPonyfill.OPEN && !this.openPromise;
+  }
+  /**
+  * Checks if the WebSocket connection is closed or in the process of closing.
+  */
+  isClosed() {
+    return !!this.ws && (this.ws.readyState === this.WebSocketPonyfill.CLOSING || this.ws.readyState === this.WebSocketPonyfill.CLOSED);
+  }
+  async open() {
+    if (this.openPromise) return this.openPromise;
+    this.id = ++_WsConnection.connectCount;
+    const wsPromise = prepareUrl(this.urlOptions).then((url2) => new this.WebSocketPonyfill(url2));
+    this.openPromise = wsPromise.then(async (ws) => {
+      this.ws = ws;
+      ws.addEventListener("message", function({ data }) {
+        if (data === "PING") {
+          this.send("PONG");
+        }
+      });
+      if (this.keepAliveOpts.enabled) {
+        setupPingInterval(ws, this.keepAliveOpts);
+      }
+      ws.addEventListener("close", () => {
+        if (this.ws === ws) {
+          this.ws = null;
+        }
+      });
+      await asyncWsOpen(ws);
+      if (this.urlOptions.connectionParams) {
+        ws.send(await buildConnectionMessage(this.urlOptions.connectionParams));
+      }
+    });
+    try {
+      await this.openPromise;
+    } finally {
+      this.openPromise = null;
+    }
+  }
+  /**
+  * Closes the WebSocket connection gracefully.
+  * Waits for any ongoing open operation to complete before closing.
+  */
+  async close() {
+    try {
+      await this.openPromise;
+    } finally {
+      this.ws?.close();
+    }
+  }
+  constructor(opts) {
+    _define_property5(this, "id", ++_WsConnection.connectCount);
+    _define_property5(this, "WebSocketPonyfill", void 0);
+    _define_property5(this, "urlOptions", void 0);
+    _define_property5(this, "keepAliveOpts", void 0);
+    _define_property5(this, "wsObservable", behaviorSubject(null));
+    _define_property5(this, "openPromise", null);
+    this.WebSocketPonyfill = opts.WebSocketPonyfill ?? WebSocket;
+    if (!this.WebSocketPonyfill) {
+      throw new Error("No WebSocket implementation found - you probably don't want to use this on the server, but if you do you need to pass a `WebSocket`-ponyfill");
+    }
+    this.urlOptions = opts.urlOptions;
+    this.keepAliveOpts = opts.keepAlive;
+  }
+};
+_define_property5(WsConnection, "connectCount", 0);
+
 // node_modules/@trpc/client/dist/links/httpSubscriptionLink.mjs
 var codes5xx = [
   TRPC_ERROR_CODES_BY_KEY.BAD_GATEWAY,
@@ -17610,7 +17920,7 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
     super();
     this.config = config;
     this.logger = new Logger("Talkomatic - " + config.channel.name);
-    this.client = lookup("https://modern.talkomatic.co/", {
+    this.client = lookup("https://classic.talkomatic.co/", {
       extraHeaders: {
         Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
       },
@@ -17632,14 +17942,11 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
     this.logger.info("Starting");
     this.client.connect();
     this.client.io.engine.on("packetCreate", this.logger.debug);
-    let data = await this.findChannel(this.config.channel.name) || await this.createChannel(
-      this.config.channel.name,
-      this.config.channel.type
-    );
-    this.logger.debug(data);
-    if (typeof data !== "undefined") {
+    let channel = await this.findChannel(this.config.channel.name);
+    if (!channel) channel = await this.createChannel(this.config.channel.name, this.config.channel.type);
+    if (typeof channel !== "undefined") {
       try {
-        this.channelId = data.room.room_id;
+        this.channelId = channel.id;
         this.setChannel(this.channelId);
         this.started = true;
       } catch (err) {
@@ -17653,25 +17960,43 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
   }
   connected = false;
   bindEventListeners() {
-    this.client.onAny((msg) => {
+    this.client.on("connect", () => {
       if (this.connected) return;
       this.connected = true;
       this.logger.info("Connected to server");
+      this.client.emit("join lobby", {
+        // 42["join lobby",{"username":"hri7566","location":"bean zone"}]
+        username: "Fishing Bot",
+        location: "test/fishing"
+      });
+      this.client.emit("get rooms");
+    });
+    this.client.on("lobby update", (data) => {
+      this.logger.debug("Received lobby update:", data);
+    });
+    this.client.on("initial rooms", (data) => {
+      this.logger.debug("Received initial rooms:", data);
+    });
+    this.client.on("signin status", (msg) => {
+      this.logger.debug("Received signin status:", msg);
     });
     this.client.on(
-      "userTyping",
+      "chat update",
       (msg) => {
+        this.logger.debug(msg);
         const p = ppl[msg.userId] || {
           name: "<unknown user>",
           id: msg.userId,
-          color: msg.color.color,
+          text: "",
+          //color: msg.color.color,
+          color: "#FF9800",
           typingFlag: false
         };
         if (p.typingTimeout) clearTimeout(p.typingTimeout);
         p.typingTimeout = setTimeout(() => {
           p.typingFlag = true;
           ppl[msg.userId] = p;
-          if (msg.text.length <= 0) return;
+          if (p.text.length <= 0) return;
           this.emit("command", msg);
         }, 500);
         ppl[msg.userId] = p;
@@ -17694,6 +18019,7 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
               name: user.username,
               id: user.id,
               color,
+              text: "",
               typingFlag: false
             };
             if (color) p.color = color;
@@ -17722,6 +18048,7 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
               name: user.username,
               id: user.id,
               color,
+              text: "",
               typingFlag: false
             };
             ppl[user.id] = p;
@@ -17780,6 +18107,7 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
           name: msg.username,
           id: msg.id,
           color: "#abe3d6",
+          text: "",
           typingFlag: false
         };
         ppl[msg.id] = p;
@@ -17856,77 +18184,58 @@ var TalkomaticBot = class extends import_node_events.EventEmitter {
     } catch (err) {
       this.logger.warn("Unable to parse markdown:", err);
     }
-    this.logger.debug("Sending typing:", msg);
-    this.client.emit("typing", msg);
+    this.logger.debug("Sending chat update:", msg);
+    if (!this.oldText) {
+      this.client.emit("chat update", {
+        diff: {
+          type: "add",
+          text: msg.text,
+          index: 0
+        }
+      });
+    } else {
+      this.client.emit("chat update", {
+        diff: {
+          type: "full-replace",
+          text: msg.text
+        }
+      });
+    }
     this.oldText = text;
   }
-  setChannel(roomId) {
+  setChannel(roomId, accessCode) {
     this.logger.debug("Changing channel to", roomId);
-    this.client.emit("joinRoom", { roomId });
+    this.client.emit("join room", { roomId, accessCode });
   }
-  async createChannel(roomName, roomType = "public") {
-    const response = await fetch(
-      "https://modern.talkomatic.co/create-and-join-room",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          //Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
-          "x-api-key": process.env.TALKOMATIC_API_KEY
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          roomName,
-          roomType
-        })
-      }
-    );
-    if (!response.ok)
-      return void this.logger.warn(
-        "Unable to create channel:",
-        new TextDecoder().decode(
-          (await response.body?.getReader().read())?.value
-        )
-      );
-    try {
-      const data = new TextDecoder().decode(
-        (await response.body?.getReader().read())?.value
-      );
-      return JSON.parse(data.toString());
-    } catch (err) {
-      this.logger.warn(
-        "Unable to decode channel creation response data:",
-        err
-      );
-    }
-  }
-  async findChannel(name) {
-    const response = await fetch("https://modern.talkomatic.co/rooms", {
-      method: "GET"
+  createChannel(roomName, roomType = "public", roomLayout = "horizontal") {
+    this.logger.debug(`Creating ${roomType} channel ${roomName} with ${roomLayout} layout`);
+    this.client.emit("create room", {
+      name: roomName,
+      type: roomType,
+      layout: roomLayout
     });
-    if (!response.ok)
-      return void this.logger.warn(
-        "Unable to create channel:",
-        new TextDecoder().decode(
-          (await response.body?.getReader().read())?.value
-        )
-      );
-    try {
-      const data = new TextDecoder().decode(
-        (await response.body?.getReader().read())?.value
-      );
-      const rooms = JSON.parse(data.toString());
-      for (const room of rooms.rooms) {
-        if (room.room_name == name) {
-          return { room };
+    return new Promise((resolve, reject) => {
+      const listener = (list) => {
+        if (!Array.isArray(list)) return;
+        for (const channel of list) {
+          if (channel.name !== roomName) continue;
+          this.client.off("lobby update", listener);
+          resolve(channel);
         }
-      }
-    } catch (err) {
-      this.logger.warn(
-        "Unable to decode channel creation response data:",
-        err
-      );
-    }
+      };
+      this.client.once("lobby update", listener);
+    });
+  }
+  findChannel(name) {
+    return new Promise((resolve, reject) => {
+      this.client.emit("get rooms");
+      this.client.once("initial rooms", (rooms) => {
+        if (!Array.isArray(rooms)) resolve(void 0);
+        const channel = rooms.find((ch) => ch.name == name);
+        if (typeof channel === "undefined") resolve(void 0);
+        resolve(channel);
+      });
+    });
   }
 };
 

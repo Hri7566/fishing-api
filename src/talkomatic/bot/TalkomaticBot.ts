@@ -14,9 +14,30 @@ export interface TalkomaticBotConfig {
     };
 }
 
+/*
+interface TalkoUser {
+
+}
+*/
+
+type TalkoUser = unknown;
+
+interface TalkoChannel {
+    id: string;
+    name: string;
+    type: string;
+    layout: string;
+    users: TalkoUser[];
+    votes: Record<string, unknown>;
+    bannedUserIds: Record<string, unknown>;
+    lastActiveTime: number;
+    isFull: boolean;
+}
+
 interface TalkomaticParticipant {
     id: string;
     name: string;
+    text: string;
     color: string;
     typingTimeout: Timer | undefined;
     typingFlag: boolean;
@@ -41,7 +62,7 @@ export class TalkomaticBot extends EventEmitter {
         //this.logger.debug(process.env.TALKOMATIC_SID);
         //this.logger.debug(process.env.TALKOMATIC_API_KEY);
 
-        this.client = io("https://modern.talkomatic.co/", {
+        this.client = io("https://classic.talkomatic.co/", {
             extraHeaders: {
                 Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
             },
@@ -59,17 +80,12 @@ export class TalkomaticBot extends EventEmitter {
         this.client.connect();
         this.client.io.engine.on("packetCreate", this.logger.debug);
 
-        let data =
-            (await this.findChannel(this.config.channel.name)) ||
-            (await this.createChannel(
-                this.config.channel.name,
-                this.config.channel.type
-            ));
-        this.logger.debug(data);
+        let channel = await this.findChannel(this.config.channel.name);
+        if (!channel) channel = await this.createChannel(this.config.channel.name, this.config.channel.type);
 
-        if (typeof data !== "undefined") {
+        if (typeof channel !== "undefined") {
             try {
-                this.channelId = (data as Record<string, any>).room.room_id;
+                this.channelId = channel.id;
                 this.setChannel(this.channelId);
                 this.started = true;
             } catch (err) {
@@ -86,24 +102,53 @@ export class TalkomaticBot extends EventEmitter {
     public connected = false;
 
     public bindEventListeners() {
-        this.client.onAny(msg => {
-            //this.logger.debug(msg);
+        this.client.on("connect", () => {
             if (this.connected) return;
             this.connected = true;
             this.logger.info("Connected to server");
+
+            // "log in"
+            this.client.emit("join lobby", {
+                // 42["join lobby",{"username":"hri7566","location":"bean zone"}]
+                username: "Fishing Bot",
+                location: "test/fishing"
+            });
+
+            this.client.emit("get rooms");
+        });
+
+        this.client.on("lobby update", data => {
+            this.logger.debug("Received lobby update:", data);
+
+        });
+
+        this.client.on("initial rooms", data => {
+            this.logger.debug("Received initial rooms:", data);
+        });
+
+        this.client.on("signin status", msg => {
+            // 42["signin status",{"isSignedIn":true,"username":"hri7566","location":"bean zone","userId":"ZHqr_YT9KX_ED-m57eLRjuDrjTAcbhu8"}]
+            this.logger.debug("Received signin status:", msg);
         });
 
         this.client.on(
-            "userTyping",
+            "chat update",
             (msg: {
                 userId: string;
-                text: string;
-                color: { color: string };
+                username: string;
+                diff: {
+                    type: "add" | "delete" | "full-replace";
+                }
+                //text: string;
+                //color: { color: string };
             }) => {
-                const p = ppl[msg.userId] || {
+                this.logger.debug(msg);
+                const p: TalkomaticParticipant = ppl[msg.userId] || {
                     name: "<unknown user>",
                     id: msg.userId,
-                    color: msg.color.color,
+                    text: "",
+                    //color: msg.color.color,
+                    color: "#FF9800",
                     typingFlag: false
                 };
 
@@ -115,7 +160,7 @@ export class TalkomaticBot extends EventEmitter {
                 p.typingTimeout = setTimeout(() => {
                     p.typingFlag = true;
                     ppl[msg.userId] = p;
-                    if (msg.text.length <= 0) return;
+                    if (p.text.length <= 0) return;
                     this.emit("command", msg);
                 }, 500);
 
@@ -152,6 +197,7 @@ export class TalkomaticBot extends EventEmitter {
                             name: user.username,
                             id: user.id,
                             color,
+                            text: "",
                             typingFlag: false
                         };
 
@@ -197,12 +243,13 @@ export class TalkomaticBot extends EventEmitter {
                             name: user.username,
                             id: user.id,
                             color,
+                            text: "",
                             typingFlag: false
                         };
 
                         ppl[user.id] = p;
                     }
-                } catch (err) {}
+                } catch (err) { }
             }
         );
 
@@ -277,6 +324,7 @@ export class TalkomaticBot extends EventEmitter {
                     name: msg.username,
                     id: msg.id,
                     color: "#abe3d6",
+                    text: "",
                     typingFlag: false
                 };
 
@@ -376,90 +424,90 @@ export class TalkomaticBot extends EventEmitter {
             this.logger.warn("Unable to parse markdown:", err);
         }
 
-        this.logger.debug("Sending typing:", msg);
-        this.client.emit("typing", msg);
+        //this.logger.debug("Sending typing:", msg);
+        this.logger.debug("Sending chat update:", msg);
+        //this.client.emit("typing", msg);
+
+        /*
+        this.client.emit("chat update", {
+            diff: {
+                type: "delete",
+                count: this.oldText.length,
+                index: 0
+            }
+        });
+        */
+
+        if (!this.oldText) {
+            this.client.emit("chat update", {
+                diff: {
+                    type: "add",
+                    text: msg.text,
+                    index: 0
+                }
+            });
+        } else {
+            this.client.emit("chat update", {
+                diff: {
+                    type: "full-replace",
+                    text: msg.text,
+                }
+            });
+        }
 
         this.oldText = text;
     }
 
-    public setChannel(roomId: string) {
+    public setChannel(roomId: string, accessCode?: string) {
         this.logger.debug("Changing channel to", roomId);
-        this.client.emit("joinRoom", { roomId });
+        //this.client.emit("joinRoom", { roomId });
+        this.client.emit("join room", { roomId, accessCode });
     }
 
-    public async createChannel(
+    public createChannel(
         roomName: string,
-        roomType: "public" | "private" = "public"
-    ) {
-        const response = await fetch(
-            "https://modern.talkomatic.co/create-and-join-room",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    //Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
-                    "x-api-key": process.env.TALKOMATIC_API_KEY
-                } as HeadersInit,
-                credentials: "include",
-                body: JSON.stringify({
-                    roomName,
-                    roomType
-                })
-            }
-        );
-
-        if (!response.ok)
-            return void this.logger.warn(
-                "Unable to create channel:",
-                new TextDecoder().decode(
-                    (await response.body?.getReader().read())?.value
-                )
-            );
-
-        try {
-            const data = new TextDecoder().decode(
-                (await response.body?.getReader().read())?.value
-            );
-
-            return JSON.parse(data.toString());
-        } catch (err) {
-            this.logger.warn(
-                "Unable to decode channel creation response data:",
-                err
-            );
-        }
-    }
-
-    public async findChannel(name: string) {
-        const response = await fetch("https://modern.talkomatic.co/rooms", {
-            method: "GET"
+        roomType: "public" | "private" = "public",
+        roomLayout: "horizontal" | "vertical" = "horizontal"
+    ): Promise<TalkoChannel> {
+        this.logger.debug(`Creating ${roomType} channel ${roomName} with ${roomLayout} layout`);
+        this.client.emit("create room", {
+            name: roomName,
+            type: roomType,
+            layout: roomLayout
         });
 
-        if (!response.ok)
-            return void this.logger.warn(
-                "Unable to create channel:",
-                new TextDecoder().decode(
-                    (await response.body?.getReader().read())?.value
-                )
-            );
+        return new Promise((resolve, reject) => {
+            const listener = (list: TalkoChannel[]) => {
+                if (!Array.isArray(list)) return;
 
-        try {
-            const data = new TextDecoder().decode(
-                (await response.body?.getReader().read())?.value
-            );
-
-            const rooms = JSON.parse(data.toString());
-
-            for (const room of rooms.rooms) {
-                if (room.room_name == name) {
-                    return { room };
+                for (const channel of list) {
+                    if (channel.name !== roomName) continue;
+                    this.client.off("lobby update", listener);
+                    resolve(channel);
                 }
             }
-        } catch (err) {
-            this.logger.warn(
-                "Unable to decode channel creation response data:",
-                err
-            );
-        }
+
+            this.client.once("lobby update", listener);
+        });
+    }
+
+    public findChannel(name: string): Promise<TalkoChannel | undefined> {
+        return new Promise((resolve, reject) => {
+            this.client.emit("get rooms");
+
+            this.client.once("initial rooms", rooms => {
+                if (!Array.isArray(rooms)) resolve(undefined);
+
+                const channel = rooms.find((ch: TalkoChannel) => ch.name == name);
+
+                if (typeof channel === "undefined") resolve(undefined);
+
+                resolve(channel);
+            });
+        });
+    }
+
+    public getParticipant(uuid: string) {
+        return ppl[uuid];
     }
 }

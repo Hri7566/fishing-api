@@ -9,16 +9,16 @@ export class Logger {
             process.stdout.write("\x1b[2K\r");
         }
 
-        console.log(`\x1b[30m${time}\x1b[0m`, ...args);
+        console.log(`\x1b[37m${time}\x1b[0m`, ...args);
 
         if (typeof (globalThis as unknown as any).rl !== "undefined") {
             try {
                 ((globalThis as unknown as any).rl as ReadLine).prompt();
-            } catch (err) {}
+            } catch (err) { }
         }
     }
 
-    constructor(public id: string) {}
+    constructor(public id: string) { }
 
     public info(...args: any[]) {
         Logger.log(
