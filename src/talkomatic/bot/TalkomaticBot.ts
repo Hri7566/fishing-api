@@ -466,7 +466,7 @@ export class TalkomaticBot extends EventEmitter {
 
     public createChannel(
         roomName: string,
-        roomType: "public" | "private" = "public",
+        roomType: "public" | "semi-private" | "private" = "public",
         roomLayout: "horizontal" | "vertical" = "horizontal"
     ): Promise<TalkoChannel> {
         this.logger.debug(`Creating ${roomType} channel ${roomName} with ${roomLayout} layout`);
