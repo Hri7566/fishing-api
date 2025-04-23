@@ -9,15 +9,19 @@ export class CosmicColor {
         let b: number | undefined;
 
         if (args.length === 1) {
-            let hexa = (args[0] as string).toLowerCase();
+            let hexa: string | RegExpExecArray | null = (
+                args[0] as string
+            ).toLowerCase();
 
             if (hexa.match(/^#[0-9a-f]{6}$/i)) {
-                (hexa as any) =
-                    /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hexa);
+                hexa = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(
+                    hexa
+                );
+
                 if (hexa && hexa.length === 4) {
-                    r = parseInt(hexa[1], 16);
-                    g = parseInt(hexa[2], 16);
-                    b = parseInt(hexa[3], 16);
+                    r = Number.parseInt(hexa[1], 16);
+                    g = Number.parseInt(hexa[2], 16);
+                    b = Number.parseInt(hexa[3], 16);
                 }
             }
         } else if (args.length === 3) {
@@ -44,9 +48,9 @@ export class CosmicColor {
     public distance(color: CosmicColor) {
         let d = 0;
 
-        d += Math.pow(this.r - color.r, 2);
-        d += Math.pow(this.g - color.g, 2);
-        d += Math.pow(this.b - color.b, 2);
+        d += (this.r - color.r) ** 2;
+        d += (this.g - color.g) ** 2;
+        d += (this.b - color.b) ** 2;
 
         return Math.abs(Math.sqrt(d));
     }
@@ -80,23 +84,23 @@ export class CosmicColor {
         let g = (~~this.g || 0).toString(16);
         let b = (~~this.b || 0).toString(16);
 
-        if (r.length === 1) r = "0" + r;
-        if (g.length === 1) g = "0" + g;
-        if (b.length === 1) b = "0" + b;
+        if (r.length === 1) r = `0${r}`;
+        if (g.length === 1) g = `0${g}`;
+        if (b.length === 1) b = `0${b}`;
 
-        return "#" + r + g + b;
+        return `#${r}${g}${b}`;
     }
 
     public getName(): string {
         let low = 256;
-        let name;
+        let name: string | undefined;
 
         for (const n in CosmicColor.map) {
-            if (!CosmicColor.map.hasOwnProperty(n)) {
+            if (!(n in CosmicColor.map)) {
                 continue;
             }
 
-            const color: any = CosmicColor.map[n];
+            const color = CosmicColor.map[n];
 
             if (
                 color.r === this.r &&
@@ -116,7 +120,7 @@ export class CosmicColor {
         if (!name) {
             name = this.toHexa();
         } else {
-            name = "A shade of " + name;
+            name = `A shade of ${name}`;
         }
 
         return name;

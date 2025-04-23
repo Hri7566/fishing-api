@@ -10,8 +10,8 @@ export const lstoken = new ReadlineCommand(
         const tokens = await getAllTokens();
         if (tokens.length > 0) {
             return `Tokens:\n\t- ${tokens.map(t => t.token).join("\n\t- ")}`;
-        } else {
-            return "No tokens";
         }
+
+        return "No tokens";
     }
 );

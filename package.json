@@ -5,6 +5,7 @@
         "start": "bun .",
         "start-bot": "bun src/mpp/index.ts",
         "start-discord": "bun src/discord/index.ts",
+        "start-cli": "bun src/cli/index.ts",
         "build-talko": "bun scripts/build-talko.ts",
         "dev-talko": "bun run build-talko && node build/index.js"
     },

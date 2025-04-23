@@ -15,10 +15,10 @@ export function loadConfig<T>(path: string, defaultConfig: T) {
         const data = YAML.parse(yaml);
 
         return data as T;
-    } else {
-        saveConfig(path, defaultConfig);
-        return defaultConfig;
     }
+
+    saveConfig(path, defaultConfig);
+    return defaultConfig;
 }
 
 export function saveConfig<T>(path: string, config: T) {

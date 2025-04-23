@@ -10,7 +10,7 @@ export const grow_fruit = new ReadlineCommand(
     async line => {
         try {
             const args = line.split(" ");
-            const num = parseInt(args[1], 10);
+            const num = Number.parseInt(args[1], 10);
             await growFruit(num);
             return `grew ${num} kekklefruit`;
         } catch (err) {

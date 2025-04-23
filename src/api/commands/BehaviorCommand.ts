@@ -11,7 +11,7 @@ export class BehaviorCommand extends Command {
         public usage: string,
         public permissionNode: string,
         callback: TCommandCallbackWithSelf<User, BehaviorCommand>,
-        public visible: boolean = true
+        public visible = true
     ) {
         super(
             id,
@@ -37,9 +37,9 @@ export class BehaviorCommand extends Command {
 
         if (hasBehavior) {
             return await executeBehavior(key, context);
-        } else {
-            return (await defaultCallback(context)) as TBehaviorResponse<S>;
         }
+
+        return (await defaultCallback(context)) as TBehaviorResponse<S>;
     }
 }
 

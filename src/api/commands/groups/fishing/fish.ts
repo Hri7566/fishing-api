@@ -13,20 +13,20 @@ export const fish = new Command(
         if (!fishing) {
             startFishing(id, part.id, channel, isDM);
             return `Our friend ${part.name} casts LURE into a water for catching fish.`;
-        } else {
-            return `Your lure is already in the water (since ${(
-                (Date.now() - fishing.t) /
-                1000 /
-                60
-            ).toFixed(2)} minutes ago).${
-                fishing.autofish
-                    ? ` (AUTOFISH has been enabled for ${(
-                          (Date.now() - fishing.autofish_t) /
-                          1000 /
-                          60
-                      ).toFixed(2)} minutes)`
-                    : ``
-            }`;
         }
+
+        return `Your lure is already in the water (since ${(
+            (Date.now() - fishing.t) /
+            1000 /
+            60
+        ).toFixed(2)} minutes ago).${
+            fishing.autofish
+                ? ` (AUTOFISH has been enabled for ${(
+                      (Date.now() - fishing.autofish_t) /
+                      1000 /
+                      60
+                  ).toFixed(2)} minutes)`
+                : ""
+        }`;
     }
 );

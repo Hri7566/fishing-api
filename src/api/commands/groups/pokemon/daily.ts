@@ -14,7 +14,7 @@ export const daily = new Command(
             return message;
         } catch (err) {
             logger.error("Unable to perform daily claim:", err);
-            return `Congratulations, you broke the bot. Your daily reward might not work now.`;
+            return "Congratulations, you broke the bot. Your daily reward might not work now.";
         }
     },
     true

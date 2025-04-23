@@ -21,12 +21,12 @@ interface ICommandContextProps {
 
 type TCommandCallback<User> = (
     props: ICommandContextProps
-) => Promise<string | void>;
+) => Promise<string | undefined>;
 
 type TCommandCallbackWithSelf<User, T> = (
     props: ICommandContextProps,
     self: T
-) => Promise<string | void>;
+) => Promise<string | undefined>;
 
 interface ICountComponent {
     count: number;

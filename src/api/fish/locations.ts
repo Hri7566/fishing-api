@@ -21,7 +21,6 @@ export const locations = loadConfig<TAnyLocation[]>("config/locations.yml", [
         name: "Lake",
         nearby: ["pond", "river", "sea"],
         canFish: true,
-        hasSand: false,
         objects: []
     },
     {
@@ -29,7 +28,6 @@ export const locations = loadConfig<TAnyLocation[]>("config/locations.yml", [
         name: "River",
         nearby: ["pond", "lake", "sea"],
         canFish: true,
-        hasSand: false,
         objects: []
     },
     {
@@ -56,7 +54,7 @@ export function populateSand() {
         if (!("hasSand" in loc)) continue;
         if (!loc.hasSand) continue;
 
-        let existing = loc.objects.find((obj: ILocation) => obj.id == "sand");
+        const existing = loc.objects.find(obj => obj.id === "sand");
         if (typeof existing !== "undefined") continue;
 
         loc.objects.push(sand);
@@ -65,17 +63,21 @@ export function populateSand() {
 
 export async function loadObjects() {
     for (const loc of locations) {
-        let storage = await getObjectStorage(loc.id);
+        const storage = await getObjectStorage(loc.id);
         if (!storage) continue;
         if (!storage.objects) continue;
 
         if (storage.objects == null) continue;
 
-        if (typeof storage.objects == "string") {
+        if (typeof storage.objects === "string") {
             storage.objects = JSON.parse(storage.objects);
         }
 
-        loc.objects = storage.objects as unknown as IObject[];
+        loc.objects = [];
+
+        for (const o of storage.objects as unknown as IObject[]) {
+            loc.objects.push(o);
+        }
     }
 }
 

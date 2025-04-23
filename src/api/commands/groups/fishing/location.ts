@@ -12,7 +12,7 @@ export const location = new Command(
         const inventory = await getInventory(user.inventoryId);
         if (!inventory) return;
 
-        const loc = locations.find(loc => loc.id == inventory.location);
+        const loc = locations.find(loc => loc.id === inventory.location);
         if (!loc) return "You are in the middle of nowhere.";
 
         const answer = answers[Math.floor(Math.random() * answers.length)];

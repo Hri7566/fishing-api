@@ -1,7 +1,7 @@
 import Client from "mpp-client-net";
 import { Logger } from "@util/Logger";
 import gettRPC from "@util/api/trpc";
-import EventEmitter from "events";
+import EventEmitter from "node:events";
 
 export interface MPPNetBotConfig {
     uri: string;
@@ -22,7 +22,7 @@ export class MPPNetBot {
 
     constructor(
         public config: MPPNetBotConfig,
-        token: string = process.env[`MPP_TOKEN_NET`] as string
+        token: string = process.env.MPP_TOKEN_NET as string
     ) {
         this.logger = new Logger(config.channel.id);
         this.client = new Client(config.uri, token);
@@ -73,7 +73,7 @@ export class MPPNetBot {
                 return;
             }
 
-            let usedPrefix: string | undefined = prefixes.find(pr =>
+            const usedPrefix: string | undefined = prefixes.find(pr =>
                 msg.a.startsWith(pr)
             );
 
@@ -94,11 +94,10 @@ export class MPPNetBot {
             });
 
             if (!command) return;
-            if (command.response)
-                this.sendChat(command.response, (msg as any).id);
+            if (command.response) this.sendChat(command.response, msg.id);
         });
 
-        (this.client as unknown as any).on(
+        this.client.on(
             "dm",
             async (msg: {
                 m: "dm";
@@ -140,7 +139,7 @@ export class MPPNetBot {
                     return;
                 }
 
-                let usedPrefix: string | undefined = prefixes.find(pr =>
+                const usedPrefix: string | undefined = prefixes.find(pr =>
                     msg.a.startsWith(pr)
                 );
 
@@ -211,7 +210,7 @@ export class MPPNetBot {
     }
 
     public sendChat(text: string, reply?: string) {
-        let lines = text.split("\n");
+        const lines = text.split("\n");
 
         for (const line of lines) {
             const splits = line.match(/.{510}|.{1,509}/gi);
@@ -219,7 +218,7 @@ export class MPPNetBot {
 
             for (const split of splits) {
                 if (split.length <= 510) {
-                    (this.client as any).sendArray([
+                    this.client.sendArray([
                         {
                             m: "a",
                             message: `\u034f${split
@@ -238,11 +237,11 @@ export class MPPNetBot {
     }
 
     public sendDM(text: string, dm: string, reply_to?: string) {
-        let lines = text.split("\n");
+        const lines = text.split("\n");
 
         for (const line of lines) {
             if (line.length <= 510) {
-                (this.client as any).sendArray([
+                this.client.sendArray([
                     {
                         m: "dm",
                         message: `\u034f${line

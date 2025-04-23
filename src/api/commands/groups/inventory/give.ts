@@ -16,7 +16,7 @@ export const give = new Command(
         if (!inventory)
             return `According to my records, you don't have an inventory whatsoever. The data is literally not there. Congratulations.`;
 
-        let targetFuzzy = args[0];
+        const targetFuzzy = args[0];
         if (!targetFuzzy) return `To whom will you ${prefix}${command} to?`;
 
         let foundUser: User = user;
@@ -32,7 +32,7 @@ export const give = new Command(
         if (!foundUser) return `Who is ${targetFuzzy}? I don't know them.`;
 
         const foundInventory = await getInventory(foundUser.inventoryId);
-        if (!foundInventory) return `They have no room, apparently.`;
+        if (!foundInventory) return "They have no room, apparently.";
 
         if (!args[1])
             return `What are you going to ${prefix}${command} to ${foundUser.name}?`;
@@ -46,18 +46,18 @@ export const give = new Command(
         if (!foundObject) return `You don't have any "${argcat}" to give.`;
 
         let updated = false;
-        if (foundObject.objtype == "fish") {
+        if (foundObject.objtype === "fish") {
             addItem(foundInventory.items as unknown as IItem[], foundObject);
             updated = true;
-        } else if (foundObject.objtype == "item") {
+        } else if (foundObject.objtype === "item") {
             addItem(foundInventory.items as unknown as IItem[], foundObject);
             updated = true;
         }
 
         if (updated) {
-            if (foundObject.objtype == "fish") {
+            if (foundObject.objtype === "fish") {
                 removeItem(inventory.fishSack, foundObject, 1);
-            } else if (foundObject.objtype == "item") {
+            } else if (foundObject.objtype === "item") {
                 removeItem(inventory.items, foundObject, 1);
             }
 
@@ -67,8 +67,8 @@ export const give = new Command(
             return `You ${prefix}${
                 command.endsWith("e") ? `${command}d` : `${command}ed`
             } your ${foundObject.name} to ${foundUser.name}.`;
-        } else {
-            return `You tried to give your ${foundObject.name} away, but I messed up and the transaction was reverted.`;
         }
+
+        return `You tried to give your ${foundObject.name} away, but I messed up and the transaction was reverted.`;
     }
 );

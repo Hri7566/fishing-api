@@ -28,12 +28,12 @@ registerBehavior<"eat">("fish:eat", async context => {
                     .toLowerCase()}.`
             }
         };
-    } else {
-        return {
-            success: true,
-            state: {
-                shouldRemove: true
-            }
-        };
     }
+
+    return {
+        success: true,
+        state: {
+            shouldRemove: true
+        }
+    };
 });

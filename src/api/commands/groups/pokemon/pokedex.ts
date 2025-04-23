@@ -8,8 +8,8 @@ export const pokedex = new Command(
     "pokedex",
     "command.util.pokedex",
     async ({ args }) => {
-        const num = parseInt(args[0]);
-        if (isNaN(num)) return `Please provide a Pokémon ID.`;
+        const num = Number.parseInt(args[0]);
+        if (Number.isNaN(num)) return "Please provide a Pokémon ID.";
 
         const pokemon = getPokemonByID(num);
 

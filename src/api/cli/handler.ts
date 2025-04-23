@@ -3,10 +3,10 @@ import { readlineCommands } from "./commands";
 import { logger } from "./readline";
 
 export async function handleReadlineCommand(line: string) {
-    let args = line.split(" ");
+    const args = line.split(" ");
 
-    let usedCommand: ReadlineCommand | undefined = readlineCommands.find(cmd =>
-        cmd.aliases.includes(args[0])
+    const usedCommand: ReadlineCommand | undefined = readlineCommands.find(
+        cmd => cmd.aliases.includes(args[0])
     );
     if (!usedCommand) return "Unknown command";
 

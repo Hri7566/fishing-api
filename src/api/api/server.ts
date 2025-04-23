@@ -1,7 +1,6 @@
 import { createBunServeHandler } from "trpc-bun-adapter";
 import { appRouter, createContext } from "./trpc";
 import { Logger } from "@util/Logger";
-import path from "path";
 
 const logger = new Logger("Server");
 

@@ -1,4 +1,4 @@
-import { createInterface } from "readline";
+import { createInterface, type ReadLine } from "node:readline";
 import { handleReadlineCommand } from "./handler";
 import { Logger } from "@util/Logger";
 
@@ -16,4 +16,4 @@ rl.on("line", async data => {
 
 rl.prompt();
 
-(globalThis as unknown as any).rl = rl;
+(globalThis as unknown as { rl: ReadLine }).rl = rl;

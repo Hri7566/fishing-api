@@ -58,21 +58,21 @@ export const sack = new Command(
                     )
                     .join(", ") || "(none)"
             }`;
-        } else {
-            const inv = await getInventory(user.inventoryId);
-            if (!inv) return;
-            const fishSack = inv.fishSack as TFishSack;
-
-            return `Contents of ${part.name}'s fish sack: ${
-                fishSack
-                    .map(
-                        (fish: IFish) =>
-                            `${fish.emoji || "🐟"}${fish.name}${
-                                fish.count ? ` (x${fish.count})` : ""
-                            }`
-                    )
-                    .join(", ") || "(none)"
-            }`;
         }
+
+        const inv = await getInventory(user.inventoryId);
+        if (!inv) return;
+        const fishSack = inv.fishSack as TFishSack;
+
+        return `Contents of ${part.name}'s fish sack: ${
+            fishSack
+                .map(
+                    (fish: IFish) =>
+                        `${fish.emoji || "🐟"}${fish.name}${
+                            fish.count ? ` (x${fish.count})` : ""
+                        }`
+                )
+                .join(", ") || "(none)"
+        }`;
     }
 );

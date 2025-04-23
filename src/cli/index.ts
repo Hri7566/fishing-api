@@ -1,5 +1,5 @@
 import { Logger } from "@util/Logger";
-import { createInterface } from "readline";
+import { createInterface, type ReadLine } from "node:readline";
 import { EventEmitter } from "node:events";
 import gettRPC from "@util/api/trpc";
 import { startAutorestart } from "@util/autorestart";
@@ -16,7 +16,7 @@ const b = new EventEmitter();
 const rl = createInterface({
     input: process.stdin,
     output: process.stdout
-} as any);
+});
 
 const user = {
     _id: "stdin",
@@ -24,19 +24,19 @@ const user = {
     color: "#abe3d6"
 };
 
-(globalThis as unknown as any).rl = rl;
+(globalThis as unknown as { rl: ReadLine }).rl = rl;
 rl.setPrompt("> ");
 rl.prompt();
 await setPrompt();
 
 async function setPrompt() {
-    let color = await trpc.getUserColor.query({ userId: user._id });
+    const color = await trpc.getUserColor.query({ userId: user._id });
     const c = new CosmicColor(user.color);
     rl.setPrompt(`\x1b[38;2;${c.r};${c.g};${c.b}m> `);
 }
 
 rl.on("line", async line => {
-    if (line == "stop" || line == "exit") process.exit();
+    if (line === "stop" || line === "exit") process.exit();
     rl.prompt();
 
     const msg = {
@@ -54,7 +54,7 @@ rl.on("line", async line => {
         return;
     }
 
-    let usedPrefix: string | undefined = prefixes.find(pr =>
+    const usedPrefix: string | undefined = prefixes.find(pr =>
         msg.a.startsWith(pr)
     );
 

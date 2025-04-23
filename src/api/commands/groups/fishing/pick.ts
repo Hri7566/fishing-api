@@ -1,5 +1,6 @@
 import Command from "@server/commands/Command";
 import { getInventory, updateInventory } from "@server/data/inventory";
+import { locations } from "@server/fish/locations";
 import { genFruitAndRemove, getFruitCount, hasFruit } from "@server/fish/tree";
 import { addItem } from "@server/items";
 
@@ -12,6 +13,9 @@ export const pick = new Command(
     async ({ id, command, args, prefix, part, user, isDM }) => {
         const inventory = await getInventory(user.inventoryId);
         if (!inventory) return;
+
+        const loc = locations.find(loc => loc.id === inventory.location);
+        if (!loc) return "You are in the middle of nowhere.";
 
         if (!(await hasFruit()))
             return crazy[Math.floor(Math.random() * crazy.length)]
@@ -397,5 +401,24 @@ const crazy = [
     "Our friend $PART_NAME picked 1 nothing from the kekklefruit tree and placed it into his/her thin air.",
     "This is absolutely amazing! You got nothing from the tree.",
     "I am once again asking you to please wait for the fruit to grow.",
-    "Maybe the Kekklefruit Tree will turn into a Super-Kekklefruit tree and grow lots of fruit some day..."
+    "Maybe the Kekklefruit Tree will turn into a Super-Kekklefruit tree and grow lots of fruit some day...",
+    "Is the Kekklefruit Tree really that important to you? Do you have any consideration for the rest of the world?",
+    "Have you considered waiting? Do you understand the concept? There is no fruit.",
+    "Fruit on the Kekklefruit Tree... there is not.",
+    "Had there been any fruit, you would have taken it.",
+    "All of the trees in this world are currently fruitless. Please check the next planet.",
+    "There is no possible way you could get fruit from a fruitless tree.",
+    "Fruitlessism is a disease plagueing the Kekklefruit Tree at this time.",
+    "The tree is suffering from fruitlessism, and there is nothing to pick.",
+    "If only the tree had fruit.",
+    "Sometimes, we don't get fruit. Sometimes, we do. You'll just have to wait a little longer.",
+    "ALL YOUR FRUIT ARE BELONG TO TREE",
+    "The tree hasn't had fruit in a while.",
+    "Sometimes, the tree is devoid of fruit. Once it grows, you can pick it.",
+    "You shake the tree in hopes of getting a fruit, but the only thing that falls out is Half-Life 3. You decide to leave it on the ground.",
+    "The tree is kekkling, but not fruiting. Pick again later.",
+    "Pick again later.",
+    "We wait by the Kekklefruit Tree, as patient as patient can be. We're watching it grow, though terribly slow, The Kekklefruit's not ready, you see!",
+    "There is no fruit here.",
+    "Sometimes fruit falls on the ground when you yeet and throw stuff, have you checked there?"
 ];

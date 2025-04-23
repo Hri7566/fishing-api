@@ -8,7 +8,7 @@ export class Command {
         public usage: string,
         public permissionNode: string,
         public callback: TCommandCallback<User>,
-        public visible: boolean = true
+        public visible = true
     ) {}
 }
 

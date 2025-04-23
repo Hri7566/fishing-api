@@ -12,7 +12,7 @@ export const look = new Command(
         const inventory = await getInventory(user.inventoryId);
         if (!inventory) return;
 
-        let loc = locations.find(loc => loc.id == inventory.location);
+        let loc = locations.find(loc => loc.id === inventory.location);
         if (!loc) loc = locations[0];
 
         const objList: string[] = [];
@@ -27,6 +27,6 @@ export const look = new Command(
 
         const list = objList.join(", ");
 
-        return `There's ${list ? list + ", about." : "not much around."}`;
+        return `There's ${list ? `${list}, about.` : "not much around."}`;
     }
 );
