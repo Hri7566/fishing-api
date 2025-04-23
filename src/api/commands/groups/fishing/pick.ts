@@ -15,7 +15,9 @@ export const pick = new Command(
         if (!inventory) return;
 
         const loc = locations.find(loc => loc.id === inventory.location);
-        if (!loc) return "You are in the middle of nowhere.";
+        if (!loc) return "The tree is at the pond, and you are nowhere.";
+        if (loc.id !== "pond")
+            return "You are not near the tree. Go to the pond.";
 
         if (!(await hasFruit()))
             return crazy[Math.floor(Math.random() * crazy.length)]
