@@ -2,16 +2,12 @@ import { logger } from "@server/commands/handler";
 
 export const behaviorMap = new Map<string, TBehavior<unknown, unknown>>();
 
-class BehaviorError extends Error {
-    constructor(...args: string[]) {
-        super(...args);
-    }
-}
+class BehaviorError extends Error {}
 
 function splitBehaviorID(id: TBehaviorID) {
     const args = id.split(":");
 
-    if (typeof args[0] == "undefined" || typeof args[1] == "undefined")
+    if (typeof args[0] === "undefined" || typeof args[1] === "undefined")
         throw new BehaviorError(
             "Incomplete behavior ID (should have exactly two segments)"
         );
@@ -43,8 +39,7 @@ export function registerBehavior<
             throw new BehaviorError("Unable to resolve namespace to value");
         set[action] = behavior as TBehaviorCallback<unknown, unknown>;
     } catch (err) {
-        if (!(err instanceof BehaviorError)) err = "Unknown error";
-        throw new BehaviorError("Unable to register behavior: " + err);
+        throw new BehaviorError(`Unable to register behavior: ${err}`);
     }
 }
 
@@ -65,7 +60,7 @@ export async function executeBehavior<
     if (!callback)
         return {
             success: false,
-            err: "No callback defined for " + id
+            err: `No callback defined for ${id}`
         };
 
     return (await callback(context)) as TBehaviorResponse<State>;
