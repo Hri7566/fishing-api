@@ -9,5 +9,4 @@ const config = loadConfig<DiscordBotConfig>("config/discord.yml", {
 });
 
 await initBot(config);
-
 startAutorestart();

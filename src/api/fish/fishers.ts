@@ -18,7 +18,7 @@ export async function tick() {
     if (Date.now() > cooldown) {
         cooldown = Date.now() + 5000;
 
-        let winner =
+        const winner =
             Object.values(fishers)[
                 Math.floor(Math.random() * Object.values(fishers).length)
             ];
@@ -91,8 +91,7 @@ export async function tick() {
 }
 
 export async function startFisherTick() {
-    let maybe = (await kvGet("fishers")) as Record<string, TFisher>;
-
+    const maybe = (await kvGet("fishers")) as Record<string, TFisher>;
     if (maybe) fishers = maybe;
 
     addTickEvent(tick);
@@ -106,11 +105,11 @@ export function startFishing(
     id: string,
     userID: string,
     channel: string,
-    isDM: boolean = false,
-    autofish: boolean = false,
+    isDM = false,
+    autofish = false,
     autofish_t: number = Date.now()
 ) {
-    fishers[id + "~" + userID] = {
+    fishers[`${id}~${userID}`] = {
         id,
         userID,
         channel,
@@ -125,11 +124,11 @@ export function stopFishing(
     id: string,
     userID: string,
     channel: string,
-    autofish: boolean = false,
+    autofish = false,
     autofish_t: number = Date.now()
 ) {
-    let key = id + "~" + userID;
-    let fisher = fishers[key];
+    const key = `${id}~${userID}`;
+    const fisher = fishers[key];
     delete fishers[key];
 
     const t = Date.now();
@@ -154,7 +153,7 @@ export function stopFishing(
 }
 
 export function getFishing(id: string, userID: string) {
-    return fishers[id + "~" + userID];
+    return fishers[`${id}~${userID}`];
 }
 
 export async function getFishingChance(userID: string) {

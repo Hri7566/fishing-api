@@ -11,12 +11,12 @@ const oneDay = 1000 * 60 * 60 * 24;
 
 export async function claimDailyPokemon(userID: string) {
     // Get the last daily timestamp
-    let timestampS = await kvGet(`pokedaily~${userID}`);
+    const timestampS = await kvGet(`pokedaily~${userID}`);
     let timestamp = 0;
 
-    if (typeof timestampS == "string") {
+    if (typeof timestampS === "string") {
         try {
-            timestamp = parseInt(timestampS);
+            timestamp = Number.parseInt(timestampS);
         } catch (err) {
             logger.warn("Unable to parse JSON:", err);
         }
@@ -52,11 +52,11 @@ export async function claimDailyPokemon(userID: string) {
         return `You claimed your daily Pokémon reward and got: ${
             item.emoji || "📦"
         }${item.name}${item.count ? ` (x${item.count})` : ""}`;
-    } else {
-        // or tell them no
-        return `You already claimed today! Time remaining: ${getHHMMSS(
-            oneDay - (Date.now() - timestamp),
-            false
-        )}`;
     }
+
+    // or tell them no
+    return `You already claimed today! Time remaining: ${getHHMMSS(
+        oneDay - (Date.now() - timestamp),
+        false
+    )}`;
 }

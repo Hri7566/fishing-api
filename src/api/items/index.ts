@@ -3,7 +3,7 @@ export function addItem(arr: IObject[], item: IObject) {
     let i = 0;
 
     for (i = 0; i < arr.length; i++) {
-        if (item.id == arr[i].id) {
+        if (item.id === arr[i].id) {
             found = true;
             break;
         }
@@ -29,7 +29,7 @@ export function removeItem(arr: IObject[], item: IObject, count = 1) {
     let i = 0;
 
     for (i = 0; i < arr.length; i++) {
-        if (item.id == arr[i].id) {
+        if (item.id === arr[i].id) {
             found = true;
             break;
         }
@@ -38,7 +38,7 @@ export function removeItem(arr: IObject[], item: IObject, count = 1) {
     const foundItem = arr[i];
     if (!found || !foundItem) return false;
 
-    if (typeof foundItem.count == "number" && foundItem.count > 1) {
+    if (typeof foundItem.count === "number" && foundItem.count > 1) {
         foundItem.count -= count;
     } else {
         arr.splice(i, 1);

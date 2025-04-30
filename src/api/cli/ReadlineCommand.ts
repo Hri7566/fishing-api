@@ -1,4 +1,6 @@
-export type ReadlineCommandCallback = (line: string) => Promise<string | void>;
+export type ReadlineCommandCallback = (
+    line: string
+) => Promise<string | undefined>;
 
 export class ReadlineCommand {
     constructor(

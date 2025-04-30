@@ -1,5 +1,5 @@
 import prisma from "./prisma";
-import { createHash } from "crypto";
+import { createHash } from "node:crypto";
 
 export async function createToken() {
     const randomToken = crypto.randomUUID();

@@ -55,10 +55,10 @@ export const appRouter = router({
     }),
 
     commandList: publicProcedure.query(async opts => {
-        let groups = [];
+        const groups = [];
 
         for (const group of commandGroups) {
-            let commands = group.commands.filter(cmd => cmd.visible);
+            const commands = group.commands.filter(cmd => cmd.visible);
 
             groups.push({
                 id: group.id,
@@ -109,7 +109,7 @@ export const appRouter = router({
     backs: privateProcedure.query(async opts => {
         const id = tokenToID(opts.ctx.token);
 
-        const backs = getBacks<{}>(id);
+        const backs = getBacks<{ m: string }[]>(id);
         flushBacks(id);
 
         try {
@@ -150,8 +150,10 @@ export const appRouter = router({
         )
         .query(async opts => {
             const color = await kvGet(`usercolor~${opts.input.userId}`);
+            if (!color) return { color: null };
 
-            if (typeof color === "object") return { color: color.color };
+            if (typeof color === "object" && "color" in color)
+                return { color: color.color as string };
             return {
                 color
             };

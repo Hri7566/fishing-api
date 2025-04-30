@@ -18,13 +18,13 @@ export const go = new Command(
         const inventory = await getInventory(user.inventoryId);
         if (!inventory) return;
 
-        let loc = locations.find(loc => loc.id == inventory.location);
+        let loc = locations.find(loc => loc.id === inventory.location);
         if (!loc) loc = locations[0];
 
         let nextLoc: ILocation | undefined;
 
         for (const nearID of loc.nearby) {
-            let near = locations.find(loc => loc.id == nearID);
+            const near = locations.find(loc => loc.id === nearID);
             if (!near) continue;
 
             if (near.name.toLowerCase().includes(args[0].toLowerCase()))
@@ -37,8 +37,9 @@ export const go = new Command(
         inventory.location = nextLoc.id;
         await updateInventory(inventory);
 
-        let fisher;
-        if (fisher = getFishing(id, user.id)) {
+        const fisher = getFishing(id, user.id);
+
+        if (fisher) {
             stopFishing(id, user.id, fisher.channel, false);
             return `You ${prefix}${reel.aliases[0]}ed your LURE in and went to ${nextLoc.name}.`;
         }

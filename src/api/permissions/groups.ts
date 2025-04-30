@@ -23,8 +23,8 @@ groups.sort((a, b) => a.id.localeCompare(b.id));
 
 export function findGroup(
     id: string,
-    index: number = Math.floor(groups.length / 2),
-    rec: number = 0
+    index = Math.floor(groups.length / 2),
+    rec = 0
 ) {
     // let num = groups[index].id.localeCompare(id);
     // if (groups[index].id == id) return groups[index];
@@ -38,7 +38,7 @@ export function findGroup(
 
     // logger.debug("Here 2");
 
-    return groups.find(g => g.id == id);
+    return groups.find(g => g.id === id);
 }
 
 export function groupHasPermission(groupID: IGroup["id"], handle: string) {
@@ -55,16 +55,16 @@ export function checkPermission(p1: string, p2: string) {
     const ps2 = p2.split(".");
 
     for (let i = 0; i < ps1.length; i++) {
-        if (ps1[i] == ps2[i]) {
-            if (i == ps1.length - 1 || i == ps2.length - 1) {
+        if (ps1[i] === ps2[i]) {
+            if (i === ps1.length - 1 || i === ps2.length - 1) {
                 return true;
-            } else {
-                continue;
             }
+
+            continue;
         }
 
-        if (ps1[i] == "*") return true;
-        if (ps2[i] == "*") return true;
+        if (ps1[i] === "*") return true;
+        if (ps2[i] === "*") return true;
 
         return false;
     }

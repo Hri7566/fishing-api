@@ -12,7 +12,7 @@ export const nearby = new Command(
         const inventory = await getInventory(user.inventoryId);
         if (!inventory) return;
 
-        let loc = locations.find(loc => loc.id == inventory.location);
+        let loc = locations.find(loc => loc.id === inventory.location);
         if (!loc) loc = locations[0];
 
         // logger.debug(loc.nearby);
@@ -20,7 +20,7 @@ export const nearby = new Command(
         const nearbyList: string[] = [];
 
         for (const nearID of loc.nearby) {
-            const near = locations.find(loc => loc.id == nearID);
+            const near = locations.find(loc => loc.id === nearID);
             if (!near) continue;
             nearbyList.push(near.name);
         }

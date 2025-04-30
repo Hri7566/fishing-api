@@ -1,4 +1,4 @@
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import * as Discord from "discord.js";
 import { SlashCommandBuilder } from "discord.js";
 import { Logger } from "@util/Logger";
@@ -114,7 +114,7 @@ export class DiscordBot extends EventEmitter {
 
             const role = await this.server.roles.create({
                 name: member.id,
-                color: parseInt(color.toHexa().substring(1), 16)
+                color: Number.parseInt(color.toHexa().substring(1), 16)
             });
 
             await member.roles.add(role);
@@ -140,7 +140,7 @@ export class DiscordBot extends EventEmitter {
                 return;
             }
 
-            let usedPrefix: string | undefined = prefixes.find(pr =>
+            const usedPrefix: string | undefined = prefixes.find(pr =>
                 msg.content.startsWith(pr)
             );
 
@@ -255,7 +255,7 @@ export class DiscordBot extends EventEmitter {
                 return;
             }
 
-            let usedPrefix = prefixes[0];
+            const usedPrefix = prefixes[0];
             if (!usedPrefix) return;
 
             this.logger.debug("Args:", msg.options.data);

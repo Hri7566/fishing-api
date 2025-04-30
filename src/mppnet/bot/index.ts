@@ -1,11 +1,9 @@
 import { loadConfig } from "@util/config";
 import { MPPNetBot, type MPPNetBotConfig } from "./Bot";
-// import { Logger } from "@util/Logger";
 
-// const logger = new Logger("big brain");
 const bots: MPPNetBot[] = [];
 
-const defaults = loadConfig("config/mpp_bots.yml", [
+const defaults = loadConfig<MPPNetBotConfig[]>("config/mpp_bots.yml", [
     {
         uri: "wss://mppclone.com:8443",
         channel: {
@@ -13,12 +11,12 @@ const defaults = loadConfig("config/mpp_bots.yml", [
             allowColorChanging: true
         }
     }
-] as MPPNetBotConfig[]);
+]);
 
 export function connectDefaultBots() {
-    defaults.forEach(conf => {
+    for (const conf of defaults) {
         initBot(conf);
-    });
+    }
 }
 
 export function initBot(conf: MPPNetBotConfig) {

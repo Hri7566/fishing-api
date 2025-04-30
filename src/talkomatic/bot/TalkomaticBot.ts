@@ -52,19 +52,19 @@ export class TalkomaticBot extends EventEmitter {
     public trpc = gettRPC(process.env.TALKOMATIC_FISHING_TOKEN as string);
     public started = false;
     public defaultColor = "#abe3d6";
-    public channelId: string = "";
+    public channelId = "";
 
     constructor(public config: TalkomaticBotConfig) {
         super();
 
-        this.logger = new Logger("Talkomatic - " + config.channel.name);
+        this.logger = new Logger(`Talkomatic - ${config.channel.name}`);
 
         //this.logger.debug(process.env.TALKOMATIC_SID);
         //this.logger.debug(process.env.TALKOMATIC_API_KEY);
 
         this.client = io("https://classic.talkomatic.co/", {
             extraHeaders: {
-                Cookie: "connect.sid=" + process.env.TALKOMATIC_SID
+                Cookie: `connect.sid=${process.env.TALKOMATIC_SID}`
             },
             autoConnect: false,
             auth: {
@@ -81,7 +81,11 @@ export class TalkomaticBot extends EventEmitter {
         this.client.io.engine.on("packetCreate", this.logger.debug);
 
         let channel = await this.findChannel(this.config.channel.name);
-        if (!channel) channel = await this.createChannel(this.config.channel.name, this.config.channel.type);
+        if (!channel)
+            channel = await this.createChannel(
+                this.config.channel.name,
+                this.config.channel.type
+            );
 
         if (typeof channel !== "undefined") {
             try {
@@ -119,7 +123,6 @@ export class TalkomaticBot extends EventEmitter {
 
         this.client.on("lobby update", data => {
             this.logger.debug("Received lobby update:", data);
-
         });
 
         this.client.on("initial rooms", data => {
@@ -138,7 +141,7 @@ export class TalkomaticBot extends EventEmitter {
                 username: string;
                 diff: {
                     type: "add" | "delete" | "full-replace";
-                }
+                };
                 //text: string;
                 //color: { color: string };
             }) => {
@@ -182,7 +185,7 @@ export class TalkomaticBot extends EventEmitter {
                 if (!Array.isArray(msg.users)) return;
                 try {
                     for (const user of msg.users) {
-                        let color = (
+                        const color = (
                             await this.trpc.getUserColor.query({
                                 userId: user.id
                             })
@@ -249,7 +252,7 @@ export class TalkomaticBot extends EventEmitter {
 
                         ppl[user.id] = p;
                     }
-                } catch (err) { }
+                } catch (err) {}
             }
         );
 
@@ -270,7 +273,7 @@ export class TalkomaticBot extends EventEmitter {
                     return;
                 }
 
-                let usedPrefix: string | undefined = prefixes.find(pr =>
+                const usedPrefix: string | undefined = prefixes.find(pr =>
                     msg.text.startsWith(pr)
                 );
 
@@ -285,7 +288,7 @@ export class TalkomaticBot extends EventEmitter {
 
                 const args = msg.text.split(" ");
 
-                let part: TalkomaticParticipant = ppl[msg.userId] || {
+                const part: TalkomaticParticipant = ppl[msg.userId] || {
                     name: "<unknown user>",
                     id: msg.userId,
                     color,
@@ -347,7 +350,8 @@ export class TalkomaticBot extends EventEmitter {
 
         setInterval(async () => {
             try {
-                const backs = (await this.trpc.backs.query()) as any;
+                const backs = await this.trpc.backs.query();
+                if (!backs) return;
                 if (backs.length > 0) {
                     // this.logger.debug(backs);
                     for (const back of backs) {
@@ -391,13 +395,14 @@ export class TalkomaticBot extends EventEmitter {
         );
     }
 
-    private oldText: string = "";
+    private oldText = "";
 
-    public sendChat(text: string, reply?: string, id?: string) {
+    public sendChat(t: string, reply?: string, id?: string) {
         const fixedOld = this.oldText.split("\n")[-1];
 
+        let text = t;
         if (text.toLowerCase().includes("autofish"))
-            text = `${fixedOld ? fixedOld + "\n" : ""}${text}`;
+            text = `${fixedOld ? `${fixedOld}\n` : ""}${text}`;
 
         const msg = {
             roomId: this.channelId,
@@ -450,7 +455,7 @@ export class TalkomaticBot extends EventEmitter {
             this.client.emit("chat update", {
                 diff: {
                     type: "full-replace",
-                    text: msg.text,
+                    text: msg.text
                 }
             });
         }
@@ -469,7 +474,9 @@ export class TalkomaticBot extends EventEmitter {
         roomType: "public" | "semi-private" | "private" = "public",
         roomLayout: "horizontal" | "vertical" = "horizontal"
     ): Promise<TalkoChannel> {
-        this.logger.debug(`Creating ${roomType} channel ${roomName} with ${roomLayout} layout`);
+        this.logger.debug(
+            `Creating ${roomType} channel ${roomName} with ${roomLayout} layout`
+        );
         this.client.emit("create room", {
             name: roomName,
             type: roomType,
@@ -485,7 +492,7 @@ export class TalkomaticBot extends EventEmitter {
                     this.client.off("lobby update", listener);
                     resolve(channel);
                 }
-            }
+            };
 
             this.client.once("lobby update", listener);
         });
@@ -498,7 +505,9 @@ export class TalkomaticBot extends EventEmitter {
             this.client.once("initial rooms", rooms => {
                 if (!Array.isArray(rooms)) resolve(undefined);
 
-                const channel = rooms.find((ch: TalkoChannel) => ch.name == name);
+                const channel = rooms.find(
+                    (ch: TalkoChannel) => ch.name === name
+                );
 
                 if (typeof channel === "undefined") resolve(undefined);
 

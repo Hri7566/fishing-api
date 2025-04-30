@@ -25,7 +25,7 @@ export const help = new Command(
             const list = [];
 
             for (const group of commandGroups) {
-                let list2 = [];
+                const list2 = [];
 
                 for (const cmd of group.commands) {
                     if (cmd.visible) list2.push(cmd.aliases[0]);
@@ -36,15 +36,15 @@ export const help = new Command(
             }
 
             return `__Fishing:__\n${list.join("\n")}`;
-        } else {
-            const commands = commandGroups.flatMap(group => group.commands);
-
-            const foundCommand = commands.find(cmd =>
-                cmd.aliases.includes(args[0])
-            );
-            if (!foundCommand) return `Command "${args[0]}" not found.`;
-
-            return `Description: ${foundCommand.description} | Usage: ${foundCommand.usage}`;
         }
+
+        const commands = commandGroups.flatMap(group => group.commands);
+        const foundCommand = commands.find(cmd =>
+            cmd.aliases.includes(args[0])
+        );
+
+        if (!foundCommand) return `Command "${args[0]}" not found.`;
+
+        return `Description: ${foundCommand.description} | Usage: ${foundCommand.usage}`;
     }
 );

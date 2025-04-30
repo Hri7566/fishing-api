@@ -20,7 +20,7 @@ export const eat = new BehaviorCommand(
         if (!inventory) return;
 
         let foundObject: IObject | undefined;
-        let i = 0;
+        const i = 0;
         let shouldRemove = false;
 
         foundObject =
@@ -31,27 +31,14 @@ export const eat = new BehaviorCommand(
 
         // Get item behaviors and run the "eat" script
         let thingy = foundObject.id;
-        if (foundObject.objtype == "fish") thingy = "fish";
+        if (foundObject.objtype === "fish") thingy = "fish";
 
-        // const bhv = itemBehaviorMap[thingy];
-        // let res;
-
-        // if (bhv) {
-        //     if (!bhv["eat"]) return `You can't eat the ${foundObject.name}.`;
-
-        //     res = await runBehavior(thingy, "eat", foundObject, props);
-
-        //     // Check if response had an error, and populate our state that way
-        //     if (res.success) shouldRemove = res.state.shouldRemove;
-        //     else shouldRemove = false;
-        // } else {
-        //     shouldRemove = true;
-        // }
-
-        let res;
+        let res: TBehaviorResponse<
+            IBehaviorContextStateDefinitions["eat"]["state"]
+        >;
         let bhvNamespace = foundObject.id;
 
-        if (foundObject.objtype == "fish") {
+        if (foundObject.objtype === "fish") {
             bhvNamespace = "fish";
         }
 
@@ -79,9 +66,9 @@ export const eat = new BehaviorCommand(
         else shouldRemove = false;
 
         if (shouldRemove) {
-            if (foundObject.objtype == "fish") {
+            if (foundObject.objtype === "fish") {
                 removeItem(inventory.fishSack, foundObject);
-            } else if (foundObject.objtype == "item") {
+            } else if (foundObject.objtype === "item") {
                 removeItem(inventory.items, foundObject);
             }
 
@@ -95,18 +82,18 @@ export const eat = new BehaviorCommand(
         const state =
             res.state as IBehaviorContextStateDefinitions["eat"]["state"];
 
-        if (foundObject.id == "sand") {
-            if (res && res.success && typeof state.and !== "undefined") {
+        if (foundObject.id === "sand") {
+            if (res?.success && typeof state.and !== "undefined") {
                 return `Our friend ${part.name} ate of his/her ${foundObject.name} ${state.and}`;
-            } else {
-                return `Our friend ${part.name} ate of his/her ${foundObject.name}.`;
             }
-        } else {
-            if (res && res.success && typeof state.and !== "undefined") {
-                return `Our friend ${part.name} ate his/her ${foundObject.name} ${state.and}`;
-            } else {
-                return `Our friend ${part.name} ate his/her ${foundObject.name}.`;
-            }
+
+            return `Our friend ${part.name} ate of his/her ${foundObject.name}.`;
         }
+
+        if (res?.success && typeof state.and !== "undefined") {
+            return `Our friend ${part.name} ate his/her ${foundObject.name} ${state.and}`;
+        }
+
+        return `Our friend ${part.name} ate his/her ${foundObject.name}.`;
     }
 );

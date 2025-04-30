@@ -11,7 +11,7 @@ export const take = new Command(
     "take <something>",
     "command.inventory.take",
     async ({ id, command, args, prefix, part, user }) => {
-        let taking = args[0];
+        const taking = args[0];
 
         if (!taking) {
             return `Are you going to ${prefix}take <something>?`;
@@ -20,7 +20,7 @@ export const take = new Command(
         const inventory = await getInventory(user.inventoryId);
         if (!inventory) return;
 
-        let loc = locations.find(loc => loc.id == inventory.location);
+        const loc = locations.find(loc => loc.id === inventory.location);
         if (!loc)
             return `Something is broken, just ${prefix}${go.aliases[0]} somewhere else first`;
 
@@ -50,14 +50,13 @@ export const take = new Command(
             case "pokemon":
                 // addItem(pokemon as unknown as IObject[], foundObject);
                 return "Unlike other items, Pokémon have to be caught with a Pokéball.";
-                break;
             default:
                 break;
         }
 
-        (inventory as any).items = items;
-        (inventory as any).fishSack = fish;
-        (inventory as any).pokemon = pokemon;
+        inventory.items = items;
+        inventory.fishSack = fish;
+        inventory.pokemon = pokemon;
 
         await updateInventory(inventory);
 

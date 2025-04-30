@@ -13,11 +13,13 @@ export const help = new ReadlineCommand(
             return `Commands: ${readlineCommands
                 .map(cmd => cmd.aliases[0])
                 .join(" | ")}`;
-        } else {
-            const foundCommand: ReadlineCommand | undefined =
-                readlineCommands.find(cmd => cmd.aliases.includes(args[1]));
-            if (!foundCommand) return `No such command "${args[1]}"`;
-            return `Description: ${foundCommand.description} | Usage: ${foundCommand.usage}`;
         }
+
+        const foundCommand: ReadlineCommand | undefined = readlineCommands.find(
+            cmd => cmd.aliases.includes(args[1])
+        );
+        if (!foundCommand) return `No such command "${args[1]}"`;
+
+        return `Description: ${foundCommand.description} | Usage: ${foundCommand.usage}`;
     }
 );

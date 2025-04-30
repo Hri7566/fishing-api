@@ -22,7 +22,6 @@ export const yeet = new BehaviorCommand(
 
         let foundObject: IObject | undefined;
         let tryKekGen = false;
-        let i = 0;
         let shouldRemove = false;
 
         foundObject =
@@ -34,7 +33,7 @@ export const yeet = new BehaviorCommand(
         let bhvNamespace = foundObject.id;
         let output = `Friend ${part.name} tossed his/her ${foundObject.name}.`;
 
-        if (foundObject.objtype == "fish") {
+        if (foundObject.objtype === "fish") {
             bhvNamespace = "fish";
             tryKekGen = true;
         }
@@ -59,7 +58,12 @@ export const yeet = new BehaviorCommand(
                                 )
                             ];
 
-                        let person;
+                        let person: Partial<{
+                            color: string;
+                            id: string;
+                            name: string;
+                            inventoryId: number;
+                        }> | null;
 
                         if (!randomFisher) {
                             person = {
@@ -71,13 +75,13 @@ export const yeet = new BehaviorCommand(
 
                         let target: string;
 
-                        if (!person || person?.id == part.id) {
+                        if (!person || person?.id === part.id) {
                             target = "Anonymous";
                         } else {
-                            target = person.name;
+                            target = person.name || "Anonymous";
                         }
 
-                        let handsAdjective = [
+                        const handsAdjective = [
                             " violent ",
                             " shaking ",
                             " angery ",
@@ -86,7 +90,7 @@ export const yeet = new BehaviorCommand(
                             " "
                         ];
 
-                        let pastTense = [
+                        const pastTense = [
                             "slung",
                             "foisted",
                             "launched",
@@ -95,7 +99,7 @@ export const yeet = new BehaviorCommand(
                             "fired"
                         ];
 
-                        let presentTense = [
+                        const presentTense = [
                             "lazily",
                             "forcefully",
                             "haphazardly",
@@ -104,7 +108,7 @@ export const yeet = new BehaviorCommand(
                             "lovingly"
                         ];
 
-                        let ending = [
+                        const ending = [
                             `in the direction of ${target}.`,
                             `at where ${target} happens to be.`,
                             `at ${target}.`,
@@ -112,14 +116,14 @@ export const yeet = new BehaviorCommand(
                             `at the general vicinity of ${target}.`
                         ];
 
-                        let itemAdjective = [
+                        const itemAdjective = [
                             "gooey",
                             "powdery",
                             "residual",
                             "smelly",
                             "appropriate",
                             foundObject.name,
-                            foundObject.name + "y",
+                            `${foundObject.name}y`,
                             "greasy",
                             "uncomfortable",
                             "delicious",
@@ -137,15 +141,13 @@ export const yeet = new BehaviorCommand(
                             "unknown"
                         ];
 
-                        let ps = [
+                        const ps = [
                             "It missed.",
-                            "It grazed his/her cheek, leaving a small dab of " +
-                                foundObject.name +
-                                ".",
-                            foundObject.objtype == "fish"
-                                ? "Being that it was so " +
-                                  getSizeString((foundObject as IFish).size) +
-                                  ", I'm sure you can infer how comical the result is!"
+                            `It grazed his/her cheek, leaving a small dab of ${foundObject.name}.`,
+                            foundObject.objtype === "fish"
+                                ? `Being that it was so ${getSizeString(
+                                      (foundObject as IFish).size
+                                  )}, I'm sure you can infer how comical the result is!`
                                 : "Being that it was so voluminous, I'm sure you can infer how comical the result is!",
                             "It smacked right across his/her face.",
                             "It got hung in his/her shirt and he/she flung it out onto the ground and it was quite a silly scene.",
@@ -195,16 +197,16 @@ export const yeet = new BehaviorCommand(
                     }
 
                     if (Math.random() < 0.15) {
-                        let size =
-                            foundObject.objtype == "fish"
+                        const size =
+                            foundObject.objtype === "fish"
                                 ? getSizeString((foundObject as IFish).size)
                                 : "voluminous";
 
-                        let fish = foundObject.name;
-                        let name = part.name;
+                        const fish = foundObject.name;
+                        const name = part.name;
 
                         const loc = locations.find(
-                            loc => loc.id == inventory.location
+                            loc => loc.id === inventory.location
                         );
                         if (!loc)
                             return {
@@ -220,7 +222,7 @@ export const yeet = new BehaviorCommand(
                             foundObject
                         );
 
-                        let kekNames = [
+                        const kekNames = [
                             "kek of good fortune",
                             "lucky kek",
                             "kek",
@@ -242,30 +244,18 @@ export const yeet = new BehaviorCommand(
 
                         // transcribed from the old code
                         const yeets = [
-                            "The " +
-                                size +
-                                " " +
-                                fish +
-                                " thwapped into the kekklefruit tree sending debris flying.  A kekklefruit was knocked to the ground.",
+                            `The ${size} ${fish} thwapped into the kekklefruit tree sending debris flying.  A kekklefruit was knocked to the ground.`,
                             "It's lying there next to the tree.",
                             "It got splattered on the tree.",
                             "Part of it is stuck to the tree, but it came to rest on the ground nearby.",
-                            "A distressed-looking " +
-                                fish +
-                                " on the ground near the tree.",
+                            `A distressed-looking ${fish} on the ground near the tree.`,
                             "It landed in the grass.",
                             "It's kinda scuffed up.",
-                            "It's got tree on it. And " + name + "prints.",
-                            "It's " + size + ".",
+                            `It's got tree on it. And ${name}prints.`,
+                            `It's ${size}.`,
                             "It belongs to the tree now.",
                             "It's by the tree now.",
-                            "It's a " +
-                                size +
-                                " " +
-                                fish +
-                                " previously owned by " +
-                                name +
-                                " if you still want it after that."
+                            `It's a ${size} ${fish} previously owned by ${name} if you still want it after that.`
                         ];
 
                         return {
@@ -281,14 +271,11 @@ export const yeet = new BehaviorCommand(
 
                     if (Math.random() < 0.4) {
                         const yeets = [
-                            "Tossed " + foundObject.name + " into the water.",
+                            `Tossed ${foundObject.name} into the water.`,
                             "It looks like somebody tossed it haphazardly into the shallow water. It is not swimming.",
                             "It's in the shallows trying to swim away...",
-                            user.name +
-                                " tossed this into the shallows where it rests today. I don't think it's moving.",
-                            "I think it's a " +
-                                foundObject.name +
-                                ".  A very immobile one.",
+                            `${user.name} tossed this into the shallows where it rests today. I don't think it's moving.`,
+                            `I think it's a ${foundObject.name}.  A very immobile one.`,
                             " It's resting at the edge of the water where you can /take it."
                         ];
 
@@ -314,7 +301,7 @@ export const yeet = new BehaviorCommand(
             }
         );
 
-        if (res.success == true) {
+        if (res.success === true) {
             const state =
                 res.state as IBehaviorContextStateDefinitions["yeet"]["state"];
             shouldRemove = state.shouldRemove;
@@ -322,9 +309,9 @@ export const yeet = new BehaviorCommand(
         }
 
         if (shouldRemove) {
-            if (foundObject.objtype == "fish") {
+            if (foundObject.objtype === "fish") {
                 removeItem(inventory.fishSack, foundObject);
-            } else if (foundObject.objtype == "item") {
+            } else if (foundObject.objtype === "item") {
                 removeItem(inventory.items, foundObject);
             }
 

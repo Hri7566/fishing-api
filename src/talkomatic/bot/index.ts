@@ -1,4 +1,4 @@
-import { loadConfig } from "../../util/config";
+import { loadConfig } from "@util/config";
 import { TalkomaticBot, type TalkomaticBotConfig } from "./TalkomaticBot";
 
 const bots: TalkomaticBot[] = [];
@@ -12,9 +12,9 @@ const defaults = loadConfig("config/talkomatic_bots.yml", [
 ] as TalkomaticBotConfig[]);
 
 export function connectDefaultBots() {
-    defaults.forEach(conf => {
+    for (const conf of defaults) {
         initBot(conf);
-    });
+    }
 }
 
 export function initBot(conf: TalkomaticBotConfig) {

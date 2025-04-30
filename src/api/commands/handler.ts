@@ -15,17 +15,17 @@ export async function handleCommand(
     args: string[],
     prefix: string,
     part: IPart,
-    isDM: boolean = false
-): Promise<ICommandResponse | void> {
+    isDM = false
+): Promise<ICommandResponse | undefined> {
     let foundCommand: Command | undefined;
 
-    commandGroups.forEach(group => {
+    for (const group of commandGroups) {
         if (!foundCommand) {
             foundCommand = group.commands.find(cmd => {
                 return cmd.aliases.includes(command);
             });
         }
-    });
+    }
 
     if (!foundCommand) return;
 
@@ -58,7 +58,7 @@ export async function handleCommand(
     const group = await getUserGroup(user.id);
     if (!group) return;
     if (!groupHasPermission(group.groupId, foundCommand.permissionNode))
-        return { response: `No permission.` };
+        return { response: "No permission." };
 
     try {
         const response = await foundCommand.callback({

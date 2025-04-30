@@ -35,14 +35,14 @@ test("Behavior execution is correct", async () => {
                     success: false,
                     err: "the hamburgers are not cooked yet"
                 };
-            } else {
-                return {
-                    success: true,
-                    state: {
-                        shouldRemove: true
-                    }
-                };
             }
+
+            return {
+                success: true,
+                state: {
+                    shouldRemove: true
+                }
+            };
         }
     );
 

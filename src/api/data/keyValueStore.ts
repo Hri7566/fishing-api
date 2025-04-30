@@ -15,23 +15,23 @@ export async function getkvInternal() {
     return kv;
 }
 
-export async function kvSet(key: string, value: any) {
+export async function kvSet(key: string, value: unknown) {
     const kv = await getkvInternal();
-
-    (kv.json as any)[key] = value;
+    if (!kv.json) kv.json = {};
+    (kv.json as Record<string, unknown>)[key] = value;
 
     return await prisma.keyValueStore.update({
         where: {
             id: 0
         },
         data: {
-            json: kv.json as any
+            json: kv.json
         }
     });
 }
 
-export async function kvGet(key: string) {
+export async function kvGet<T>(key: string) {
     const kv = await getkvInternal();
 
-    return (kv.json as any)[key];
+    return (kv.json as Record<string, T>)[key];
 }

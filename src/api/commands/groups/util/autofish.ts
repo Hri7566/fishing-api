@@ -14,15 +14,16 @@ export const autofish = new Command(
         if (!fishing) {
             startFishing(props.id, props.part.id, props.channel, true, true);
             return `Our friend ${props.user.name} casts LURE into a water with AUTOFISH enabled. (${props.prefix}${reel.aliases[0]} to disable)`;
-        } else {
-            return `Your lure is already in the water (since ${(
-                (Date.now() - fishing.t) /
-                1000 /
-                60
-            ).toFixed(2)} minutes ago).${fishing.autofish
-                    ? ` (AUTOFISH is enabled)`
-                    : ` (${props.prefix}${reel.aliases[0]} in first to start AUTOFISH)`
-                }`;
         }
+
+        return `Your lure is already in the water (since ${(
+            (Date.now() - fishing.t) /
+            1000 /
+            60
+        ).toFixed(2)} minutes ago).${
+            fishing.autofish
+                ? " (AUTOFISH is enabled)"
+                : ` (${props.prefix}${reel.aliases[0]} in first to start AUTOFISH)`
+        }`;
     }
 );
