@@ -6,6 +6,8 @@ services:
             - "8090:3000"
         environment:
             - SERVICE=server
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
     mpp:
         build: ./
         depends_on:
