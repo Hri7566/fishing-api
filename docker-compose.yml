@@ -6,7 +6,9 @@ services:
         environment:
             - SERVICE=server
             - DATABASE_URL=${DATABASE_URL}
-        network_mode: host
+        networks:
+            postgres:
+                driver: bridge
     mpp:
         build: ./
         depends_on:
