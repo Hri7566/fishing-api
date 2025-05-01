@@ -3,7 +3,7 @@
     "module": "src/api/index.ts",
     "scripts": {
         "start": "bun .",
-        "start-bot": "bun src/mpp/index.ts",
+        "start-bot": "bun src/mppnet/index.ts",
         "start-discord": "bun src/discord/index.ts",
         "start:docker": "bun src/docker.ts",
         "start-cli": "bun src/cli/index.ts",
