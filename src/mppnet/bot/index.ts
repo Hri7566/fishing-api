@@ -6,10 +6,24 @@ const bots: MPPNetBot[] = [];
 const defaults = loadConfig<MPPNetBotConfig[]>("config/mpp_bots.yml", [
     {
         uri: "wss://mppclone.com:8443",
+        useOldMessages: false,
         channel: {
-            id: "✧𝓓𝓔𝓥 𝓡𝓸𝓸𝓶✧",
-            allowColorChanging: true
-        }
+            id: "test/fishing",
+            allowColorChanging: true,
+            chatFormatting: "new",
+        },
+        envToken: "MPPNET_TOKEN"
+    },
+    {
+        uri: "wss://www.multiplayerpiano.dev:443",
+        useOldMessages: false,
+        channel: {
+            id: "test/fishing",
+            allowColorChanging: true,
+            chatFormatting: "new",
+            allowNotifications: true
+        },
+        envToken: "MPPDEV_TOKEN"
     }
 ]);
 

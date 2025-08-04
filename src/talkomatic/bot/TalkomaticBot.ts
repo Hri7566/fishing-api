@@ -7,6 +7,8 @@ import type { HeadersInit } from "undici-types/fetch.d.ts";
 require("dotenv").config();
 const convertMarkdownToUnicode = require("markdown-to-unicode");
 
+const endpoint = "https://classic.talkomatic.co";
+
 export interface TalkomaticBotConfig {
     channel: {
         name: string;
@@ -62,10 +64,14 @@ export class TalkomaticBot extends EventEmitter {
         //this.logger.debug(process.env.TALKOMATIC_SID);
         //this.logger.debug(process.env.TALKOMATIC_API_KEY);
 
-        this.client = io("https://classic.talkomatic.co/", {
+        this.logger.debug(`Connecting to ${endpoint}`);
+        this.client = io(endpoint, {
+            transports: ['websocket'],
+            /*
             extraHeaders: {
                 Cookie: `connect.sid=${process.env.TALKOMATIC_SID}`
             },
+            */
             autoConnect: false,
             auth: {
                 apiKey: process.env.TALKOMATIC_API_KEY
@@ -78,6 +84,7 @@ export class TalkomaticBot extends EventEmitter {
     public async start() {
         this.logger.info("Starting");
         this.client.connect();
+
         this.client.io.engine.on("packetCreate", this.logger.debug);
 
         let channel = await this.findChannel(this.config.channel.name);
@@ -252,7 +259,7 @@ export class TalkomaticBot extends EventEmitter {
 
                         ppl[user.id] = p;
                     }
-                } catch (err) {}
+                } catch (err) { }
             }
         );
 

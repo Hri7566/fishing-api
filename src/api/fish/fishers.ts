@@ -20,7 +20,7 @@ export async function tick() {
 
         const winner =
             Object.values(fishers)[
-                Math.floor(Math.random() * Object.values(fishers).length)
+            Math.floor(Math.random() * Object.values(fishers).length)
             ];
 
         if (!winner) return;
@@ -74,15 +74,21 @@ export async function tick() {
             addBack(winner.id, {
                 m: "sendchat",
                 channel: winner.channel,
-                message: `Our good friend @${
-                    user.id
-                } caught a ${size} ${emoji}${
-                    animal.name
-                }! ready to ${p}eat or ${p}fish again${
-                    winner.autofish ? " (AUTOFISH is enabled)" : ""
-                }`,
+                message: `Our good friend @${user.id
+                    } caught a ${size} ${emoji}${animal.name
+                    }! ready to ${p}eat or ${p}fish again${winner.autofish ? " (AUTOFISH is enabled)" : ""
+                    }`,
                 isDM: winner.isDM,
                 id: winner.userID
+            });
+
+            addBack(`notif-${winner.id}`, {
+                m: "notification",
+                id: "Fish-caught",
+                targetChannel: winner.channel,
+                duration: 7000,
+                class: "short",
+                html: `<img src="https://fishing.hri7566.info/images/${animal.name}.png"/><br>@${winner.id} caught a ${size} ${animal.name}!`
             });
         }
     }

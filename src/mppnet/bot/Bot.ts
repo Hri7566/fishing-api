@@ -2,15 +2,34 @@ import Client from "mpp-client-net";
 import { Logger } from "@util/Logger";
 import gettRPC from "@util/api/trpc";
 import EventEmitter from "node:events";
+const OldClient = require("mpp-client-xt");
+const convertMarkdownToUnicode = require("markdown-to-unicode");
 
-export interface MPPNetBotConfig {
+export type MPPNetBotConfig = {
     uri: string;
-    useToken?: boolean;
-
+    useOldMessages: boolean;
     channel: {
         id: string;
         allowColorChanging: boolean;
+        chatFormatting: "old" | "new";
+        allowNotifications?: boolean;
     };
+    envToken?: string;
+    envAdminPass?: string;
+};
+
+function sanitize(string: string) {
+    const map: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        "/": '&#x2F;'
+    };
+
+    const reg = /[&<>"'/]/ig;
+    return string.replace(reg, (match: string) => (map[match]));
 }
 
 export class MPPNetBot {
@@ -19,15 +38,23 @@ export class MPPNetBot {
     public logger: Logger;
     public trpc = gettRPC(process.env.MPP_FISHING_TOKEN as string);
     public started = false;
+    public adminPassword = "";
 
     constructor(
-        public config: MPPNetBotConfig,
-        token: string = process.env.MPP_TOKEN_NET as string
+        public config: MPPNetBotConfig
     ) {
         this.logger = new Logger(config.channel.id);
-        this.client = new Client(config.uri, token);
+        let token = config.envToken ? process.env[config.envToken] : undefined;
+        this.adminPassword = config.envAdminPass ? process.env[config.envAdminPass] as string : "";
+
+        if (!token) {
+            this.client = new OldClient(config.uri);
+        } else {
+            this.client = new Client(config.uri, token);
+        }
 
         this.client.setChannel(config.channel.id);
+
 
         this.bindEventListeners();
     }
@@ -185,13 +212,31 @@ export class MPPNetBot {
         this.b.on("color", msg => {
             if (typeof msg.color !== "string" || typeof msg.id !== "string")
                 return;
-            this.client.sendArray([
-                {
-                    m: "setcolor",
-                    _id: msg.id,
-                    color: msg.color
-                }
-            ]);
+
+            if (!this.config.channel.allowColorChanging) return;
+
+            if (!this.config.useOldMessages) {
+                this.client.sendArray([
+                    {
+                        m: "setcolor",
+                        _id: msg.id,
+                        color: msg.color
+                    }
+                ]);
+            } else {
+                console.log(this.adminPassword);
+                this.client.sendArray([
+                    {
+                        m: "admin message",
+                        password: this.adminPassword,
+                        msg: {
+                            m: "color",
+                            _id: msg.id,
+                            color: msg.color
+                        }
+                    }
+                ]);
+            }
         });
 
         this.b.on("sendchat", msg => {
@@ -207,9 +252,49 @@ export class MPPNetBot {
                 this.sendChat(msg.message);
             }
         });
+
+        this.b.on("notification", msg => {
+            console.log(msg);
+            if (!this.config.channel.allowNotifications) return;
+
+            if (typeof msg.html === "string") {
+                for (const p of Object.values(this.client.ppl)) {
+                    msg.html = msg.html.split(`@${p._id}`).join(p.name);
+                }
+            }
+
+            msg.html = sanitize(msg.html);
+
+            if (typeof msg.text === "string") {
+                for (const p of Object.values(this.client.ppl)) {
+                    msg.text = msg.text.split(`@${p._id}`).join(p.name);
+                }
+            }
+
+            if (!this.config.useOldMessages) {
+                // TODO: put html notif messages in mppnet
+            } else {
+                console.log(msg);
+                return;
+                this.client.sendArray([{
+                    m: "admin message",
+                    password: this.adminPassword,
+                    msg: {
+                    }
+                }]);
+            }
+        });
     }
 
     public sendChat(text: string, reply?: string) {
+        if (this.config.channel.chatFormatting === "old") {
+            text = convertMarkdownToUnicode(text);
+
+            for (const p of Object.values(this.client.ppl)) {
+                text = text.split(`@${p._id}`).join(p.name);
+            }
+        }
+
         const lines = text.split("\n");
 
         for (const line of lines) {
@@ -237,24 +322,45 @@ export class MPPNetBot {
     }
 
     public sendDM(text: string, dm: string, reply_to?: string) {
+        if (this.config.channel.chatFormatting === "old") {
+            text = convertMarkdownToUnicode(text);
+
+            for (const p of Object.values(this.client.ppl)) {
+                text = text.split(`@${p._id}`).join(p.name);
+            }
+        }
+
         const lines = text.split("\n");
 
         for (const line of lines) {
             if (line.length <= 510) {
-                this.client.sendArray([
-                    {
-                        m: "dm",
-                        message: `\u034f${line
-                            .split("\t")
-                            .join("")
-                            .split("\r")
-                            .join("")}`,
-                        _id: dm,
-                        reply_to
-                    }
-                ]);
+                if (!this.config.useOldMessages) {
+                    this.client.sendArray([
+                        {
+                            m: "dm",
+                            message: `\u034f${line
+                                .split("\t")
+                                .join("")
+                                .split("\r")
+                                .join("")}`,
+                            _id: dm,
+                            reply_to
+                        }
+                    ]);
+                } else {
+                    this.client.sendArray([
+                        {
+                            m: "a",
+                            message: `\u034f${line
+                                .split("\t")
+                                .join("")
+                                .split("\r")
+                                .join("")}`,
+                        }
+                    ]);
+                }
             } else {
-                this.sendChat(line);
+                this.sendDM(line, dm, reply_to);
             }
         }
     }
