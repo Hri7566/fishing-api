@@ -18,20 +18,6 @@ export type MPPNetBotConfig = {
     envAdminPass?: string;
 };
 
-function sanitize(string: string) {
-    const map: Record<string, string> = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#x27;',
-        "/": '&#x2F;'
-    };
-
-    const reg = /[&<>"'/]/ig;
-    return string.replace(reg, (match: string) => (map[match]));
-}
-
 export class MPPNetBot {
     public client: Client;
     public b = new EventEmitter();
@@ -60,7 +46,7 @@ export class MPPNetBot {
     }
 
     public start() {
-        this.logger.debug("Starting");
+        //this.logger.debug("Starting");
         this.client.start();
         this.started = true;
     }
@@ -198,7 +184,6 @@ export class MPPNetBot {
                 const backs =
                     (await this.trpc.backs.query()) as IBack<unknown>[];
                 if (backs.length > 0) {
-                    // this.logger.debug(backs);
                     for (const back of backs) {
                         if (typeof back.m !== "string") return;
                         this.b.emit(back.m, back);
@@ -224,7 +209,6 @@ export class MPPNetBot {
                     }
                 ]);
             } else {
-                console.log(this.adminPassword);
                 this.client.sendArray([
                     {
                         m: "admin message",
@@ -254,7 +238,6 @@ export class MPPNetBot {
         });
 
         this.b.on("notification", msg => {
-            console.log(msg);
             if (!this.config.channel.allowNotifications) return;
 
             if (typeof msg.html === "string") {
@@ -262,8 +245,6 @@ export class MPPNetBot {
                     msg.html = msg.html.split(`@${p._id}`).join(p.name);
                 }
             }
-
-            msg.html = sanitize(msg.html);
 
             if (typeof msg.text === "string") {
                 for (const p of Object.values(this.client.ppl)) {
@@ -274,12 +255,18 @@ export class MPPNetBot {
             if (!this.config.useOldMessages) {
                 // TODO: put html notif messages in mppnet
             } else {
-                console.log(msg);
-                return;
                 this.client.sendArray([{
                     m: "admin message",
                     password: this.adminPassword,
                     msg: {
+                        m: "notification",
+                        id: msg.id,
+                        targetChannel: msg.targetChannel,
+                        targetUser: msg.targetUser,
+                        duration: msg.duration,
+                        class: msg.class,
+                        html: msg.html,
+                        text: msg.text
                     }
                 }]);
             }

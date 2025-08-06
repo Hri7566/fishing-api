@@ -17,7 +17,7 @@
   endHour: 9
   activeMonths: 0b000011111000
 - id: "barbel_steed"
-  name: "Barbel steed"
+  name: "Barbel Steed"
   size: 20
   rarity: 0
   location: "river"
@@ -61,7 +61,7 @@
   endHour: 9
   activeMonths: 0b001111001110
 - id: "cherry_salmon"
-  name: "Cherry salmon"
+  name: "Cherry Salmon"
   size: 35
   rarity: 1
   location: "river"
@@ -75,7 +75,7 @@
   location: "sea"
   onlyRain: true
 - id: "crucian_carp"
-  name: "Crucian carp"
+  name: "Crucian Carp"
   size: 20
   rarity: 0
   location: "river"
@@ -96,14 +96,14 @@
   activeMonths: 0b000001111000
   emoji: "🐍"
 - id: "freshwater_goby"
-  name: "Freshwater goby"
+  name: "Freshwater Goby"
   size: 15
   rarity: 1
   location: "river"
   startHour: 16
   endHour: 9
 - id: "giant_catfish"
-  name: "Giant catfish"
+  name: "Giant Catfish"
   size: 40
   rarity: 1
   location: "lake"
@@ -111,7 +111,7 @@
   endHour: 9
   activeMonths: 0b000001110000
 - id: "giant_snakehead"
-  name: "Giant snakehead"
+  name: "Giant Snakehead"
   size: 85
   rarity: 2
   location: "pond"
@@ -145,7 +145,7 @@
   startHour: 16
   endHour: 9
 - id: "large_bass"
-  name: "Large bass"
+  name: "Large Bass"
   size: 75
   rarity: 1
   location: "river"
@@ -156,7 +156,7 @@
   location: "river"
   activeMonths: 0b001110000000
 - id: "pale_chub"
-  name: "Pale chub"
+  name: "Pale Chub"
   size: 15
   rarity: 1
   location: "river"
@@ -171,20 +171,20 @@
   activeMonths: 0b000001111000
   emoji: "🐠"
 - id: "pond_smelt"
-  name: "Pond smelt"
+  name: "Pond Smelt"
   size: 15
   rarity: 0
   location: "river"
   activeMonths: 0b110000000001
 - id: "pop-eyed_goldfish"
-  name: "Pop-eyed goldfish"
+  name: "Pop-Eyed Goldfish"
   size: 15
   rarity: 1
   location: "pond_smelt"
   startHour: 9
   endHour: 4
 - id: "rainbow_trout"
-  name: "Rainbow trout"
+  name: "Rainbow Trout"
   size: 60
   rarity: 0
   location: "river"
@@ -198,7 +198,7 @@
   location: "river"
   activeMonths: 0b000000001000
 - id: "small_bass"
-  name: "Small bass"
+  name: "Small Bass"
   size: 30
   rarity: 0
   location: "river"
@@ -225,14 +225,14 @@
   endHour: 9
   activeMonths: 0b000001111000
 - id: "barred_knifejaw"
-  name: "Barred knifejaw"
+  name: "Barred Knifejaw"
   size: 60
   rarity: 1
   location: "sea"
   activeMonths: 0b001111111110
   emoji: "🐠"
 - id: "brook_trout"
-  name: "Brook trout"
+  name: "Brook Trout"
   size: 50
   rarity: 0
   location: "lake"
@@ -270,17 +270,17 @@
   location: "pond"
   activeMonths: 0b000111110000
 - id: "red_snapper"
-  name: "Red snapper"
+  name: "Red Snapper"
   size: 90
   rarity: 1
   location: "sea"
 - id: "sea_bass"
-  name: "Sea bass"
+  name: "Sea Bass"
   size: 100
   rarity: 0
   location: "sea"
 - id: "blue_marlin"
-  name: "Blue marlin"
+  name: "Blue Marlin"
   size: 220
   rarity: 2
   location: "sea" # "pier"
@@ -292,7 +292,7 @@
   location: "sea"
   activeMonths: 0b111100000111
 - id: "horse_mackerel"
-  name: "Horse mackerel"
+  name: "Horse Mackerel"
   size: 40
   rarity: 0
   location: "sea"
@@ -303,7 +303,7 @@
   location: "sea"
   emoji: "🐙"
 - id: "olive_flounder"
-  name: "Olive flounder"
+  name: "Olive Flounder"
   size: 80
   rarity: 0
   location: "sea"
@@ -314,7 +314,7 @@
   location: "sea"
   emoji: "🐡"
 - id: "sea_horse"
-  name: "Sea horse"
+  name: "Sea Horse"
   size: 8
   rarity: 0
   location: "sea"
@@ -346,7 +346,7 @@
   location: "river"
   activeMonths: 0b000001111000
 - id: "football_fish"
-  name: "Football fish"
+  name: "Football Fish"
   size: 60
   rarity: 1
   startHour: 16
@@ -361,7 +361,7 @@
   endHour: 9
   activeMonths: 0b000001111000
 - id: "great_white_shark"
-  name: "Great white shark"
+  name: "Great White Shark"
   size: 540
   rarity: 2
   location: "sea"
@@ -370,7 +370,7 @@
   activeMonths: 0b000001111000
   emoji: "🦈"
 - id: "hammerhead_shark"
-  name: "Hammerhead shark"
+  name: "Hammerhead Shark"
   size: 250
   rarity: 2
   location: "sea"
@@ -379,20 +379,20 @@
   activeMonths: 0b000001111000
   emoji: "🦈"
 - id: "king_salmon"
-  name: "King salmon"
+  name: "King Salmon"
   size: 140
   rarity: 1
   location: "river"
   activeMonths: 0b000000001000
 - id: "ocean_sunfish"
-  name: "Ocean sunfish"
+  name: "Ocean Sunfish"
   size: 300
   rarity: 2
   location: "sea"
   startHour: 4
   endHour: 21
 - id: "sea_butterfly"
-  name: "Sea butterfly"
+  name: "Sea Butterfly"
   size: 3
   rarity: 0
   location: "sea"
@@ -404,21 +404,21 @@
   location: "sea"
   activeMonths: 0b111100000011
 - id: "yellow_perch"
-  name: "Yellow perch"
+  name: "Yellow Perch"
   size: 35
   rarity: 0
   location: "river"
   activeMonths: 0b111000001111
   emoji: "🐠"
 - id: "zebra_turkeyfish"
-  name: "Zebra turkeyfish"
+  name: "Zebra Turkeyfish"
   size: 30
   rarity: 0
   location: "sea"
   activeMonths: 0b111100000011
   emoji: "🐠"
 - id: "butterfly_fish"
-  name: "Butterfly fish"
+  name: "Butterfly Fish"
   size: 18
   rarity: 1
   location: "sea"
@@ -432,7 +432,7 @@
   activeMonths: 0b100111000001
   emoji: "🦞"
 - id: "mooray_eel"
-  name: "Mooray eel"
+  name: "Mooray Eel"
   size: 80
   rarity: 1
   location: "sea"
@@ -448,7 +448,7 @@
   activeMonths: 0b000000110000
   emoji: "🐠"
 - id: "neon_tetra"
-  name: "Neon tetra"
+  name: "Neon Tetra"
   size: 2
   rarity: 1
   location: "river"
@@ -487,13 +487,13 @@
   activeMonths: 0b110000000011
   emoji: "🐡"
 - id: "giant_trevally"
-  name: "Giant trevally"
+  name: "Giant Trevally"
   size: 180
   rarity: 2
   location: "sea"
   activeMonths: 0b000011111100
 - id: "mitten_crab"
-  name: "Mitten crab"
+  name: "Mitten Crab"
   size: 8
   rarity: 2
   location: "river"
@@ -502,7 +502,7 @@
   activeMonths: 0b000000001110
   emoji: "🦀"
 - id: "nibble_fish"
-  name: "Nibble fish"
+  name: "Nibble Fish"
   size: 8
   rarity: 2
   location: "river"
@@ -517,14 +517,14 @@
   activeMonths: 0b111110000001
   emoji: "🐠"
 - id: "ribbon_eel"
-  name: "Ribbon eel"
+  name: "Ribbon Eel"
   size: 120
   rarity: 1
   location: "sea"
   activeMonths: 0b000001111100
   emoji: "🐍"
 - id: "saddled_bichir"
-  name: "Saddled bichir"
+  name: "Saddled Bichir"
   size: 60
   rarity: 1
   location: "river"
@@ -532,7 +532,7 @@
   endHour: 4
   activeMonths: 0b000001111000
 - id: "saw_shark"
-  name: "Saw shark"
+  name: "Saw Shark"
   size: 150
   rarity: 2
   location: "sea"
@@ -541,7 +541,7 @@
   activeMonths: 0b000001111000
   emoji: "🦈"
 - id: "soft-shelled_turtle"
-  name: "Soft-shelled Turtle"
+  name: "Soft-Shelled Turtle"
   size: 30
   rarity: 1
   location: "river"
@@ -557,7 +557,7 @@
   activeMonths: 0b001111100000
   emoji: "🐸"
 - id: "whale_shark"
-  name: "Whale shark"
+  name: "Whale Shark"
   size: 600
   rarity: 2
   location: "sea"
@@ -587,7 +587,7 @@
   activeMonths: 0b000011111100
   emoji: "🐠"
 - id: "golden_trout"
-  name: "Golden trout"
+  name: "Golden Trout"
   size: 30
   rarity: 2
   location: "river"
@@ -595,7 +595,7 @@
   endHour: 9
   activeMonths: 0b001110001110
 - id: "mahi-mahi"
-  name: "Mahi-mahi"
+  name: "Mahi-Mahi"
   size: 110
   rarity: 2
   location: "sea"
@@ -611,7 +611,7 @@
   activeMonths: 0b000011111100
   emoji: "🐠"
 - id: "ranchu_goldfish"
-  name: "Ranchu goldfish"
+  name: "Ranchu Goldfish"
   size: 15
   rarity: 1
   location: "pond"
@@ -619,7 +619,7 @@
   endHour: 16
   emoji: "🐠"
 - id: "snapping_turtle"
-  name: "Snapping turtle"
+  name: "Snapping Turtle"
   size: 50
   rarity: 0
   location: "river"

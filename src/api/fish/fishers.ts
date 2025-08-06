@@ -14,6 +14,20 @@ let cooldown = Date.now() + 5000;
 
 const logger = new Logger("Fishermen");
 
+function sanitize(string: string) {
+    const map: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        "/": '&#x2F;'
+    };
+
+    const reg = /[&<>"'/]/ig;
+    return string.replace(reg, (match: string) => (map[match]));
+}
+
 export async function tick() {
     if (Date.now() > cooldown) {
         cooldown = Date.now() + 5000;
@@ -51,7 +65,7 @@ export async function tick() {
             //     `(${Date.now()})`
             // );
             // this condition was backwards for 7 months
-            if (data.t < Date.now() + 60 * 60000)
+            if (data.t > Date.now() + (60 * 60000))
                 await resetFishingChance(user.id);
 
             stopFishing(
@@ -82,13 +96,16 @@ export async function tick() {
                 id: winner.userID
             });
 
-            addBack(`notif-${winner.id}`, {
+            const notifText = sanitize(`@${user.id} caught a ${size} ${animal.name}!`);
+
+            addBack(winner.id, {
                 m: "notification",
                 id: "Fish-caught",
                 targetChannel: winner.channel,
+                targetUser: winner.autofish ? user.id : undefined,
                 duration: 7000,
                 class: "short",
-                html: `<img src="https://fishing.hri7566.info/images/${animal.name}.png"/><br>@${winner.id} caught a ${size} ${animal.name}!`
+                html: `<img src="https://fishing.hri7566.info/images/${animal.name}.png"/><br>${notifText}`
             });
         }
     }
@@ -150,6 +167,17 @@ export function stopFishing(
             isDM: fisher.isDM,
             id: fisher.userID
         });
+
+        addBack(fisher.id, {
+            m: "notification",
+            id: "Fish-caught",
+            targetChannel: fisher.channel,
+            targetUser: fisher.userID,
+            duration: 7000,
+            class: "short",
+            text: `@${fisher.userID}'s AUTOFISH has subsided.`
+        });
+
         return;
     }
 
