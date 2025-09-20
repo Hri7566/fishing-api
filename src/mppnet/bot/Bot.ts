@@ -39,13 +39,13 @@ export class MPPNetBot {
             this.client = new Client(config.uri, token);
         }
 
+        this.bindEventListeners();
         this.client.setChannel(config.channel.id);
 
         setInterval(() => {
             this.logger.debug("readyState:", this.client.ws?.readyState);
-        });
-
-        this.bindEventListeners();
+            this.logger.debug("Connected:", this.client.isConnected());
+        }, 1000);
     }
 
     public start() {
