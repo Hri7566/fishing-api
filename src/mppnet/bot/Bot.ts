@@ -41,6 +41,10 @@ export class MPPNetBot {
 
         this.client.setChannel(config.channel.id);
 
+        setInterval(() => {
+            this.logger.debug("readyState:", this.client.ws?.readyState);
+        });
+
         this.bindEventListeners();
     }
 
