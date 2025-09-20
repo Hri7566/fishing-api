@@ -250,26 +250,26 @@ export class MPPNetBot {
                 }
             }
 
-            if (!this.config.useOldMessages) {
-                // TODO: put html notif messages in mppnet
-            } else {
-                this.client.sendArray([
-                    {
-                        m: "admin message",
-                        password: this.adminPassword,
-                        msg: {
-                            m: "notification",
-                            id: msg.id,
-                            targetChannel: msg.targetChannel,
-                            targetUser: msg.targetUser,
-                            duration: msg.duration,
-                            class: msg.class,
-                            html: msg.html,
-                            text: msg.text
-                        }
+            // if (!this.config.useOldMessages) {
+            //     // TODO: put html notif messages in mppnet
+            // } else {
+            this.client.sendArray([
+                {
+                    m: "admin message",
+                    password: this.adminPassword,
+                    msg: {
+                        m: "notification",
+                        id: msg.id,
+                        targetChannel: msg.targetChannel,
+                        targetUser: msg.targetUser,
+                        duration: msg.duration,
+                        class: msg.class,
+                        html: msg.html,
+                        text: msg.text
                     }
-                ]);
-            }
+                }
+            ]);
+            // }
         });
     }
 
