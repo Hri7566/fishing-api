@@ -26,12 +26,12 @@ export class MPPNetBot {
     public started = false;
     public adminPassword = "";
 
-    constructor(
-        public config: MPPNetBotConfig
-    ) {
+    constructor(public config: MPPNetBotConfig) {
         this.logger = new Logger(config.channel.id);
         let token = config.envToken ? process.env[config.envToken] : undefined;
-        this.adminPassword = config.envAdminPass ? process.env[config.envAdminPass] as string : "";
+        this.adminPassword = config.envAdminPass
+            ? (process.env[config.envAdminPass] as string)
+            : "";
 
         if (!token) {
             this.client = new OldClient(config.uri);
@@ -41,12 +41,11 @@ export class MPPNetBot {
 
         this.client.setChannel(config.channel.id);
 
-
         this.bindEventListeners();
     }
 
     public start() {
-        //this.logger.debug("Starting");
+        this.logger.debug("Starting on", this.client.uri);
         this.client.start();
         this.started = true;
     }
@@ -255,20 +254,22 @@ export class MPPNetBot {
             if (!this.config.useOldMessages) {
                 // TODO: put html notif messages in mppnet
             } else {
-                this.client.sendArray([{
-                    m: "admin message",
-                    password: this.adminPassword,
-                    msg: {
-                        m: "notification",
-                        id: msg.id,
-                        targetChannel: msg.targetChannel,
-                        targetUser: msg.targetUser,
-                        duration: msg.duration,
-                        class: msg.class,
-                        html: msg.html,
-                        text: msg.text
+                this.client.sendArray([
+                    {
+                        m: "admin message",
+                        password: this.adminPassword,
+                        msg: {
+                            m: "notification",
+                            id: msg.id,
+                            targetChannel: msg.targetChannel,
+                            targetUser: msg.targetUser,
+                            duration: msg.duration,
+                            class: msg.class,
+                            html: msg.html,
+                            text: msg.text
+                        }
                     }
-                }]);
+                ]);
             }
         });
     }
@@ -342,7 +343,7 @@ export class MPPNetBot {
                                 .split("\t")
                                 .join("")
                                 .split("\r")
-                                .join("")}`,
+                                .join("")}`
                         }
                     ]);
                 }
