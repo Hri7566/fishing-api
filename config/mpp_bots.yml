@@ -1,8 +1,8 @@
-# - uri: wss://mppclone.com:8443
-#   channel:
-#     id: test/fishing
-#     allowColorChanging: true
-#   envToken: MPPNET_TOKEN
+- uri: wss://mppclone.com:8443
+  channel:
+      id: test/fishing
+      allowColorChanging: true
+  envToken: MPPNET_TOKEN
 - uri: wss://www.multiplayerpiano.dev:443
   useOldMessages: true
   channel:
