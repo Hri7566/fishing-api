@@ -10,7 +10,8 @@ const defaults = loadConfig<MPPNetBotConfig[]>("config/mpp_bots.yml", [
         channel: {
             id: "test/fishing",
             allowColorChanging: true,
-            chatFormatting: "new"
+            chatFormatting: "new",
+            allowNotifications: false
         },
         envToken: "MPPNET_TOKEN"
     },

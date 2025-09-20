@@ -4,6 +4,7 @@
       id: test/fishing
       allowColorChanging: true
       chatFormatting: new
+      allowNotifications: false
   envToken: MPPNET_TOKEN
 - uri: wss://www.multiplayerpiano.dev:443
   useOldMessages: false
