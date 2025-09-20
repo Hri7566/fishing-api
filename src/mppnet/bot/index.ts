@@ -10,7 +10,7 @@ const defaults = loadConfig<MPPNetBotConfig[]>("config/mpp_bots.yml", [
         channel: {
             id: "test/fishing",
             allowColorChanging: true,
-            chatFormatting: "new",
+            chatFormatting: "new"
         },
         envToken: "MPPNET_TOKEN"
     },
@@ -20,7 +20,7 @@ const defaults = loadConfig<MPPNetBotConfig[]>("config/mpp_bots.yml", [
         channel: {
             id: "test/fishing",
             allowColorChanging: true,
-            chatFormatting: "new",
+            chatFormatting: "old",
             allowNotifications: true
         },
         envToken: "MPPDEV_TOKEN"
@@ -35,8 +35,12 @@ export function connectDefaultBots() {
 
 export function initBot(conf: MPPNetBotConfig) {
     const bot = new MPPNetBot(conf);
-    bot.start();
-    bots.push(bot);
+
+    // connect later, worry about the next one
+    (async () => {
+        bots.push(bot);
+        bot.start();
+    })();
 }
 
 export { MPPNetBot as Bot };
