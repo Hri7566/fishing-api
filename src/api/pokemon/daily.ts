@@ -45,7 +45,7 @@ export async function claimDailyPokemon(userID: string) {
         const inventory = await getInventory(user.inventoryId);
         if (!inventory) throw new Error("No inventory found");
 
-        addItem(inventory.pokemon, pokemon);
+        addItem(inventory.pokemon, item);
         await updateInventory(inventory);
         kvSet(`pokedaily~${userID}`, Date.now().toString());
 

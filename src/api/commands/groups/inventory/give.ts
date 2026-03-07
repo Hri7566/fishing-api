@@ -47,7 +47,7 @@ export const give = new Command(
 
         let updated = false;
         if (foundObject.objtype === "fish") {
-            addItem(foundInventory.items as unknown as IItem[], foundObject);
+            addItem(foundInventory.fishSack as unknown as IItem[], foundObject);
             updated = true;
         } else if (foundObject.objtype === "item") {
             addItem(foundInventory.items as unknown as IItem[], foundObject);

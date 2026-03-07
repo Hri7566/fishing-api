@@ -94,11 +94,13 @@ export function hasFishTime(
     const hour = d.getHours();
 
     if (startHour < endHour) {
+        // Regular version
         if (hour > startHour && hour < endHour) {
             return true;
         }
     } else {
-        if (hour > startHour || hour < startHour) {
+        // Overnight calculation
+        if (hour > startHour || hour < endHour) {
             return true;
         }
     }
@@ -111,22 +113,22 @@ export function getSizeString(cm: number) {
         cm < 5
             ? "microscopic"
             : cm < 10
-            ? "tiny"
-            : cm < 30
-            ? "small"
-            : cm < 60
-            ? "medium-sized"
-            : cm < 75
-            ? "large"
-            : cm < 100
-            ? "huge"
-            : cm < 200
-            ? "massive"
-            : cm < 300
-            ? "gigantic"
-            : cm < 600
-            ? "humongous"
-            : "supermassive";
+              ? "tiny"
+              : cm < 30
+                ? "small"
+                : cm < 60
+                  ? "medium-sized"
+                  : cm < 75
+                    ? "large"
+                    : cm < 100
+                      ? "huge"
+                      : cm < 200
+                        ? "massive"
+                        : cm < 300
+                          ? "gigantic"
+                          : cm < 600
+                            ? "humongous"
+                            : "supermassive";
 
     return size;
 }

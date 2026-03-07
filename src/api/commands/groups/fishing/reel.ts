@@ -11,7 +11,13 @@ export const reel = new Command(
         const fishing = getFishing(id, part.id);
 
         if (fishing) {
-            stopFishing(id, part.id, channel, isDM);
+            stopFishing(
+                id,
+                part.id,
+                channel,
+                fishing.autofish,
+                fishing.autofish_t
+            );
             return `Our friend ${part.name} reel his/her lure back inside, temporarily decreasing his/her chances of catching a fish by 100%.`;
         }
 

@@ -8,7 +8,6 @@ export const server = Bun.serve(
     createBunServeHandler({
         router: appRouter,
         createContext: createContext,
-        req: new Request("https://github.com/Hri7566"),
         endpoint: "/"
     })
 );

@@ -3,7 +3,7 @@ import prisma from "./prisma";
 
 export async function setUserGroup(userID: User["id"], groupID: string) {
     const existing = await getUserGroup(userID);
-    if (!existing) createUserGroup(userID, "default");
+    if (!existing) await createUserGroup(userID, "default");
     return await prisma.userPermission.update({
         where: {
             userId: userID,

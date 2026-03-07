@@ -24,7 +24,9 @@ export class MPPNetBot {
     public logger: Logger;
     public trpc = gettRPC(process.env.MPP_FISHING_TOKEN as string);
     public started = false;
+    public connected = false;
     public adminPassword = "";
+    private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 
     constructor(public config: MPPNetBotConfig) {
         this.logger = new Logger(config.channel.id);
@@ -39,6 +41,8 @@ export class MPPNetBot {
             this.client = new Client(config.uri, token);
         }
 
+        this.logger.debug(`Token: ${token?.substring(0, 32)}...`);
+
         this.bindEventListeners();
         this.client.setChannel(config.channel.id);
     }
@@ -47,15 +51,34 @@ export class MPPNetBot {
         this.logger.debug("Starting on", this.client.uri);
         this.client.start();
         this.started = true;
+        this.connected = false;
+
+        this.reconnectTimeout = setTimeout(() => {
+            if (!this.connected) {
+                this.logger.warn("Connection timed out, restarting...");
+                this.stop();
+                this.start();
+            }
+        }, 5000);
     }
 
     public stop() {
+        if (this.reconnectTimeout) {
+            clearTimeout(this.reconnectTimeout);
+            this.reconnectTimeout = null;
+        }
         this.client.stop();
         this.started = false;
+        this.connected = false;
     }
 
     public bindEventListeners() {
         this.client.on("hi", async msg => {
+            this.connected = true;
+            if (this.reconnectTimeout) {
+                clearTimeout(this.reconnectTimeout);
+                this.reconnectTimeout = null;
+            }
             this.logger.info(`Connected to ${this.client.uri}`);
         });
 
@@ -64,7 +87,7 @@ export class MPPNetBot {
                 `Received channel update for channel ID "${msg.ch._id}"`
             );
 
-            if (msg._id !== this.config.channel.id) {
+            if (msg.ch._id !== this.config.channel.id) {
                 this.client.setChannel(this.config.channel.id);
             }
         });
@@ -72,6 +95,7 @@ export class MPPNetBot {
         this.client.on("a", async msg => {
             let prefixes: string[];
 
+            if (!this.client.channel) return;
             if (this.client.channel._id !== this.config.channel.id) {
                 return;
             }
@@ -108,74 +132,43 @@ export class MPPNetBot {
             if (command.response) this.sendChat(command.response, msg.id);
         });
 
-        this.client.on(
-            "dm",
-            async (msg: {
-                m: "dm";
-                id: string;
-                t: number;
-                a: string;
+        this.client.on("dm", async msg => {
+            if (!this.client.channel) return;
+            let prefixes: string[];
 
-                sender: {
-                    _id: string;
-                    name: string;
-                    color: string;
-                    afk: boolean;
-                    tag?: {
-                        text: string;
-                        color: string;
-                    };
-                    id: string;
-                };
-
-                recipient: {
-                    _id: string;
-                    name: string;
-                    color: string;
-                    afk: boolean;
-                    tag?: {
-                        text: string;
-                        color: string;
-                    };
-                    id: string;
-                };
-            }) => {
-                let prefixes: string[];
-
-                try {
-                    prefixes = await this.trpc.prefixes.query();
-                } catch (err) {
-                    this.logger.error(err);
-                    this.logger.warn("Unable to contact server");
-                    return;
-                }
-
-                const usedPrefix: string | undefined = prefixes.find(pr =>
-                    msg.a.startsWith(pr)
-                );
-
-                if (!usedPrefix) return;
-
-                const args = msg.a.split(" ");
-
-                const command = await this.trpc.command.query({
-                    channel: this.client.channel._id,
-                    args: args.slice(1, args.length),
-                    command: args[0].substring(usedPrefix.length),
-                    prefix: usedPrefix,
-                    user: {
-                        id: msg.sender._id,
-                        name: msg.sender.name,
-                        color: msg.sender.color
-                    },
-                    isDM: true
-                });
-
-                if (!command) return;
-                if (command.response)
-                    this.sendDM(command.response, msg.sender._id, msg.id);
+            try {
+                prefixes = await this.trpc.prefixes.query();
+            } catch (err) {
+                this.logger.error(err);
+                this.logger.warn("Unable to contact server");
+                return;
             }
-        );
+
+            const usedPrefix: string | undefined = prefixes.find(pr =>
+                msg.a.startsWith(pr)
+            );
+
+            if (!usedPrefix) return;
+
+            const args = msg.a.split(" ");
+
+            const command = await this.trpc.command.query({
+                channel: this.client.channel._id,
+                args: args.slice(1, args.length),
+                command: args[0].substring(usedPrefix.length),
+                prefix: usedPrefix,
+                user: {
+                    id: msg.sender._id,
+                    name: msg.sender.name,
+                    color: msg.sender.color
+                },
+                isDM: true
+            });
+
+            if (!command) return;
+            if (command.response)
+                this.sendDM(command.response, msg.sender._id, msg.id);
+        });
 
         setInterval(async () => {
             try {
@@ -217,12 +210,13 @@ export class MPPNetBot {
                             color: msg.color
                         }
                     }
-                ]);
+                ] as any);
             }
         });
 
         this.b.on("sendchat", msg => {
             // this.logger.debug("sendchat message:", msg);
+            if (!this.client.channel) return;
 
             if (typeof msg.channel === "string") {
                 if (msg.channel !== this.client.channel._id) return;
@@ -268,7 +262,7 @@ export class MPPNetBot {
                         text: msg.text
                     }
                 }
-            ]);
+            ] as any);
             // }
         });
     }
@@ -333,7 +327,7 @@ export class MPPNetBot {
                             _id: dm,
                             reply_to
                         }
-                    ]);
+                    ] as any);
                 } else {
                     this.client.sendArray([
                         {

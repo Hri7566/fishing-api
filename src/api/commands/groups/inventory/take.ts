@@ -30,11 +30,13 @@ export const take = new Command(
         const fish = inventory.fishSack as unknown as IFish[];
         const pokemon = inventory.pokemon as unknown as IPokemon[];
 
-        for (const obj of loc.objects) {
-            if (obj.name.toLowerCase().includes(taking.toLowerCase()))
-                foundObject = obj;
+        const idx = loc.objects.findIndex(obj =>
+            obj.name.toLowerCase().includes(taking.toLowerCase())
+        );
 
-            loc.objects.splice(loc.objects.indexOf(obj), 1);
+        if (idx !== -1) {
+            foundObject = loc.objects[idx];
+            loc.objects.splice(idx, 1);
             await saveObjects();
         }
 

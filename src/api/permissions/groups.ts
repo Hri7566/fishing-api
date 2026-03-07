@@ -21,23 +21,7 @@ export const groups = loadConfig<IGroup[]>("config/permissions.yml", [
 
 groups.sort((a, b) => a.id.localeCompare(b.id));
 
-export function findGroup(
-    id: string,
-    index = Math.floor(groups.length / 2),
-    rec = 0
-) {
-    // let num = groups[index].id.localeCompare(id);
-    // if (groups[index].id == id) return groups[index];
-    // rec++;
-
-    // if (num > 1) {
-    //     findGroup(id, Math.floor(index / 2), rec);
-    // } else if (num < 1) {
-    //     findGroup(id, Math.floor(index / 2) + index, rec);
-    // }
-
-    // logger.debug("Here 2");
-
+export function findGroup(id: string) {
     return groups.find(g => g.id === id);
 }
 
@@ -48,6 +32,8 @@ export function groupHasPermission(groupID: IGroup["id"], handle: string) {
     for (const permission of group.permissions) {
         if (checkPermission(handle, permission)) return true;
     }
+
+    return false;
 }
 
 export function checkPermission(p1: string, p2: string) {

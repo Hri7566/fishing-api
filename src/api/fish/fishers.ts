@@ -16,16 +16,16 @@ const logger = new Logger("Fishermen");
 
 function sanitize(string: string) {
     const map: Record<string, string> = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#x27;',
-        "/": '&#x2F;'
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#x27;",
+        "/": "&#x2F;"
     };
 
-    const reg = /[&<>"'/]/ig;
-    return string.replace(reg, (match: string) => (map[match]));
+    const reg = /[&<>"'/]/gi;
+    return string.replace(reg, (match: string) => map[match]);
 }
 
 export async function tick() {
@@ -34,7 +34,7 @@ export async function tick() {
 
         const winner =
             Object.values(fishers)[
-            Math.floor(Math.random() * Object.values(fishers).length)
+                Math.floor(Math.random() * Object.values(fishers).length)
             ];
 
         if (!winner) return;
@@ -65,7 +65,7 @@ export async function tick() {
             //     `(${Date.now()})`
             // );
             // this condition was backwards for 7 months
-            if (data.t > Date.now() + (60 * 60000))
+            if (Date.now() > data.t + 60 * 60000)
                 await resetFishingChance(user.id);
 
             stopFishing(
@@ -88,15 +88,20 @@ export async function tick() {
             addBack(winner.id, {
                 m: "sendchat",
                 channel: winner.channel,
-                message: `Our good friend @${user.id
-                    } caught a ${size} ${emoji}${animal.name
-                    }! ready to ${p}eat or ${p}fish again${winner.autofish ? " (AUTOFISH is enabled)" : ""
-                    }`,
+                message: `Our good friend @${
+                    user.id
+                } caught a ${size} ${emoji}${
+                    animal.name
+                }! ready to ${p}eat or ${p}fish again${
+                    winner.autofish ? " (AUTOFISH is enabled)" : ""
+                }`,
                 isDM: winner.isDM,
                 id: winner.userID
             });
 
-            const notifText = sanitize(`@${user.id} caught a ${size} ${animal.name}!`);
+            const notifText = sanitize(
+                `@${user.id} caught a ${size} ${animal.name}!`
+            );
 
             addBack(winner.id, {
                 m: "notification",
@@ -152,6 +157,7 @@ export function stopFishing(
 ) {
     const key = `${id}~${userID}`;
     const fisher = fishers[key];
+    if (!fisher) return;
     delete fishers[key];
 
     const t = Date.now();
@@ -213,10 +219,17 @@ export async function resetFishingChance(userID: string) {
 
 export async function incrementFishingChance(userID: string) {
     const key = `fishingChance~${userID}`;
-    const data = (await kvGet(key)) as IFishingChance;
-    if (!data) await resetFishingChance(userID);
+    let data = (await kvGet(key)) as IFishingChance;
+
+    if (!data) {
+        await resetFishingChance(userID);
+        data = await kvGet(key);
+    }
+
     const r = Math.random();
+
     data.chance += r;
+
     await kvSet(key, data);
     return r;
 }
