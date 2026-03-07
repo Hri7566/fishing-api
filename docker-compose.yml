@@ -1,30 +1,57 @@
 services:
+    postgres:
+        image: postgres:17-alpine
+        network_mode: host
+        environment:
+            - POSTGRES_USER=${POSTGRES_USER:-fishing}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            - POSTGRES_DB=${POSTGRES_DB:-fishing}
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        restart: unless-stopped
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fishing} -d ${POSTGRES_DB:-fishing}"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+
     server:
-        build: ./
-        ports:
-            - "8090:3000"
+        build:
+            context: ./
+            network: host
+        network_mode: host
+        stdin_open: true
+        restart: unless-stopped
+        depends_on:
+            postgres:
+                condition: service_healthy
         environment:
             - SERVICE=server
             - DATABASE_URL=${DATABASE_URL}
-        networks:
-            - postgres
     mpp:
-        build: ./
+        build:
+            context: ./
+            network: host
+        network_mode: host
         depends_on:
             - server
         environment:
             - SERVICE=mpp
-            - MPP_TOKEN_NET=${MPP_TOKEN_NET}
+            - MPPNET_TOKEN=${MPPNET_TOKEN}
             - MPP_FISHING_TOKEN=${MPP_FISHING_TOKEN}
+            - FISHING_API_URL=http://localhost:3000
     discord:
-        build: ./
+        build:
+            context: ./
+            network: host
+        network_mode: host
         depends_on:
             - server
         environment:
             - SERVICE=discord
             - DISCORD_TOKEN=${DISCORD_TOKEN}
             - DISCORD_FISHING_TOKEN=${DISCORD_FISHING_TOKEN}
+            - FISHING_API_URL=http://localhost:3000
 
-networks:
-    postgres:
-        name: postgres
+volumes:
+    postgres_data:
