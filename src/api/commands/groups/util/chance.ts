@@ -5,7 +5,7 @@ import { getFishingChance } from "@server/fish/fishers";
 export const chance = new Command(
     "chance",
     ["chance"],
-    "Set own user color",
+    "Debug command for checking kekklefruit boost",
     "chance",
     "command.util.chance",
     async ({ id, command, args, prefix, part, user }) => {

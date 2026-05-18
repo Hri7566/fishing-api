@@ -13,7 +13,7 @@ import { eat } from "./inventory/eat";
 import { sack } from "./inventory/sack";
 import { reel } from "./fishing/reel";
 import { memory } from "./util/mem";
-import { pokemon } from "./pokemon/pokemon";
+import { listpokemon } from "./pokemon/listpokemon";
 import { color } from "./general/color";
 import { autofish } from "./util/autofish";
 import { pokedex } from "./pokemon/pokedex";
@@ -55,7 +55,7 @@ commandGroups.push(fishingGroup);
 const inventoryGroup: ICommandGroup = {
     id: "inventory",
     displayName: "Inventory",
-    commands: [inventory, sack, pokemon, take, eat, yeet, burger, give]
+    commands: [inventory, sack, listpokemon, take, eat, yeet, burger, give]
 };
 
 commandGroups.push(inventoryGroup);
@@ -63,7 +63,7 @@ commandGroups.push(inventoryGroup);
 const pokemonGroup: ICommandGroup = {
     id: "pokemon",
     displayName: "Pokémon",
-    commands: [daily, pokemon, pokedex]
+    commands: [daily, listpokemon, pokedex]
 };
 
 commandGroups.push(pokemonGroup);

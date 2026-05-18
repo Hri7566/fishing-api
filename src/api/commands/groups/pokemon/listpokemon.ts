@@ -1,9 +1,10 @@
 import Command from "@server/commands/Command";
 import { getInventory } from "@server/data/inventory";
+import { formatPokemon } from "@util/format";
 
-export const pokemon = new Command(
-    "pokemon",
-    ["pokemon"],
+export const listpokemon = new Command(
+    "listpokemon",
+    ["listpokemon", "showpokemon", "pokemonbox", "pokebox", "box", "pokemon", "pmon"],
     "List your Pokémon collection",
     "pokemon",
     "command.inventory.pokemon",
@@ -14,12 +15,8 @@ export const pokemon = new Command(
         const sack = inv.pokemon as TPokemonSack[];
 
         return `Friend ${part.name}'s Pokémon: ${sack
-            .map(
-                (pokemon: IPokemon) =>
-                    `${pokemon.emoji || ""}${pokemon.name}${pokemon.count ? ` (x${pokemon.count})` : ""
-                    }`
-            )
-            .join(", ") || "(none)"
+            .map((pokemon: IPokemon, index) => `${index}. ${formatPokemon(pokemon)}`)
+            .join(" | ") || "(none)"
             }`;
     },
     true

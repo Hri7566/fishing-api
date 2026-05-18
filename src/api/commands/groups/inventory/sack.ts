@@ -2,6 +2,7 @@ import Command from "@server/commands/Command";
 import { getInventory } from "@server/data/inventory";
 import prisma from "@server/data/prisma";
 import type { User } from "@prisma/client";
+import { formatFish } from "@util/format";
 
 export const sack = new Command(
     "sack",
@@ -48,31 +49,25 @@ export const sack = new Command(
 
             const fishSack = inv.fishSack as TFishSack;
 
-            return `Contents of ${foundUser.name}'s fish sack: ${
-                fishSack
-                    .map(
-                        (fish: IFish) =>
-                            `${fish.emoji || "🐟"}${fish.name}${
-                                fish.count ? ` (x${fish.count})` : ""
-                            }`
-                    )
-                    .join(", ") || "(none)"
-            }`;
+            return `Contents of ${foundUser.name}'s fish sack: ${fishSack
+                .toSorted((a: IFish, b: IFish) => b.rarity - a.rarity)
+                .map(
+                    (fish: IFish) => formatFish(fish)
+                )
+                .join(", ") || "(none)"
+                }`;
         }
 
         const inv = await getInventory(user.inventoryId);
         if (!inv) return;
         const fishSack = inv.fishSack as TFishSack;
 
-        return `Contents of ${part.name}'s fish sack: ${
-            fishSack
-                .map(
-                    (fish: IFish) =>
-                        `${fish.emoji || "🐟"}${fish.name}${
-                            fish.count ? ` (x${fish.count})` : ""
-                        }`
-                )
-                .join(", ") || "(none)"
-        }`;
+        return `Contents of ${part.name} 's fish sack: ${fishSack
+            .toSorted((a: IFish, b: IFish) => b.rarity - a.rarity)
+            .map(
+                (fish: IFish) => formatFish(fish)
+            )
+            .join(", ") || "(none)"
+            }`;
     }
 );

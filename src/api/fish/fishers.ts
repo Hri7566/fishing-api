@@ -1,12 +1,13 @@
 import { kvGet, kvSet } from "@server/data/keyValueStore";
 import { addTickEvent, removeTickEvent } from "@util/tick";
-import { getSizeString, randomFish } from "./fish";
+import { randomFish } from "./fish";
 import { getUser } from "@server/data/user";
 import { getInventory, updateInventory } from "@server/data/inventory";
 import { addItem } from "@server/items";
 import { addBack } from "@server/backs";
 import { prefixes } from "@server/commands/prefixes";
 import { Logger } from "@util/Logger";
+import { formatFish } from "@util/format";
 
 export let fishers: Record<string, TFisher> = {};
 
@@ -34,7 +35,7 @@ export async function tick() {
 
         const winner =
             Object.values(fishers)[
-                Math.floor(Math.random() * Object.values(fishers).length)
+            Math.floor(Math.random() * Object.values(fishers).length)
             ];
 
         if (!winner) return;
@@ -81,26 +82,20 @@ export async function tick() {
             addItem(inventory.fishSack as TFishSack, animal);
             await updateInventory(inventory);
 
-            const size = getSizeString(animal.size);
             const p = prefixes[0];
-            const emoji = animal.emoji || "🐟";
 
             addBack(winner.id, {
                 m: "sendchat",
                 channel: winner.channel,
-                message: `Our good friend @${
-                    user.id
-                } caught a ${size} ${emoji}${
-                    animal.name
-                }! ready to ${p}eat or ${p}fish again${
-                    winner.autofish ? " (AUTOFISH is enabled)" : ""
-                }`,
+                message: `Our good friend @${user.id
+                    } caught a ${formatFish(animal)}! ready to ${p}eat or ${p}fish again${winner.autofish ? " (AUTOFISH is enabled)" : ""
+                    }`,
                 isDM: winner.isDM,
                 id: winner.userID
             });
 
             const notifText = sanitize(
-                `@${user.id} caught a ${size} ${animal.name}!`
+                `@${user.id} caught a ${formatFish(animal)}!`
             );
 
             addBack(winner.id, {
@@ -164,7 +159,7 @@ export function stopFishing(
     if (t > autofish_t + 5 * 60000) {
         addBack(fisher.id, {
             m: "sendchat",
-            message: `Friend @${fisher.userID}'s AUTOFISH has subsided after ${(
+            message: `Friend @${fisher.userID}'s AUTOFISH has ended after ${(
                 (Date.now() - fisher.autofish_t) /
                 1000 /
                 60
@@ -181,7 +176,7 @@ export function stopFishing(
             targetUser: fisher.userID,
             duration: 7000,
             class: "short",
-            text: `@${fisher.userID}'s AUTOFISH has subsided.`
+            text: `@${fisher.userID}'s AUTOFISH has ended.`
         });
 
         return;

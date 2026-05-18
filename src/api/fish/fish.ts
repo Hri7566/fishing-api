@@ -54,7 +54,7 @@ export function randomFish(location: string, r: number = Math.random()) {
 
         matchesTime =
             typeof animal.startHour !== "undefined" &&
-            typeof animal.endHour !== "undefined"
+                typeof animal.endHour !== "undefined"
                 ? hasFishTime(animal.startHour, animal.endHour)
                 : true;
 
@@ -106,29 +106,4 @@ export function hasFishTime(
     }
 
     return false;
-}
-
-export function getSizeString(cm: number) {
-    const size =
-        cm < 5
-            ? "microscopic"
-            : cm < 10
-              ? "tiny"
-              : cm < 30
-                ? "small"
-                : cm < 60
-                  ? "medium-sized"
-                  : cm < 75
-                    ? "large"
-                    : cm < 100
-                      ? "huge"
-                      : cm < 200
-                        ? "massive"
-                        : cm < 300
-                          ? "gigantic"
-                          : cm < 600
-                            ? "humongous"
-                            : "supermassive";
-
-    return size;
 }

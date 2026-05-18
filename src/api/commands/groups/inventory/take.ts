@@ -3,6 +3,7 @@ import { getInventory, updateInventory } from "@server/data/inventory";
 import { locations, saveObjects } from "@server/fish/locations";
 import { go } from "../fishing/go";
 import { addItem } from "@server/items";
+import { copy } from "@util/object";
 
 export const take = new Command(
     "take",
@@ -36,9 +37,20 @@ export const take = new Command(
 
         if (idx !== -1) {
             foundObject = loc.objects[idx];
-            loc.objects.splice(idx, 1);
+            if (foundObject.objtype !== "pokemon") {
+                if (typeof foundObject.count !== "undefined" && foundObject.count > 1) {
+                    foundObject.count--;
+                } else {
+                    loc.objects.splice(idx, 1);
+                }
+            }
+
             await saveObjects();
         }
+
+        foundObject = copy(foundObject);
+        if (!foundObject) throw new Error("Unable to copy object");
+        foundObject.count = 1;
 
         if (!foundObject) return `There is no "${taking}" here.`;
 

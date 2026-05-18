@@ -47,8 +47,7 @@ registerBehavior<"yeet">("burger:yeet", async context => {
         "The burger launched like a rocket and reaches outer space. Suddenly, a ship full of Kerbonauts crashes into the patty, diverting it back to the planet.",
         `Friend ${name} tosses the burger. Suddenly, the burger is hit by a flying hot dog.`,
         "The burger sprouts wings and floats away.",
-        `Friend ${name} tosses a burger ${
-            Math.trunc(Math.random() * 1000) / 100
+        `Friend ${name} tosses a burger ${Math.trunc(Math.random() * 1000) / 100
         } inches in front of themselves.`,
         `Friend ${name} winds up for a big throw and yeets the burger. After travelling the sky for a few seconds, it enters somebody else's car window.`,
         `Friend ${name} tosses the burger. The local weather station reports falling food.`,

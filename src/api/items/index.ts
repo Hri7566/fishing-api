@@ -3,7 +3,7 @@ export function addItem(arr: IObject[], item: IObject) {
     let i = 0;
 
     for (i = 0; i < arr.length; i++) {
-        if (item.id === arr[i].id) {
+        if (item.id === arr[i].id && item.name === arr[i].name) {
             found = true;
             break;
         }

@@ -1,11 +1,11 @@
 import BehaviorCommand from "@server/commands/BehaviorCommand";
-import { logger } from "@server/commands/handler";
 import { getInventory, updateInventory } from "@server/data/inventory";
 import { getUser } from "@server/data/user";
-import { getSizeString } from "@server/fish/fish";
 import { fishers } from "@server/fish/fishers";
 import { locations } from "@server/fish/locations";
 import { addItem, findItemByNameFuzzy, removeItem } from "@server/items";
+import { formatFishSize } from "@util/format";
+import { copy } from "@util/object";
 
 export const yeet = new BehaviorCommand(
     "yeet",
@@ -38,24 +38,26 @@ export const yeet = new BehaviorCommand(
             tryKekGen = true;
         }
 
-        logger.debug("namespace:", bhvNamespace);
-
         const res = await self.behave<"yeet">(
             {
                 part
             },
             bhvNamespace,
             async ctx => {
-                logger.debug("stuff");
+                if (!foundObject) return {
+                    success: false,
+                    err: "no found object?"
+                };
+
                 if (tryKekGen) {
                     // 15%
                     if (Math.random() < 0.15) {
                         const randomFisher =
                             Object.values(fishers)[
-                                Math.floor(
-                                    Math.random() *
-                                        Object.values(fishers).length
-                                )
+                            Math.floor(
+                                Math.random() *
+                                Object.values(fishers).length
+                            )
                             ];
 
                         let person: Partial<{
@@ -84,10 +86,26 @@ export const yeet = new BehaviorCommand(
                         const handsAdjective = [
                             " violent ",
                             " shaking ",
-                            " angery ",
+                            " angry ",
                             " two (2) ",
                             " unknown number of ",
-                            " "
+                            " ",
+                            " big ",
+                            " small ",
+                            " little ",
+                            " giant ",
+                            " scaly ",
+                            " dry ",
+                            " wet ",
+                            " meaty ",
+                            " grubby ",
+                            " rough ",
+                            " smooth ",
+                            " big ol' ",
+                            " little ol' ",
+                            " smelly ",
+                            " clammy ",
+                            " soft "
                         ];
 
                         const pastTense = [
@@ -145,18 +163,17 @@ export const yeet = new BehaviorCommand(
                             "It missed.",
                             `It grazed his/her cheek, leaving a small dab of ${foundObject.name}.`,
                             foundObject.objtype === "fish"
-                                ? `Being that it was so ${getSizeString(
-                                      (foundObject as IFish).size
-                                  )}, I'm sure you can infer how comical the result is!`
+                                ? `Being that it was so ${formatFishSize(
+                                    (foundObject as IFish).size
+                                )}, I'm sure you can infer how comical the result is!`
                                 : "Being that it was so voluminous, I'm sure you can infer how comical the result is!",
                             "It smacked right across his/her face.",
                             "It got hung in his/her shirt and he/she flung it out onto the ground and it was quite a silly scene.",
-                            `It scooted across his/her head before rebounding off onto the ground nearby. The ${
-                                itemAdjective[
-                                    Math.floor(
-                                        Math.random() * itemAdjective.length
-                                    )
-                                ]
+                            `It scooted across his/her head before rebounding off onto the ground nearby. The ${itemAdjective[
+                            Math.floor(
+                                Math.random() * itemAdjective.length
+                            )
+                            ]
                             } residue was left behind in ${target}'s hair.`
                         ];
 
@@ -164,34 +181,29 @@ export const yeet = new BehaviorCommand(
                             success: true,
                             state: {
                                 shouldRemove: true,
-                                text: `Friend ${part.name}'s ${
-                                    handsAdjective[
-                                        Math.floor(
-                                            Math.random() *
-                                                handsAdjective.length
-                                        )
+                                text: `Friend ${part.name}'s ${handsAdjective[
+                                    Math.floor(
+                                        Math.random() *
+                                        handsAdjective.length
+                                    )
+                                ]
+                                    } hands grabbed his/her ${foundObject.name
+                                    } and ${pastTense[
+                                    Math.floor(
+                                        Math.random() * pastTense.length
+                                    )
                                     ]
-                                } hands grabbed his/her ${
-                                    foundObject.name
-                                } and ${
-                                    pastTense[
-                                        Math.floor(
-                                            Math.random() * pastTense.length
-                                        )
+                                    } it ${presentTense[
+                                    Math.floor(
+                                        Math.random() * presentTense.length
+                                    )
                                     ]
-                                } it ${
-                                    presentTense[
-                                        Math.floor(
-                                            Math.random() * presentTense.length
-                                        )
+                                    } ${ending[
+                                    Math.floor(
+                                        Math.random() * ending.length
+                                    )
                                     ]
-                                } ${
-                                    ending[
-                                        Math.floor(
-                                            Math.random() * ending.length
-                                        )
-                                    ]
-                                } ${ps[Math.floor(Math.random() * ps.length)]}`
+                                    } ${ps[Math.floor(Math.random() * ps.length)]}`.trim()
                             }
                         };
                     }
@@ -199,7 +211,7 @@ export const yeet = new BehaviorCommand(
                     if (Math.random() < 0.15) {
                         const size =
                             foundObject.objtype === "fish"
-                                ? getSizeString((foundObject as IFish).size)
+                                ? formatFishSize((foundObject as IFish).size)
                                 : "voluminous";
 
                         const fish = foundObject.name;
@@ -213,9 +225,12 @@ export const yeet = new BehaviorCommand(
                                 success: true,
                                 state: {
                                     shouldRemove: true,
-                                    text: `Friend ${part.name} carelessly hurled their ${foundObject.name} into the void.`
+                                    text: `Friend ${part.name} carelessly hurled their ${foundObject.name} into the empty void, where it is lost forever.`
                                 }
                             };
+
+                        foundObject = copy(foundObject);
+                        foundObject.count = 1;
 
                         addItem(
                             locations[locations.indexOf(loc)].objects,
@@ -238,17 +253,16 @@ export const yeet = new BehaviorCommand(
                                 Math.floor(Math.random() * kekNames.length)
                             ],
                             objtype: "item",
-                            count: 1,
                             emoji: "🍍"
                         });
 
                         // transcribed from the old code
                         const yeets = [
-                            `The ${size} ${fish} thwapped into the kekklefruit tree sending debris flying.  A kekklefruit was knocked to the ground.`,
+                            `The ${size} ${fish} thwapped into the kekklefruit tree sending debris flying. A kekklefruit was knocked to the ground.`,
                             "It's lying there next to the tree.",
                             "It got splattered on the tree.",
                             "Part of it is stuck to the tree, but it came to rest on the ground nearby.",
-                            `A distressed-looking ${fish} on the ground near the tree.`,
+                            `A distressed-looking ${fish} is on the ground near the tree.`,
                             "It landed in the grass.",
                             "It's kinda scuffed up.",
                             `It's got tree on it. And ${name}prints.`,
@@ -276,7 +290,16 @@ export const yeet = new BehaviorCommand(
                             "It's in the shallows trying to swim away...",
                             `${user.name} tossed this into the shallows where it rests today. I don't think it's moving.`,
                             `I think it's a ${foundObject.name}.  A very immobile one.`,
-                            " It's resting at the edge of the water where you can /take it."
+                            "It's resting at the edge of the water where you can /take it.",
+                            "The chances of it hitting the tree were nigh, and it landed on the surface of the water, unconscious...",
+                            `The ${foundObject.name} splashes in the water and everyone looks at ${user.name}'s face. It is floating nearby.`,
+                            `${user.name} tossed the ${foundObject.name} high into the air and it majestically dives into the water, washing ashore.`,
+                            `${user.name}'s ${foundObject.name} followed their carefully-calculated trajectory and skims across the surface, coming to a halt.`,
+                            `${user.name} forgot to follow through and the ${foundObject.name} falls straight into the water, flipping upside down.${(() => {
+                                foundObject = copy(foundObject) as IObject;
+                                if (!foundObject.name.startsWith("upside-down")) foundObject.name = `upside-down ${foundObject.name}`;
+                                return undefined;
+                            })() || ""}`
                         ];
 
                         return {

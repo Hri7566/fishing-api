@@ -2,6 +2,7 @@ import type { User } from "@prisma/client";
 import Command from "@server/commands/Command";
 import { getInventory } from "@server/data/inventory";
 import prisma from "@server/data/prisma";
+import { formatItem } from "@util/format";
 
 export const inventory = new Command(
     "inventory",
@@ -37,16 +38,10 @@ export const inventory = new Command(
 
             const items = inv.items as TInventoryItems;
 
-            return `Contents of ${decidedUser.name}'s inventory: ${
-                items
-                    .map(
-                        (item: IItem) =>
-                            `${item.emoji || "📦"}${item.name}${
-                                item.count ? ` (x${item.count})` : ""
-                            }`
-                    )
-                    .join(", ") || "(none)"
-            }`;
+            return `Contents of ${decidedUser.name}'s inventory: ${items
+                .map((item: IItem) => formatItem(item))
+                .join(", ") || "(none)"
+                }`;
         }
 
         const inv = await getInventory(user.inventoryId);
@@ -54,15 +49,9 @@ export const inventory = new Command(
             return `Apparently, you have no inventory. Not sure if that can be fixed, and I don't know how you got this message.`;
         const items = inv.items as TInventoryItems;
 
-        return `Contents of ${part.name}'s inventory: ${
-            items
-                .map(
-                    (item: IItem) =>
-                        `${item.emoji || "📦"}${item.name}${
-                            item.count ? ` (x${item.count})` : ""
-                        }`
-                )
-                .join(", ") || "(none)"
-        }`;
+        return `Contents of ${part.name}'s inventory: ${items
+            .map((item: IItem) => formatItem(item))
+            .join(", ") || "(none)"
+            }`;
     }
 );

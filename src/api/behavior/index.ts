@@ -1,8 +1,6 @@
-import { logger } from "@server/commands/handler";
-
 export const behaviorMap = new Map<string, TBehavior<unknown, unknown>>();
 
-class BehaviorError extends Error {}
+class BehaviorError extends Error { }
 
 function splitBehaviorID(id: TBehaviorID) {
     const args = id.split(":");

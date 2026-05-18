@@ -1,7 +1,6 @@
 import type { User } from "@prisma/client";
 import Command from "./Command";
 import { behaviorMap, executeBehavior } from "@server/behavior";
-import { logger } from "./handler";
 
 export class BehaviorCommand extends Command {
     constructor(

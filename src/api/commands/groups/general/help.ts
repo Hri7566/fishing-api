@@ -13,6 +13,7 @@ export const help = new Command(
         "commands",
         "commonds",
         "cmds",
+        "cmd",
         "cimminds",
         "cammands",
         "cummunds"
@@ -22,29 +23,40 @@ export const help = new Command(
     "command.general.help",
     async ({ id, command, args, prefix, part, user }) => {
         if (!args[0]) {
-            const list = [];
-
-            for (const group of commandGroups) {
-                const list2 = [];
-
-                for (const cmd of group.commands) {
-                    if (cmd.visible) list2.push(cmd.aliases[0]);
-                }
-
-                if (list2.length > 0)
-                    list.push(`**${group.displayName}:** ${list2.join(", ")}`);
-            }
-
-            return `__Fishing:__\n${list.join("\n")}`;
+            const list = commandGroups.map(g => g.displayName);
+            return `__Fishing:__ ${list.join(" | ")}`;
         }
 
-        const commands = commandGroups.flatMap(group => group.commands);
-        const foundCommand = commands.find(cmd =>
-            cmd.aliases.includes(args[0])
-        );
+        const foundGroup = commandGroups.find(group => {
+            // match group.displayName or group.id
+            return group.displayName
+                .toLowerCase()
+                .includes(
+                    args[0].toLowerCase()
+                ) || group.id
+                    .toLowerCase()
+                    .includes(
+                        args[0].toLowerCase()
+                    )
+        });
 
-        if (!foundCommand) return `Command "${args[0]}" not found.`;
+        if (!foundGroup) {
+            const commands = commandGroups.flatMap(group => group.commands);
+            const foundCommand = commands.find(cmd =>
+                cmd.aliases.includes(args[0])
+            );
 
-        return `Description: ${foundCommand.description} | Usage: ${foundCommand.usage}`;
+            if (!foundCommand) return `Command "${args[0]}" not found.`;
+            return `Description: ${foundCommand.description} | Usage: ${foundCommand.usage}`;
+        } else {
+            const list = [];
+
+            for (const cmd of foundGroup.commands) {
+                if (cmd.visible) list.push(cmd.aliases[0]);
+            }
+
+            return `__${foundGroup.displayName}:__ ${list.join(" | ")}`
+        }
+
     }
 );

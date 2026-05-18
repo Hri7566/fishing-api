@@ -42,7 +42,7 @@ export class DiscordBot extends EventEmitter {
     }
 
     private bindEventListeners() {
-        this.client.on("ready", async () => {
+        this.client.on("clientReady", async () => {
             this.logger.info("Connected to Discord");
 
             this.server = await this.client.guilds.fetch(this.conf.serverID);
