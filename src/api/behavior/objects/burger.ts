@@ -1,4 +1,4 @@
-import { addBack } from "@server/backs";
+import { addEvent } from "@server/events";
 import { CosmicColor } from "@util/CosmicColor";
 import { registerBehavior } from "..";
 
@@ -9,7 +9,7 @@ registerBehavior<"eat">("burger:eat", async context => {
     if (r < 0.02) {
         const color = new CosmicColor("#E5B73B");
 
-        addBack(context.id, {
+        addEvent(context.id, {
             m: "color",
             id: context.part.id,
             color: color.toHexa()
@@ -65,7 +65,7 @@ registerBehavior<"yeet">("burger:yeet", async context => {
         `Friend ${name} tosses the burger to the other side of a rainbow.`,
         `Friend ${name} yeets that meat.`,
         `Friend ${name} throws the burger so hard, it lands on the moon.`,
-        `Friend ${name} committed burger discus throw.`
+        `Friend ${name} committed burger discus throw.`,
     ];
 
     return {

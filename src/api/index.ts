@@ -3,6 +3,8 @@ import { startFisherTick } from "./fish/fishers";
 import { startObjectTimers } from "./fish/locations";
 import { initTree } from "./fish/tree";
 import { registerBehaviors } from "./behavior/register";
+import { startServer } from "./api/server";
+import { setupReadline } from "./cli/readline";
 // import { loadDefaultBehaviors } from "./items/behavior/defaults";
 
 startObjectTimers();
@@ -11,7 +13,7 @@ await initTree();
 // loadDefaultBehaviors();
 registerBehaviors();
 
-require("./api/server");
-require("./cli/readline");
+startServer();
+setupReadline();
 
 startAutorestart();

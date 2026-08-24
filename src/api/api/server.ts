@@ -4,14 +4,18 @@ import { Logger } from "@util/Logger";
 
 const logger = new Logger("Server");
 
-export const server = Bun.serve(
-    createBunServeHandler({
-        router: appRouter,
-        createContext: createContext,
-        endpoint: "/"
-    })
-);
+export let server: Bun.Server<unknown> | undefined;
 
-logger.info("Started on port", (process.env.PORT as string) || 3000);
+export function startServer() {
+    server = Bun.serve(
+        createBunServeHandler({
+            router: appRouter,
+            createContext: createContext,
+            endpoint: "/"
+        })
+    );
+
+    logger.info("Started on port", (process.env.PORT as string) || 3000);
+}
 
 export default server;

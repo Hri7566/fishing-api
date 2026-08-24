@@ -1,9 +1,11 @@
 import Command from "@server/commands/Command";
 import { getFishing, stopFishing } from "@server/fish/fishers";
 
+const aliases = ["reel", "rool", "stopfishing", "stopfoshong"];
+
 export const reel = new Command(
     "reel",
-    ["reel", "rool", "stopfishing", "stopfoshing"],
+    aliases,
     "Reel in and stop fishing",
     "reel",
     "command.fishing.reel",
@@ -18,7 +20,7 @@ export const reel = new Command(
                 fishing.autofish,
                 fishing.autofish_t
             );
-            return `Our friend ${part.name} reel his/her lure back inside, temporarily decreasing his/her chances of catching a fish by 100%.`;
+            return `Our friend ${part.name} ${aliases[0]} his/her lure back inside, temporarily decreasing his/her chances of catching a fish by 100%.`;
         }
 
         return `Friend ${part.name}: You haven't ${prefix}casted it.`;

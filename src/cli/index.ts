@@ -82,16 +82,16 @@ rl.on("line", async line => {
 
 setInterval(async () => {
     try {
-        const backs = (await trpc.backs.query()) as IBack<unknown>[];
-        if (backs.length > 0) {
-            // this.logger.debug(backs);
-            for (const back of backs) {
-                if (typeof back.m !== "string") return;
-                if (typeof back.channel === "string") {
-                    if (back.channel !== logger.id) return;
+        const events = (await trpc.events.query()) as IEvent<unknown>[];
+        if (events.length > 0) {
+            // this.logger.debug(events);
+            for (const event of events) {
+                if (typeof event.m !== "string") return;
+                if (typeof event.channel === "string") {
+                    if (event.channel !== logger.id) return;
                 }
 
-                b.emit(back.m, back);
+                b.emit(event.m, event);
             }
         }
     } catch (err) {

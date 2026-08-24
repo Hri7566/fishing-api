@@ -1,4 +1,4 @@
-import { addBack } from "@server/backs";
+import { addEvent } from "@server/events";
 import { CosmicColor } from "@util/CosmicColor";
 import { registerBehavior } from "..";
 
@@ -13,7 +13,7 @@ registerBehavior<"eat">("fish:eat", async context => {
             Math.floor(Math.random() * 255)
         );
 
-        addBack(context.id, {
+        addEvent(context.id, {
             m: "color",
             id: context.part.id,
             color: color.toHexa()

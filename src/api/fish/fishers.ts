@@ -4,7 +4,7 @@ import { randomFish } from "./fish";
 import { getUser } from "@server/data/user";
 import { getInventory, updateInventory } from "@server/data/inventory";
 import { addItem } from "@server/items";
-import { addBack } from "@server/backs";
+import { addEvent } from "@server/events";
 import { prefixes } from "@server/commands/prefixes";
 import { Logger } from "@util/Logger";
 import { formatFish } from "@util/format";
@@ -84,7 +84,7 @@ export async function tick() {
 
             const p = prefixes[0];
 
-            addBack(winner.id, {
+            addEvent(winner.id, {
                 m: "sendchat",
                 channel: winner.channel,
                 message: `Our good friend @${user.id
@@ -98,7 +98,7 @@ export async function tick() {
                 `@${user.id} caught a ${formatFish(animal)}!`
             );
 
-            addBack(winner.id, {
+            addEvent(winner.id, {
                 m: "notification",
                 id: "Fish-caught",
                 targetChannel: winner.channel,
@@ -157,7 +157,7 @@ export function stopFishing(
 
     const t = Date.now();
     if (t > autofish_t + 5 * 60000) {
-        addBack(fisher.id, {
+        addEvent(fisher.id, {
             m: "sendchat",
             message: `Friend @${fisher.userID}'s AUTOFISH has ended after ${(
                 (Date.now() - fisher.autofish_t) /
@@ -169,7 +169,7 @@ export function stopFishing(
             id: fisher.userID
         });
 
-        addBack(fisher.id, {
+        addEvent(fisher.id, {
             m: "notification",
             id: "Fish-caught",
             targetChannel: fisher.channel,

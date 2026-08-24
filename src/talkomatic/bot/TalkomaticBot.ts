@@ -2,17 +2,25 @@ import { Logger } from "@util/Logger";
 import { io, type Socket } from "socket.io-client";
 import { EventEmitter } from "node:events";
 import gettRPC from "@util/api/trpc";
-import type { HeadersInit } from "undici-types/fetch.d.ts";
+import { getVersion } from "@util/package";
 
 require("dotenv").config();
 const convertMarkdownToUnicode = require("markdown-to-unicode");
 
 const endpoint = "https://classic.talkomatic.co";
 
+export interface TalkomaticClassicToken {
+    token: string;
+    expires: number;
+}
+
 export interface TalkomaticBotConfig {
     channel: {
         name: string;
         type: "public" | "private";
+        maxSize: number;
+        accessCode?: string;
+        allowBots?: boolean;
     };
 }
 
@@ -48,7 +56,7 @@ interface TalkomaticParticipant {
 const ppl: Record<string, TalkomaticParticipant> = {};
 
 export class TalkomaticBot extends EventEmitter {
-    public client: Socket;
+    public socket: Socket;
     public b = new EventEmitter();
     public logger: Logger;
     public trpc = gettRPC(process.env.TALKOMATIC_FISHING_TOKEN as string);
@@ -56,7 +64,7 @@ export class TalkomaticBot extends EventEmitter {
     public defaultColor = "#abe3d6";
     public channelId = "";
 
-    constructor(public config: TalkomaticBotConfig) {
+    constructor(public config: TalkomaticBotConfig, auth: TalkomaticClassicToken) {
         super();
 
         this.logger = new Logger(`Talkomatic - ${config.channel.name}`);
@@ -64,9 +72,9 @@ export class TalkomaticBot extends EventEmitter {
         //this.logger.debug(process.env.TALKOMATIC_SID);
         //this.logger.debug(process.env.TALKOMATIC_API_KEY);
 
-        this.logger.debug(`Connecting to ${endpoint}`);
-        this.client = io(endpoint, {
-            transports: ['websocket'],
+        //this.logger.debug(`Connecting to ${endpoint}`);
+        this.socket = io(endpoint, {
+            transports: ["websocket"],
             /*
             extraHeaders: {
                 Cookie: `connect.sid=${process.env.TALKOMATIC_SID}`
@@ -74,7 +82,8 @@ export class TalkomaticBot extends EventEmitter {
             */
             autoConnect: false,
             auth: {
-                apiKey: process.env.TALKOMATIC_API_KEY
+                //apiKey: process.env.TALKOMATIC_API_KEY
+                token: auth.token
             }
         });
 
@@ -83,76 +92,98 @@ export class TalkomaticBot extends EventEmitter {
 
     public async start() {
         this.logger.info("Starting");
-        this.client.connect();
+        this.socket.connect();
 
-        this.client.io.engine.on("packetCreate", this.logger.debug);
-
-        let channel = await this.findChannel(this.config.channel.name);
-        if (!channel)
-            channel = await this.createChannel(
-                this.config.channel.name,
-                this.config.channel.type
-            );
-
-        if (typeof channel !== "undefined") {
-            try {
-                this.channelId = channel.id;
-                this.setChannel(this.channelId);
-                this.started = true;
-            } catch (err) {
-                this.logger.error(err);
-            }
-        }
+        //this.socket.io.engine.on("packetCreate", this.logger.debug);
+        //this.socket.io.engine.on("data", this.logger.debug);
+        this.socket.io.engine.on("error", this.logger.error);
     }
 
     public stop() {
-        this.client.disconnect();
+        this.socket.disconnect();
         this.started = false;
     }
 
     public connected = false;
 
     public bindEventListeners() {
-        this.client.on("connect", () => {
+        this.socket.on("connect", () => {
             if (this.connected) return;
             this.connected = true;
             this.logger.info("Connected to server");
 
             // "log in"
-            this.client.emit("join lobby", {
+            this.socket.emit("join lobby", {
                 // 42["join lobby",{"username":"hri7566","location":"bean zone"}]
                 username: "Fishing Bot",
-                location: "test/fishing"
+                location: "pond"
             });
 
-            this.client.emit("get rooms");
+            this.socket.emit("get rooms");
         });
 
-        this.client.on("lobby update", data => {
-            this.logger.debug("Received lobby update:", data);
+        this.socket.on("connect_error", err => {
+            this.logger.error(err);
         });
 
-        this.client.on("initial rooms", data => {
-            this.logger.debug("Received initial rooms:", data);
+        this.socket.on("error", data => {
+            this.logger.error("\x1b[31m[" + data.error.code + "]\x1b[0m", data.error.message);
         });
 
-        this.client.on("signin status", msg => {
+        this.socket.on("lobby update", data => {
+            // a lobby updated?
+            //this.logger.debug("Received lobby update:", data);
+        });
+
+        this.socket.on("initial rooms", data => {
+            // given us room data
+            //this.logger.debug("Received initial rooms:", data);
+        });
+
+        this.socket.on("signin status", async msg => {
+            // received auth info
             // 42["signin status",{"isSignedIn":true,"username":"hri7566","location":"bean zone","userId":"ZHqr_YT9KX_ED-m57eLRjuDrjTAcbhu8"}]
-            this.logger.debug("Received signin status:", msg);
+            //this.logger.debug("Received signin status:", msg);
+            //this.setChannel(this.channelId);
+
+            let channel = (await this.findChannel(this.config.channel.name));
+            let channelId: string;
+
+            if (!channel) {
+                channelId = await this.createChannel(
+                    this.config.channel.name,
+                    this.config.channel.type,
+                );
+            } else {
+                channelId = channel.id;
+            }
+
+            //this.logger.debug("Channel ID:", channelId);
+
+            if (typeof channelId === "string") {
+                try {
+                    this.channelId = channelId;
+                    this.setChannel(this.channelId);
+                    this.started = true;
+                } catch (err) {
+                    this.logger.error(err);
+                }
+            }
         });
 
-        this.client.on(
+        this.socket.on(
             "chat update",
             (msg: {
                 userId: string;
                 username: string;
                 diff: {
                     type: "add" | "delete" | "full-replace";
+                    text: string;
                 };
                 //text: string;
                 //color: { color: string };
             }) => {
-                this.logger.debug(msg);
+                //this.logger.debug(msg);
                 const p: TalkomaticParticipant = ppl[msg.userId] || {
                     name: "<unknown user>",
                     id: msg.userId,
@@ -166,8 +197,10 @@ export class TalkomaticBot extends EventEmitter {
                 // p.color = msg.color;
 
                 if (p.typingTimeout) clearTimeout(p.typingTimeout);
+                p.text = msg.diff.text;
 
                 p.typingTimeout = setTimeout(() => {
+                    //this.logger.debug("Typing timeout for " + msg.userId + " exhausted");
                     p.typingFlag = true;
                     ppl[msg.userId] = p;
                     if (p.text.length <= 0) return;
@@ -178,8 +211,8 @@ export class TalkomaticBot extends EventEmitter {
             }
         );
 
-        this.client.on(
-            "updateRoom",
+        this.socket.on(
+            "room update",
             async (msg: {
                 users: {
                     id: string;
@@ -192,11 +225,21 @@ export class TalkomaticBot extends EventEmitter {
                 if (!Array.isArray(msg.users)) return;
                 try {
                     for (const user of msg.users) {
-                        const color = (
+                        let color: string;
+
+                        const c = (
                             await this.trpc.getUserColor.query({
                                 userId: user.id
                             })
-                        ).color;
+                        );
+
+                        if (typeof c === "object" && typeof c.color === "string") {
+                            color = c.color;
+                        } else if (typeof c === "string") {
+                            color = c;
+                        } else {
+                            color = this.defaultColor;
+                        }
 
                         this.logger.debug(
                             "(updateRoom) user color from api:",
@@ -221,7 +264,7 @@ export class TalkomaticBot extends EventEmitter {
             }
         );
 
-        this.client.on(
+        this.socket.on(
             "roomUsers",
             async (msg: {
                 users: {
@@ -267,9 +310,14 @@ export class TalkomaticBot extends EventEmitter {
             "command",
             async (msg: {
                 userId: string;
-                text: string;
-                color: { color: string };
+                diff: {
+                    type: "add" | "delete" | "full-replace";
+                    text: string;
+                };
+                //text: string;
+                //color: { color: string };
             }) => {
+                //this.logger.debug("Running command from", msg.userId + ":", msg.diff.text);
                 let prefixes: string[];
 
                 try {
@@ -280,11 +328,16 @@ export class TalkomaticBot extends EventEmitter {
                     return;
                 }
 
+                if (typeof msg.diff.text !== "string") {
+                    this.logger.debug("blank message happened");
+                    return;
+                }
+
                 const usedPrefix: string | undefined = prefixes.find(pr =>
-                    msg.text.startsWith(pr)
+                    msg.diff.text.startsWith(pr)
                 );
 
-                let color: string = (
+                let color: string | null = (
                     await this.trpc.getUserColor.query({
                         userId: msg.userId
                     })
@@ -293,7 +346,7 @@ export class TalkomaticBot extends EventEmitter {
                 if (!color) color = this.defaultColor;
                 if (!usedPrefix) return;
 
-                const args = msg.text.split(" ");
+                const args = msg.diff.text.split(" ");
 
                 const part: TalkomaticParticipant = ppl[msg.userId] || {
                     name: "<unknown user>",
@@ -302,7 +355,7 @@ export class TalkomaticBot extends EventEmitter {
                     typingFlag: false
                 };
 
-                this.logger.info(`${part.name}: ${msg.text}`);
+                this.logger.info(`${part.name}: ${msg.diff.text}`);
 
                 const command = await this.trpc.command.query({
                     channel: this.channelId,
@@ -322,13 +375,17 @@ export class TalkomaticBot extends EventEmitter {
             }
         );
 
-        this.client.on(
-            "userJoined",
+        this.socket.on(
+            "user joined",
             (msg: {
                 id: string;
                 username: string;
                 location: string;
-                avatar: string;
+                deviceType?: string;
+                isBotUser?: boolean;
+                roomName?: string;
+                roomType?: string;
+                avatar?: string;
             }) => {
                 const p = ppl[msg.id] || {
                     name: msg.username,
@@ -342,7 +399,7 @@ export class TalkomaticBot extends EventEmitter {
             }
         );
 
-        this.client.on("disconnect", (reason, description) => {
+        this.socket.on("disconnect", (reason, description) => {
             this.logger.warn(
                 "Disconnected from server:",
                 reason,
@@ -355,15 +412,19 @@ export class TalkomaticBot extends EventEmitter {
             }, 5000);
         });
 
+        this.socket.on("room joined", () => {
+            this.fixChat();
+        });
+
         setInterval(async () => {
             try {
-                const backs = await this.trpc.backs.query();
-                if (!backs) return;
-                if (backs.length > 0) {
-                    // this.logger.debug(backs);
-                    for (const back of backs) {
-                        if (typeof back.m !== "string") return;
-                        this.b.emit(back.m, back);
+                const events = await this.trpc.events.query();
+                if (!events) return;
+                if (events.length > 0) {
+                    // this.logger.debug(events);
+                    for (const event of events) {
+                        if (typeof event.m !== "string") return;
+                        this.b.emit(event.m, event);
                     }
                 }
             } catch (err) {
@@ -403,8 +464,12 @@ export class TalkomaticBot extends EventEmitter {
     }
 
     private oldText = "";
+    private prefix = `Fishing Bot v${getVersion()} - Usage: Type /help and wait a moment\n\n`;
+    private sendTimeout: NodeJS.Timeout | undefined;
 
     public sendChat(t: string, reply?: string, id?: string) {
+        clearTimeout(this.sendTimeout);
+
         const fixedOld = this.oldText.split("\n")[-1];
 
         let text = t;
@@ -438,10 +503,10 @@ export class TalkomaticBot extends EventEmitter {
 
         //this.logger.debug("Sending typing:", msg);
         this.logger.debug("Sending chat update:", msg);
-        //this.client.emit("typing", msg);
+        //this.socket.emit("typing", msg);
 
         /*
-        this.client.emit("chat update", {
+        this.socket.emit("chat update", {
             diff: {
                 type: "delete",
                 count: this.oldText.length,
@@ -451,65 +516,82 @@ export class TalkomaticBot extends EventEmitter {
         */
 
         if (!this.oldText) {
-            this.client.emit("chat update", {
+            this.socket.emit("chat update", {
                 diff: {
                     type: "add",
-                    text: msg.text,
+                    text: this.prefix + msg.text,
                     index: 0
                 }
             });
         } else {
-            this.client.emit("chat update", {
+            this.socket.emit("chat update", {
                 diff: {
                     type: "full-replace",
-                    text: msg.text
+                    text: this.prefix + msg.text
                 }
             });
         }
 
-        this.oldText = text;
+        this.oldText = this.prefix + text;
+        this.sendTimeout = setTimeout(() => {
+            this.fixChat();
+        }, 30000);
+    }
+
+    public fixChat() {
+        if (this.oldText == this.prefix) {
+            this.sendChat("\n    ");
+        } else {
+            this.sendChat("");
+        }
     }
 
     public setChannel(roomId: string, accessCode?: string) {
-        this.logger.debug("Changing channel to", roomId);
-        //this.client.emit("joinRoom", { roomId });
-        this.client.emit("join room", { roomId, accessCode });
+        //this.logger.debug("Changing channel to", roomId);
+        //this.socket.emit("joinRoom", { roomId });;
+        this.socket.emit("join room", { roomId, accessCode });
     }
 
     public createChannel(
         roomName: string,
         roomType: "public" | "semi-private" | "private" = "public",
-        roomLayout: "horizontal" | "vertical" = "horizontal"
-    ): Promise<TalkoChannel> {
+        //roomLayout: "horizontal" | "vertical" = "horizontal"
+        maxSize: number = 5,
+        accessCode?: string,
+        allowBots = true
+    ): Promise<string> {
         this.logger.debug(
-            `Creating ${roomType} channel ${roomName} with ${roomLayout} layout`
+            `Creating ${roomType} channel ${roomName}`
         );
-        this.client.emit("create room", {
-            name: roomName,
-            type: roomType,
-            layout: roomLayout
-        });
 
-        return new Promise((resolve, reject) => {
-            const listener = (list: TalkoChannel[]) => {
-                if (!Array.isArray(list)) return;
+        const p = new Promise<string>((resolve, reject) => {
+            this.logger.debug("Channel creation promise awaiting...");
 
-                for (const channel of list) {
-                    if (channel.name !== roomName) continue;
-                    this.client.off("lobby update", listener);
-                    resolve(channel);
-                }
+            const listener = (channelId: string) => {
+                this.logger.debug("Channel creation listener called");
+                this.socket.off("room created", listener);
+                resolve(channelId);
             };
 
-            this.client.once("lobby update", listener);
+            this.socket.on("room created", listener);
         });
+
+        this.socket.emit("create room", {
+            name: roomName,
+            type: roomType,
+            maxSize,
+            accessCode,
+            allowBots
+        });
+
+        return p;
     }
 
     public findChannel(name: string): Promise<TalkoChannel | undefined> {
         return new Promise((resolve, reject) => {
-            this.client.emit("get rooms");
+            this.socket.emit("get rooms");
 
-            this.client.once("initial rooms", rooms => {
+            this.socket.once("initial rooms", rooms => {
                 if (!Array.isArray(rooms)) resolve(undefined);
 
                 const channel = rooms.find(

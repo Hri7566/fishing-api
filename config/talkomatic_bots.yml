@@ -1,3 +1,5 @@
 - channel:
-      name: test/fishing
+      name: test-fishing
       type: public
+      maxSize: 20
+      allowBots: true

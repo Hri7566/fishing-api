@@ -94,11 +94,11 @@ interface IInventory {
     user: User;
 }
 
-interface IBack<T extends string | unknown> extends Record<string, unknown> {
+interface IEvent<T extends string | unknown> extends Record<string, unknown> {
     m: T;
 }
 
-interface IBacks extends Record<string, IBack<unknown>> {
+interface IEvents extends Record<string, IEvent<unknown>> {
     color: {
         m: "color";
     };

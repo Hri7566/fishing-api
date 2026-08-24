@@ -1,19 +1,22 @@
-import { createInterface, type ReadLine } from "node:readline";
+import { createInterface, type Interface, type ReadLine } from "node:readline";
 import { handleReadlineCommand } from "./handler";
 import { Logger } from "@util/Logger";
 
-export const rl = createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
+export let rl: Interface | undefined;
 export const logger = new Logger("Readline");
 
-rl.on("line", async data => {
-    const out = await handleReadlineCommand(data);
-    if (typeof out !== "undefined") logger.info(out);
-});
+export function setupReadline() {
+    rl = createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
 
-rl.prompt();
+    rl.on("line", async data => {
+        const out = await handleReadlineCommand(data);
+        if (typeof out !== "undefined") logger.info(out);
+    });
 
-(globalThis as unknown as { rl: ReadLine }).rl = rl;
+    rl.prompt();
+
+    (globalThis as unknown as { rl: ReadLine }).rl = rl;
+}

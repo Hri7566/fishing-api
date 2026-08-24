@@ -1,4 +1,4 @@
-import { getBacks, flushBacks } from "@server/backs";
+import { getEvents, flushEvents } from "@server/events";
 import { commandGroups } from "@server/commands/groups";
 import { handleCommand } from "@server/commands/handler";
 import { prefixes } from "@server/commands/prefixes";
@@ -106,14 +106,14 @@ export const appRouter = router({
             }
         }),
 
-    backs: privateProcedure.query(async opts => {
+    events: privateProcedure.query(async opts => {
         const id = tokenToID(opts.ctx.token);
 
-        const backs = getBacks<{ m: string }[]>(id);
-        flushBacks(id);
+        const events = getEvents<{ m: string }[]>(id);
+        flushEvents(id);
 
         try {
-            return backs;
+            return events;
         } catch (err) {
             logger.error(err);
             return undefined;
@@ -154,9 +154,12 @@ export const appRouter = router({
 
             if (typeof color === "object" && "color" in color)
                 return { color: color.color as string };
-            return {
-                color
-            };
+            else {
+                let c = color as string;
+                return {
+                    color: c
+                };
+            }
         })
 });
 

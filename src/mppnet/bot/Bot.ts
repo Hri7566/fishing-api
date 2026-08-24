@@ -172,12 +172,12 @@ export class MPPNetBot {
 
         setInterval(async () => {
             try {
-                const backs =
-                    (await this.trpc.backs.query()) as IBack<unknown>[];
-                if (backs.length > 0) {
-                    for (const back of backs) {
-                        if (typeof back.m !== "string") return;
-                        this.b.emit(back.m, back);
+                const events =
+                    (await this.trpc.events.query()) as IEvent<unknown>[];
+                if (events.length > 0) {
+                    for (const event of events) {
+                        if (typeof event.m !== "string") return;
+                        this.b.emit(event.m, event);
                     }
                 }
             } catch (err) {
