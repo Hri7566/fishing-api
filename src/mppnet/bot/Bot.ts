@@ -87,6 +87,13 @@ export class MPPNetBot {
     }
 
     public bindEventListeners() {
+        this.trpc.events.subscribe(undefined, {
+            onData: event => {
+                if (typeof event === "object" && typeof event.m === "string") this.b.emit(event.m, event);
+            },
+            onError: err => this.logger.error
+        });
+
         this.client.on("hi", async msg => {
             this.connected = true;
             if (this.reconnectTimeout) {
@@ -140,21 +147,6 @@ export class MPPNetBot {
             if (command.response)
                 this.sendDM(command.response, msg.sender._id, msg.id);
         });
-
-        setInterval(async () => {
-            try {
-                const events =
-                    (await this.trpc.events.query()) as IEvent<unknown>[];
-                if (events.length > 0) {
-                    for (const event of events) {
-                        if (typeof event.m !== "string") return;
-                        this.b.emit(event.m, event);
-                    }
-                }
-            } catch (err) {
-                return;
-            }
-        }, 1000 / 20);
 
         this.b.on("color", msg => {
             if (typeof msg.color !== "string" || typeof msg.id !== "string")
