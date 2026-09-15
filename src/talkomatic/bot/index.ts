@@ -52,6 +52,7 @@ export async function checkToken() {
 export async function fetchNewToken() {
     logger.info("Fetching new token...")
     const res = await fetch("https://classic.talkomatic.co/api/v1/bot-tokens/request", {
+        method: "POST",
         headers: {
             "User-Agent": `${getName()}/${getVersion()}-${await getBranch()}`
         }
@@ -70,6 +71,16 @@ export async function fetchNewToken() {
     */
 
     logger.info("Fetch complete");
+
+    if (typeof data.error === "object") {
+        return data as {
+            error: {
+                code: string;
+                message: string;
+            }
+        };
+    }
+
     return data as {
         token: string;
         expiresIn: number;

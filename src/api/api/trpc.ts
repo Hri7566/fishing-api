@@ -1,4 +1,4 @@
-import { getEvents, flushEvents } from "@server/events";
+import { eventBus, on } from "@server/events";
 import { commandGroups } from "@server/commands/groups";
 import { handleCommand } from "@server/commands/handler";
 import { prefixes } from "@server/commands/prefixes";
@@ -106,17 +106,11 @@ export const appRouter = router({
             }
         }),
 
-    events: privateProcedure.query(async opts => {
+    events: privateProcedure.subscription(async function*(opts) {
         const id = tokenToID(opts.ctx.token);
 
-        const events = getEvents<{ m: string }[]>(id);
-        flushEvents(id);
-
-        try {
-            return events;
-        } catch (err) {
-            logger.error(err);
-            return undefined;
+        for await (const [event] of on(eventBus, id, { signal: opts.signal })) {
+            yield event as IEvent<unknown>;
         }
     }),
 

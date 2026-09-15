@@ -1,29 +1,31 @@
 import Command from "@server/commands/Command";
 import { commandGroups } from "..";
 
+const aliases = [
+    "help",
+    "h",
+    "holp",
+    "halp",
+    "hilp",
+    "hulp",
+    "commands",
+    "commonds",
+    "cmds",
+    "cmd",
+    "cimminds",
+    "cammands",
+    "cummunds"
+];
+
 export const help = new Command(
     "help",
-    [
-        "help",
-        "h",
-        "holp",
-        "halp",
-        "hilp",
-        "hulp",
-        "commands",
-        "commonds",
-        "cmds",
-        "cmd",
-        "cimminds",
-        "cammands",
-        "cummunds"
-    ],
+    aliases,
     "Get a list of commands, or how to use them",
     "help [command]",
     "command.general.help",
     async ({ id, command, args, prefix, part, user }) => {
         if (!args[0]) {
-            const list = commandGroups.map(g => g.displayName);
+            const list = commandGroups.map(g => `${prefix}${aliases[0]} ${g.displayName}`);
             return `__Fishing:__ ${list.join(" | ")}`;
         }
 

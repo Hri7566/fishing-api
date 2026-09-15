@@ -8,6 +8,9 @@ import { groupHasPermission } from "@server/permissions/groups";
 
 export const logger = new Logger("Command Handler");
 
+/**
+ * Main user-facing command handler
+ **/
 export async function handleCommand(
     id: string,
     channel: string,

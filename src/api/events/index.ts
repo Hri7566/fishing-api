@@ -1,20 +1,10 @@
-export const events: Record<string, IEvent<unknown>[]> = {};
+import { EventEmitter, on } from "node:events";
 
-export function flushEvents<T>(id: string) {
-    events[id] = [];
-}
+export const eventBus = new EventEmitter();
+eventBus.setMaxListeners(0);
 
 export function addEvent<T>(id: string, event: IEvent<T>) {
-    if (!events[id]) events[id] = [];
-    events[id].push(event);
+    eventBus.emit(id, event);
 }
 
-export function hasEvent<T>(id: string, event: IEvent<T>) {
-    if (!events[id]) return false;
-    if (events[id].includes(event)) return true;
-}
-
-export function getEvents<T>(id: string) {
-    if (!events[id]) return [];
-    return events[id] as T;
-}
+export { on };

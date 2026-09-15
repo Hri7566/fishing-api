@@ -1,5 +1,6 @@
 - channel:
-      name: test-fishing
+      #name: test-fishing
+      name: in the middle of nowhere
       type: public
       maxSize: 20
       allowBots: true

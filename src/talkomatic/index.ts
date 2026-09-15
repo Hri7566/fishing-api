@@ -1,5 +1,5 @@
-import { startAutorestart } from "@util/autorestart";
+//import { startAutorestart } from "@util/autorestart";
 import { connectDefaultBots } from "./bot/index";
 
 connectDefaultBots();
-startAutorestart();
+//startAutorestart();

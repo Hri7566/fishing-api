@@ -3,6 +3,9 @@ import { io, type Socket } from "socket.io-client";
 import { EventEmitter } from "node:events";
 import gettRPC from "@util/api/trpc";
 import { getVersion } from "@util/package";
+import { getBranch } from "@util/git";
+import { rmSync } from "node:fs";
+import { auth, checkToken, fetchNewToken } from ".";
 
 require("dotenv").config();
 const convertMarkdownToUnicode = require("markdown-to-unicode");
@@ -64,7 +67,7 @@ export class TalkomaticBot extends EventEmitter {
     public defaultColor = "#abe3d6";
     public channelId = "";
 
-    constructor(public config: TalkomaticBotConfig, auth: TalkomaticClassicToken) {
+    constructor(public config: TalkomaticBotConfig, private auth: TalkomaticClassicToken) {
         super();
 
         this.logger = new Logger(`Talkomatic - ${config.channel.name}`);
@@ -122,8 +125,18 @@ export class TalkomaticBot extends EventEmitter {
             this.socket.emit("get rooms");
         });
 
-        this.socket.on("connect_error", err => {
+        this.socket.on("connect_error", async err => {
             this.logger.error(err);
+
+            if (err.toString().includes("Invalid bot token")) {
+                auth.expires = 0;
+                await checkToken();
+                this.stop();
+                this.logger.debug("old:", this.auth)
+                this.logger.debug("new:", auth);
+                this.auth = auth;
+                this.start();
+            }
         });
 
         this.socket.on("error", data => {
