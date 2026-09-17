@@ -7,7 +7,7 @@ export const listpokemon = new Command(
     ["listpokemon", "showpokemon", "pokemonbox", "pokebox", "box", "pokemon", "pmon"],
     "List your Pokémon collection",
     "pokemon",
-    "command.inventory.pokemon",
+    "command.pokemon.listpokemon",
     async ({ id, command, args, prefix, part, user }) => {
         const inv = await getInventory(user.inventoryId);
         if (!inv) return;

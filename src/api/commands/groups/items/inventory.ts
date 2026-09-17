@@ -2,6 +2,7 @@ import type { User } from "@prisma/client";
 import Command from "@server/commands/Command";
 import { getInventory } from "@server/data/inventory";
 import prisma from "@server/data/prisma";
+import { fuzzyFindUser } from "@server/data/user";
 import { formatItem } from "@util/format";
 
 export const inventory = new Command(
@@ -12,29 +13,12 @@ export const inventory = new Command(
     "command.inventory.inventory",
     async ({ id, command, args, prefix, part, user }) => {
         if (args[0]) {
-            let decidedUser: User = user;
-            decidedUser = (await prisma.user.findFirst({
-                where: {
-                    name: {
-                        contains: args[0]
-                    }
-                }
-            })) as User;
-
-            if (!decidedUser)
-                decidedUser = (await prisma.user.findFirst({
-                    where: {
-                        id: {
-                            contains: args[0]
-                        }
-                    }
-                })) as User;
-
+            let decidedUser = await fuzzyFindUser(args[0]);
             if (!decidedUser) return `User "${args[0]}" not found.`;
 
             const inv = await getInventory(decidedUser.inventoryId);
             if (!inv)
-                return `This message should be impossible to see because friend ${decidedUser.name}'s items inventory (and, by extension, their entire inventory) does not exist.`;
+                return `This message should be impossible to see because friend ${decidedUser.name}'s item list (and, by extension, their entire inventory) does not exist.`;
 
             const items = inv.items as TInventoryItems;
 
@@ -46,7 +30,7 @@ export const inventory = new Command(
 
         const inv = await getInventory(user.inventoryId);
         if (!inv)
-            return `Apparently, you have no inventory. Not sure if that can be fixed, and I don't know how you got this message.`;
+            return `Congratulations, you have no inventory. Not sure if that can be fixed, and I don't know how you got this message.`;
         const items = inv.items as TInventoryItems;
 
         return `Contents of ${part.name}'s inventory: ${items

@@ -26,6 +26,7 @@ export const eat = new BehaviorCommand(
         foundObject =
             findItemByNameFuzzy(inventory.items, eating) ||
             findItemByNameFuzzy(inventory.fishSack, eating);
+        // do not eat pokemon
 
         if (!foundObject) return `You don't have "${eating}" to eat.`;
 

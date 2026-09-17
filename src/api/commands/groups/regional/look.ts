@@ -8,7 +8,7 @@ export const look = new Command(
     ["look", "see"],
     "Look at your surroundings",
     "look",
-    "command.fishing.look",
+    "command.regional.look",
     async ({ id, command, args, prefix, part, user }) => {
         const inventory = await getInventory(user.inventoryId);
         if (!inventory) return;

@@ -1,7 +1,7 @@
 import Command from "@server/commands/Command";
 import { getInventory, updateInventory } from "@server/data/inventory";
 import { locations, saveObjects } from "@server/fish/locations";
-import { go } from "../fishing/go";
+import { go } from "../regional/go";
 import { addItem } from "@server/items";
 import { copy } from "@util/object";
 
@@ -20,6 +20,8 @@ export const take = new Command(
 
         const inventory = await getInventory(user.inventoryId);
         if (!inventory) return;
+
+        // TODO: make tree an item and move this take code to a behavior
 
         const loc = locations.find(loc => loc.id === inventory.location);
         if (!loc)

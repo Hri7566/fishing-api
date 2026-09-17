@@ -3,6 +3,7 @@ import { getInventory } from "@server/data/inventory";
 import prisma from "@server/data/prisma";
 import type { User } from "@prisma/client";
 import { formatFish } from "@util/format";
+import { fuzzyFindUser } from "@server/data/user";
 
 export const sack = new Command(
     "sack",
@@ -23,24 +24,7 @@ export const sack = new Command(
     "command.inventory.sack",
     async ({ id, command, args, prefix, part, user }) => {
         if (args[0]) {
-            let foundUser: User = user;
-            foundUser = (await prisma.user.findFirst({
-                where: {
-                    name: {
-                        contains: args[0]
-                    }
-                }
-            })) as User;
-
-            if (!foundUser)
-                foundUser = (await prisma.user.findFirst({
-                    where: {
-                        id: {
-                            contains: args[0]
-                        }
-                    }
-                })) as User;
-
+            let foundUser: User = await fuzzyFindUser(args[0]);
             if (!foundUser) return `User "${args[0]}" not found.`;
 
             const inv = await getInventory(foundUser.inventoryId);

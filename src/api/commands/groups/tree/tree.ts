@@ -6,7 +6,7 @@ export const tree = new Command(
     ["tree", "troo", "truu", "traa"],
     "Check how many fruit are on the Kekklefruit Tree.",
     "tree",
-    "command.fishing.tree",
+    "command.tree.tree",
     async ({ id, command, args, prefix, part, user, isDM }) => {
         const num = await getFruitCount();
 

@@ -3,6 +3,7 @@ import Command from "@server/commands/Command";
 import { logger } from "@server/commands/handler";
 import { getInventory, updateInventory } from "@server/data/inventory";
 import prisma from "@server/data/prisma";
+import { fuzzyFindUser } from "@server/data/user";
 import { addItem, findItemByNameFuzzy, removeItem } from "@server/items";
 
 export const give = new Command(
@@ -19,16 +20,7 @@ export const give = new Command(
         const targetFuzzy = args[0];
         if (!targetFuzzy) return `To whom will you ${prefix}${command} to?`;
 
-        let foundUser: User = user;
-        foundUser = (await prisma.user.findFirst({
-            where: {
-                name: {
-                    contains: targetFuzzy,
-                    mode: "insensitive"
-                }
-            }
-        })) as User;
-
+        let foundUser = await fuzzyFindUser(targetFuzzy);
         if (!foundUser) return `Who is ${targetFuzzy}? I don't know them.`;
 
         const foundInventory = await getInventory(foundUser.inventoryId);
@@ -64,9 +56,8 @@ export const give = new Command(
             await updateInventory(foundInventory);
             await updateInventory(inventory);
 
-            return `You ${prefix}${
-                command.endsWith("e") ? `${command}d` : `${command}ed`
-            } your ${foundObject.name} to ${foundUser.name}.`;
+            return `You ${prefix}${command.endsWith("e") ? `${command}d` : `${command}ed`
+                } your ${foundObject.name} to ${foundUser.name}.`;
         }
 
         return `You tried to give your ${foundObject.name} away, but I messed up and the transaction was reverted.`;

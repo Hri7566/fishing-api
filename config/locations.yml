@@ -35,6 +35,7 @@
   name: Shop
   nearby:
       - pond
+  isShop: true
 - id: bed # /go sleep?
   name: Bed
   nearby:

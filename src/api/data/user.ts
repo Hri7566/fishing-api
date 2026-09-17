@@ -29,3 +29,25 @@ export async function deleteUser(id: string) {
         where: { id }
     });
 }
+
+export async function fuzzyFindUser(text: string) {
+    let decidedUser: User;
+    decidedUser = (await prisma.user.findFirst({
+        where: {
+            id: {
+                contains: text
+            }
+        }
+    })) as User;
+
+    if (!decidedUser)
+        decidedUser = (await prisma.user.findFirst({
+            where: {
+                name: {
+                    contains: text
+                }
+            }
+        })) as User;
+
+    return decidedUser;
+}

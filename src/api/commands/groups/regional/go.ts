@@ -3,14 +3,14 @@ import { getInventory, updateInventory } from "@server/data/inventory";
 import { locations } from "@server/fish/locations";
 import { nearby } from "./nearby";
 import { getFishing, stopFishing } from "@server/fish/fishers";
-import { reel } from "./reel";
+import { reel } from "../fishing/reel";
 
 export const go = new Command(
     "go",
     ["go"],
     "Go to another location",
     "go <location>",
-    "command.fishing.go",
+    "command.regional.go",
     async ({ id, command, args, prefix, part, user }) => {
         if (!args[0])
             return `Maybe you wanted to see what's ${prefix}${nearby.aliases[0]}?`;

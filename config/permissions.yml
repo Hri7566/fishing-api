@@ -1,9 +1,12 @@
 - id: default
   permissions:
-      - command.general.*
-      - command.fishing.*
-      - command.inventory.*
-      - command.util.*
+    - command.general.*
+    - command.fishing.*
+    - command.items.*
+    - command.regional.*
+    - command.tree.*
+    - command.pokemon.*
+    - command.util.*
 - id: owner
   permissions:
-      - "*"
+    - "*"

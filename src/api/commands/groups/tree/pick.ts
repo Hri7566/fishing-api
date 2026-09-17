@@ -9,7 +9,7 @@ export const pick = new Command(
     ["pick", "pock"],
     "Pick a fruit off the Kekklefruit Tree.",
     "pick",
-    "command.fishing.pick",
+    "command.tree.pick",
     async ({ id, command, args, prefix, part, user, isDM }) => {
         const inventory = await getInventory(user.inventoryId);
         if (!inventory) return;

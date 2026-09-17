@@ -7,7 +7,7 @@ export const daily = new Command(
     ["daily", "dailypokemon"],
     "Claim your daily Pokémon reward",
     "daily",
-    "command.inventory.daily",
+    "command.pokemon.daily",
     async ({ id, command, args, prefix, part, user }) => {
         try {
             const message = await claimDailyPokemon(user.id);

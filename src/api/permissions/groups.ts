@@ -9,8 +9,11 @@ export const groups = loadConfig<IGroup[]>("config/permissions.yml", [
         permissions: [
             "command.general.*",
             "command.fishing.*",
-            "command.inventory.*",
-            "command.util.*"
+            "command.items.*",
+            "command.regional.*",
+            "command.tree.*",
+            "command.pokemon.*",
+            "command.util.*",
         ]
     },
     {

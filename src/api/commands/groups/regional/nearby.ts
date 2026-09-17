@@ -7,7 +7,7 @@ export const nearby = new Command(
     ["nearby", "noorby", "n"],
     "Look at nearby locations",
     "nearby",
-    "command.fishing.nearby",
+    "command.regional.nearby",
     async ({ id, command, args, prefix, part, user }) => {
         const inventory = await getInventory(user.inventoryId);
         if (!inventory) return;
