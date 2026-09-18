@@ -10,7 +10,7 @@ export const inventory = new Command(
     ["inventory", "inv", "items", "i"],
     "List your inventory items and details",
     "inventory",
-    "command.inventory.inventory",
+    "command.items.inventory",
     async ({ id, command, args, prefix, part, user }) => {
         if (args[0]) {
             let decidedUser = await fuzzyFindUser(args[0]);

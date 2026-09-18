@@ -11,7 +11,7 @@ export const give = new Command(
     ["give", "govo", "guvu", "gava", "geve", "givi", "g", "donate", "bestow"],
     "Give another user something you have",
     "give <user> <item>",
-    "command.inventory.give",
+    "command.items.give",
     async ({ id, command, args, prefix, part, user }) => {
         const inventory = await getInventory(user.inventoryId);
         if (!inventory)

@@ -12,7 +12,7 @@ export const yeet = new BehaviorCommand(
     ["yeet", "yoot"],
     "Yeet literally anything you have (except non-fish animals)",
     "yeet <something>",
-    "command.inventory.yeet",
+    "command.items.yeet",
     async ({ id, command, args, prefix, part, user }, self) => {
         const yeeting = args.join(" ");
         if (!yeeting) return `What do you want to ${prefix}yeet?`;

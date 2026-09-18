@@ -9,7 +9,7 @@ export const eat = new BehaviorCommand(
     ["eat", "oot"],
     "Eat literally anything you have (except non-fish animals)",
     "eat <something>",
-    "command.inventory.eat",
+    "command.items.eat",
     async (props, self) => {
         const { args, prefix, part, user, command } = props;
         // const eating = args[0];

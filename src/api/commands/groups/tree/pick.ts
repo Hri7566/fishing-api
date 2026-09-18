@@ -422,5 +422,22 @@ const crazy = [
     "Pick again later.",
     "We wait by the Kekklefruit Tree, as patient as patient can be. We're watching it grow, though terribly slow, The Kekklefruit's not ready, you see!",
     "There is no fruit here.",
-    "Sometimes fruit falls on the ground when you yeet and throw stuff, have you checked there?"
+    "Sometimes fruit falls on the ground when you yeet and throw stuff, have you checked there?",
+    "Hold on......",
+    "Hold on.........",
+    "Stop begging for it. You just have to wait.",
+    "You picked nothing.",
+    "Friend $PART_NAME missed the tree because the fruit is not there.",
+    "A bow and arrow won't help you get fruit here.",
+    "Sometimes, you dream about fruit.",
+    "You can think it all you want, but it's not the reality we're in. You will just have to wait, $PART_NAME.",
+    "Dear $PART_NAME: Thank you for your interest in the Kekklefruit Tree. It is my current understanding that the tree has not grown fruit yet. Sincerely, KT - P.S. The fruit will grow soon.",
+    "Picking has become meaningless and all the fruit are gone.",
+    "The last fruit was picked by National Geographic, who is doing a documentary on kekklefruits.",
+    "What's the correct plural form? Kekklefruits? It's beyond us now.",
+    "Some time soon, the kekklefruit tree is willing to give and we will all",
+    "At times like these, it's hope that keeps us going. That's all there is, anyway - no fruit is on the tree.",
+    "Aha! So this was a plan to steal my kekklefruit? You truly are despicable, $PART_NAME. I will not trust your lies.",
+    "This is a true shame, indeed.",
+    "I pledge allegiance to the fish of the water, and, to the pond, for which it stands, one simulated universe under the Kekklefruit Tree, indivisible, with fish and sand for all."
 ];

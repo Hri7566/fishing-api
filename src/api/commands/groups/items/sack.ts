@@ -21,7 +21,7 @@ export const sack = new Command(
     ],
     "List your caught fish",
     "sack [user ID]",
-    "command.inventory.sack",
+    "command.items.sack",
     async ({ id, command, args, prefix, part, user }) => {
         if (args[0]) {
             let foundUser: User = await fuzzyFindUser(args[0]);

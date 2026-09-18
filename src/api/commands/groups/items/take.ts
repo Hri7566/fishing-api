@@ -10,7 +10,7 @@ export const take = new Command(
     ["take"],
     "Take something from your surroundings",
     "take <something>",
-    "command.inventory.take",
+    "command.items.take",
     async ({ id, command, args, prefix, part, user }) => {
         const taking = args[0];
 
