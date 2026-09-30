@@ -21,8 +21,8 @@ export type MPPNetBotConfig = {
 };
 
 const branch = await getBranch();
-const usernameVersionString = branch == "main" ? "" : ` v${getVersion()}-${branch}`;
-
+const usernameVersionString =
+    branch == "main" ? "" : ` v${getVersion()}-${branch}`;
 
 export class MPPNetBot {
     public client: Client;
@@ -44,7 +44,9 @@ export class MPPNetBot {
 
         (async () => {
             const prefixes = await this.trpc.prefixes.query();
-            this.desiredName = this.desiredName.split("$PREFIX").join(prefixes[0]);
+            this.desiredName = this.desiredName
+                .split("$PREFIX")
+                .join(prefixes[0]);
         })();
 
         if (!token) {
@@ -69,7 +71,9 @@ export class MPPNetBot {
 
         this.reconnectTimeout = setTimeout(() => {
             if (!this.connected) {
-                this.logger.warn(`Connection timed out, restarting in ${reconnectWaitTime}ms...`);
+                this.logger.warn(
+                    `Connection timed out, restarting in ${reconnectWaitTime}ms...`
+                );
                 this.stop();
                 this.start();
             }
@@ -89,7 +93,8 @@ export class MPPNetBot {
     public bindEventListeners() {
         this.trpc.events.subscribe(undefined, {
             onData: event => {
-                if (typeof event === "object" && typeof event.m === "string") this.b.emit(event.m, event);
+                if (typeof event === "object" && typeof event.m === "string")
+                    this.b.emit(event.m, event);
             },
             onError: err => this.logger.error
         });
@@ -105,13 +110,15 @@ export class MPPNetBot {
             // original fishing bot color: #abe3d6
             if (msg.u.name !== this.desiredName) {
                 this.logger.info("Username mismatch, sending userset...");
-                this.client.sendArray([{
-                    m: "userset",
-                    set: {
-                        name: this.desiredName,
+                this.client.sendArray([
+                    {
+                        m: "userset",
+                        set: {
+                            name: this.desiredName
+                        }
+                        // color: "#abe3d6"
                     }
-                    // color: "#abe3d6"
-                }]);
+                ]);
             }
         });
 
@@ -126,22 +133,30 @@ export class MPPNetBot {
         });
 
         this.client.on("a", async msg => {
-            const command = await this.runCommand(msg.a, {
-                id: msg.p._id,
-                name: msg.p.name,
-                color: msg.p.color
-            }, true);
+            const command = await this.runCommand(
+                msg.a,
+                {
+                    id: msg.p._id,
+                    name: msg.p.name,
+                    color: msg.p.color
+                },
+                true
+            );
 
             if (!command) return;
             if (command.response) this.sendChat(command.response, msg.id);
         });
 
         this.client.on("dm", async msg => {
-            const command = await this.runCommand(msg.a, {
-                id: msg.sender._id,
-                name: msg.sender.name,
-                color: msg.sender.color
-            }, true);
+            const command = await this.runCommand(
+                msg.a,
+                {
+                    id: msg.sender._id,
+                    name: msg.sender.name,
+                    color: msg.sender.color
+                },
+                true
+            );
 
             if (!command) return;
             if (command.response)
@@ -321,11 +336,17 @@ export class MPPNetBot {
             return;
         }
 
-        const usedPrefix: string | undefined = prefixes.find(pr => chatMessage.startsWith(pr));
+        const usedPrefix: string | undefined = prefixes.find(pr =>
+            chatMessage.startsWith(pr)
+        );
         return usedPrefix;
     }
 
-    public async runCommand(chatMessage: string, user: { id: string, name: string, color: string }, isDM = false) {
+    public async runCommand(
+        chatMessage: string,
+        user: { id: string; name: string; color: string },
+        isDM = false
+    ) {
         if (!this.client.channel) return; // don't trust a weird empty server
 
         const args = chatMessage.split(" ");
@@ -342,7 +363,9 @@ export class MPPNetBot {
             args: args.slice(1, args.length),
             // if the prefix has no trailing space,
             // cut the prefix out of the command
-            command: !spacedPrefix ? args[0].substring(usedPrefix.length) : args[0],
+            command: !spacedPrefix
+                ? args[0].substring(usedPrefix.length)
+                : args[0],
             prefix: usedPrefix,
             user,
             isDM

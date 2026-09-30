@@ -4,7 +4,17 @@ import { addTickEvent } from "@util/tick";
 const key = "tree";
 
 export async function getFruitCount() {
-    return await kvGet(key);
+    let num = await kvGet(key);
+
+    switch (typeof num) {
+        case "string":
+            return parseInt(num);
+        case "number":
+            if (isNaN(num)) return 0;
+            return num;
+        default:
+            return 0;
+    }
 }
 
 export async function setFruitCount(num: number) {

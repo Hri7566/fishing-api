@@ -5,6 +5,7 @@ import { getInventory, updateInventory } from "@server/data/inventory";
 import prisma from "@server/data/prisma";
 import { fuzzyFindUser } from "@server/data/user";
 import { addItem, findItemByNameFuzzy, removeItem } from "@server/items";
+import { copy } from "@util/object";
 
 export const give = new Command(
     "give",
@@ -37,27 +38,30 @@ export const give = new Command(
 
         if (!foundObject) return `You don't have any "${argcat}" to give.`;
 
+        const item = copy(foundObject);
+
         let updated = false;
-        if (foundObject.objtype === "fish") {
-            addItem(foundInventory.fishSack as unknown as IItem[], foundObject);
+        if (item.objtype === "fish") {
+            addItem(foundInventory.fishSack as unknown as IItem[], item);
             updated = true;
-        } else if (foundObject.objtype === "item") {
-            addItem(foundInventory.items as unknown as IItem[], foundObject);
+        } else if (item.objtype === "item") {
+            addItem(foundInventory.items as unknown as IItem[], item);
             updated = true;
         }
 
         if (updated) {
-            if (foundObject.objtype === "fish") {
-                removeItem(inventory.fishSack, foundObject, 1);
-            } else if (foundObject.objtype === "item") {
-                removeItem(inventory.items, foundObject, 1);
+            if (item.objtype === "fish") {
+                removeItem(inventory.fishSack, item, 1);
+            } else if (item.objtype === "item") {
+                removeItem(inventory.items, item, 1);
             }
 
             await updateInventory(foundInventory);
             await updateInventory(inventory);
 
-            return `You ${prefix}${command.endsWith("e") ? `${command}d` : `${command}ed`
-                } your ${foundObject.name} to ${foundUser.name}.`;
+            return `You ${prefix}${
+                command.endsWith("e") ? `${command}d` : `${command}ed`
+            } your ${item.name} to ${foundUser.name}.`;
         }
 
         return `You tried to give your ${foundObject.name} away, but I messed up and the transaction was reverted.`;
