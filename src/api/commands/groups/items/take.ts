@@ -4,6 +4,8 @@ import { locations, saveObjects } from "@server/fish/locations";
 import { go } from "../regional/go";
 import { addItem } from "@server/items";
 import { copy } from "@util/object";
+import { nearby } from "../regional/nearby";
+import { look } from "../regional/look";
 
 export const take = new Command(
     "take",
@@ -40,7 +42,10 @@ export const take = new Command(
         if (idx !== -1) {
             foundObject = loc.objects[idx];
             if (foundObject.objtype !== "pokemon") {
-                if (typeof foundObject.count !== "undefined" && foundObject.count > 1) {
+                if (
+                    typeof foundObject.count !== "undefined" &&
+                    foundObject.count > 1
+                ) {
                     foundObject.count--;
                 } else {
                     loc.objects.splice(idx, 1);
@@ -50,11 +55,12 @@ export const take = new Command(
             await saveObjects();
         }
 
+        if (!foundObject) {
+            return getNotFoundText(part.name, `"${taking}"`, prefix, command);
+        }
         foundObject = copy(foundObject);
         if (!foundObject) throw new Error("Unable to copy object");
         foundObject.count = 1;
-
-        if (!foundObject) return `There is no "${taking}" here.`;
 
         switch (foundObject.objtype) {
             case "item":
@@ -79,3 +85,38 @@ export const take = new Command(
         return `You picked up the ${foundObject.name}.`;
     }
 );
+
+const notFoundText = [
+    "There is no $TAKING here.",
+    "These are not the $TAKING you are looking for.",
+    "Friend $USER missed.",
+    "You attempt to $CMD the $TAKING, but it does not appear to be here.",
+    "The $TAKING is not here.",
+    "There is no $TAKING in this vicinity.",
+    "Unfortunately, you try to take the $TAKING, but there's none here.",
+    "Taking the $TAKING would mean there's some here, which there is not.",
+    "You can't $CMD the $TAKING. Take a $LOOK around.",
+    "You $LOOK for a $TAKING, but it's not $NEARBY."
+];
+
+function getNotFoundText(
+    username: string,
+    missing: string,
+    usedPrefix: string,
+    usedCommand: string
+) {
+    const answer =
+        notFoundText[Math.floor(Math.random() * notFoundText.length)];
+
+    return answer
+        .split("$TAKING")
+        .join(missing)
+        .split("$USER")
+        .join(username)
+        .split("$CMD")
+        .join(usedCommand)
+        .split("$NEARBY")
+        .join(usedPrefix + nearby.aliases[0])
+        .split("$LOOK")
+        .join(usedPrefix + look.aliases[0]);
+}
